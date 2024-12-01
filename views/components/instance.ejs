@@ -1,0 +1,187 @@
+
+<style>
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    #console-output {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.2;
+    }
+    .console-line {
+      padding: 4px 6px;
+      margin: 1px 0;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .console-line:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .console-line-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .console-line-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+      font-size: 0.7rem;
+    }
+    .console-line:hover .console-line-info {
+      opacity: 1;
+    }
+    .copy-icon, .tick-icon {
+      cursor: pointer;
+  display:none;
+      width: 12px;
+      height: 12px;
+    }
+    .internal-icon {
+      margin-right: 2px;
+      color: #fbbf24;
+      width: 12px;
+      height: 12px;
+    }
+    #console-output::-webkit-scrollbar {
+      width: 6px;
+    }
+    #console-output::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    #console-output::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .slide-in {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+    .hover-scale {
+      transition: transform 0.2s ease;
+    }
+    .card {
+      background-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+    }
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #fff;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .fade-out {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+  <div class="mb-5 lg:flex lg:items-center lg:justify-between">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight" id="server-name"><%= instance.Name %></h2>
+     
+        <div class="mt-2 flex items-center text-sm text-gray-300">
+          <!-- Heroicon name: mini/map-pin -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-500">
+            <path d="M4.08 5.227A3 3 0 0 1 6.979 3H17.02a3 3 0 0 1 2.9 2.227l2.113 7.926A5.228 5.228 0 0 0 18.75 12H5.25a5.228 5.228 0 0 0-3.284 1.153L4.08 5.227Z" />
+            <path fill-rule="evenodd" d="M5.25 13.5a3.75 3.75 0 1 0 0 7.5h13.5a3.75 3.75 0 1 0 0-7.5H5.25Zm10.5 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm3.75-.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" clip-rule="evenodd" />
+          </svg>              
+          Server <%= req.params.id %>
+        </div>
+        <div class="mt-2 flex items-center text-sm text-gray-300">
+          <!-- Heroicon name: mini/currency-dollar -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-500">
+            <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+          </svg>              
+          Volumetric Shield enabled
+        </div>
+        <div class="hidden mt-2 flex items-center text-sm text-gray-300">
+          <!-- Heroicon name: mini/calendar -->
+          <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd" />
+          </svg>
+          <span id="server-name-breadcrumb"></span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-5 flex lg:mt-0 lg:ml-4">
+      <span class="hidden sm:block">
+        <a href="/instances" class="inline-flex items-center rounded-xl border border-transparent bg-indigo-900/50 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-900 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-indigo-800">
+          <!-- Heroicon name: mini/pencil -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="-ml-1 mr-2 h-5 w-5 text-indigo-200">
+            <path fill-rule="evenodd" d="M9.53 2.47a.75.75 0 0 1 0 1.06L4.81 8.25H15a6.75 6.75 0 0 1 0 13.5h-3a.75.75 0 0 1 0-1.5h3a5.25 5.25 0 1 0 0-10.5H4.81l4.72 4.72a.75.75 0 1 1-1.06 1.06l-6-6a.75.75 0 0 1 0-1.06l6-6a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+          </svg>                
+          Back to server list
+        </a>
+      </span>
+    </div>
+  </div>    
+  <nav class="relative z-50 mb-6">
+        <div id="menu-items" class="hidden md:block">
+            <div class="rounded-full bg-white/5 backdrop-blur-xl p-1.5 inline-flex items-center">
+                <a href="/instance/<%= req.params.id %>" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Console
+                </a>
+                <a href="/instance/<%= req.params.id %>/files" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Files
+                </a>
+                <a href="/instance/<%= req.params.id %>/users" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Sub Users
+                </a>
+                <!-- Server Content -->
+                <a href="/instance/<%= req.params.id %>/db" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Databases
+                </a>
+                <a href="/instance/<%= req.params.id %>/archives" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Backups
+                </a>
+                <a href="/instance/<%= req.params.id %>/network" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                    Network
+                </a>
+                <a href="/instance/<%= req.params.id %>/startup" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Settings
+              </a>
+                    </div>
+                </div>
+    </nav>
+    

@@ -1,0 +1,44 @@
+<%- include('../components/admin_template') %>
+<main id="content">
+   <div class="bg-transparent">
+      <div class="sm:flex sm:items-center px-8 pt-4">
+         <div class="sm:flex-auto">
+           <h1 class="text-base font-medium leading-6 text-white mb-4   "><%= req.translations.overview %></h1>
+         </div>
+       </div>
+
+       <div class="px-4 sm:px-6 lg:px-8">
+    
+         <div class="flex flex-col">
+           <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+               <div class="shadow overflow-hidden border-b border-gray-700/10 sm:rounded-lg">
+                 <table class="min-w-full divide-y divide-gray-700/10">
+                   <thead class="bg-gray-700/25">
+                     <tr>
+                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
+                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servers</th>
+                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nodes</th>
+                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eggs</th>
+                     </tr>
+                   </thead>
+
+                       <tr>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= usersTotal %></td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= instancesTotal %></td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= nodesTotal %></td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= imagesTotal %></td>
+                       </tr>
+                     
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+   
+   </div>
+</main>
+<%- include('../components/footer') %>

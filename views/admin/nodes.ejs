@@ -1,0 +1,399 @@
+<%- include('../components/admin_template') %>
+<main id="content">
+   <div class="bg-transparent">
+      <div class="sm:flex sm:items-center px-8 pt-4">
+         <div class="sm:flex-auto">
+           <h1 class="text-base font-medium leading-6 text-white mb-4"><%= req.translations.nodes %></h1>
+         </div>
+         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          
+         </div>
+       </div>
+       <% if (req.query.err=="none" ) { %>
+        <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
+          <div class="flex">
+            <div class="py-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold">Node Created </p>
+              <p class="text-sm relative">The Node has been Created</p>
+            </div>
+            <span onclick="location.href = '../admin/nodes';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <% } %>
+    <% if (req.query.err == "EDITED") { %>
+      <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
+        <div class="flex">
+          <div class="py-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400 mr-3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold">Node Edited</p>
+            <p class="text-sm relative">The Node has been Edited Successfully</p>
+          </div>
+          <span onclick="location.href = '../admin/nodes';" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </span>
+        </div>
+      </div>
+      <% } %>
+      <table id="nodeTable" class="mt-6 w-full whitespace-nowrap text-left">
+        <colgroup>
+          <col class="w-full sm:w-4/12">
+          <col class="lg:w-4/12">
+          <col class="lg:w-2/12">
+          <col class="lg:w-1/12">
+          <col class="lg:w-1/12">
+        </colgroup>
+        <thead class="bg-gray-700/25">
+          <tr>
+            
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.name %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.connection %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.configure %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.edit %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.remove %></th>
+            <th> <button id="createButton" type="button" class=" transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
+              <%= req.translations.createNewNode %>
+            </button></th>
+
+          </tr>
+          
+        </thead>
+        <tbody class="divide-y divide-white/5">
+         <% nodes.forEach(function(node) { %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= node.name %></td>
+            <% if (node.status == "Online") { %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-online">Online</td> 
+          <% } else if (node.status == "Offline") { %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-offline">Offline</td> 
+          <% } else { %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-unknown">unknown</td> 
+          <% } %>         
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= node.address %>:<%= node.port %></td>
+            <td> <button onclick="configure('<%= node.id %>')" type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+              <%= req.translations.configure %>
+            </button></td>
+            <td><a href="./node/<%= node.id %>" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"> <%= req.translations.edit %></a></td>
+            <td><button onclick="deletenode('<%= node.id %>')"  type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400" data-user-id="<%= user.userId %>"> <%= req.translations.remove %></button></td>
+
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    
+      </div>
+      <div id="nodeForm" class="mt-6 px-8 w-full hidden">
+        <div class="p-3 bg-transparent shadow-xl rounded-xl overflow-hidden sm:p-6 lg:p-10 card" style="width: 800px;">
+            <form>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="nodeName" class="text-white text-sm tracking-tight mb-2"><%= req.translations.name %>:</label>
+                        <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="My node">
+                    </div>
+    
+                    <div>
+                        <label for="nodeRam" class="text-white text-sm tracking-tight mb-2"><%= req.translations.ram %> (GB):</label>
+                        <input id="nodeRam" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                    </div>
+    
+                    <div>
+                        <label for="nodeDisk" class="text-white text-sm tracking-tight mb-2"><%= req.translations.disk %> (GB):</label>
+                        <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                    </div>
+    
+                    <div>
+                        <label for="nodeProcessor" class="text-white text-sm tracking-tight mb-2"><%= req.translations.cpu %>:</label>
+                        <input id="nodeProcessor" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                    </div>
+    
+                    <div>
+                        <label for="nodeAddress" class="text-white text-sm tracking-tight mb-2"><%= req.translations.addressIP %>:</label>
+                        <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="192.168.1.1 or my.hostnamehere.com">
+                    </div>
+    
+                    <div>
+                        <label for="nodePort" class="text-white text-sm tracking-tight mb-2"><%= req.translations.deamonPort %>:</label>
+                        <input id="nodePort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="3000">
+                    </div>
+    
+                    <div class="col-span-2">
+                        <label for="tagInput" class="text-white text-sm tracking-tight mb-2"><%= req.translations.tags %>:</label>
+                        <div id="tagContainer" class="flex flex-wrap gap-2 mb-2"></div>
+                        <input id="tagInput" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="Add a tag and press Enter">
+                    </div>
+    
+                    <div class="col-span-2">
+                        <button id="createNodeBtn" type="button" class="transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
+                            <%= req.translations.create %>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+      
+</main>
+<script>
+async function deletenode(nodeId) {
+  try {
+    let response = await fetch('/nodes/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ nodeId })
+    });
+
+    let result = await response.json();
+
+    if (response.ok) {
+      alert('Node successfully deleted');
+      window.location.reload();
+    } else if (result.error === "There are instances on the node") {
+      const confirmDelete = confirm('There are still instances on this node. Do you want to delete all instances and remove the node?');
+
+      if (confirmDelete) {
+        response = await fetch(`/nodes/delete?deleteinstances=true`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nodeId })
+        });
+
+        result = await response.json();
+
+        if (response.ok) {
+          alert('Node and instances successfully deleted');
+          window.location.reload();
+        } 
+      }
+    }
+  } catch (error) {
+    console.error('Request failed:', error);
+  }
+}
+
+
+
+  document.getElementById('createButton').addEventListener('click', function() {
+    var table = document.getElementById('nodeTable');
+    var form = document.getElementById('nodeForm');
+    if (table.style.display !== 'none') {
+      table.style.display = 'none';
+      form.style.display = 'block';
+    } else {
+      table.style.display = 'block';
+      form.style.display = 'none';
+    }
+  });
+
+  async function configure(nodeId) {
+    const response = await fetch(`/admin/node/${nodeId}/configure-command`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch configure command');
+    }
+    const data = await response.json();
+    showPopup(data.configureCommand);
+  }
+
+  function showPopup(command) {
+    const popup = document.createElement('div');
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.padding = '20px';
+    popup.style.width = '550px';
+    popup.style.height = 'auto';
+    popup.style.maxHeight = '80vh';
+    popup.style.borderRadius = '10px';
+    popup.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+    popup.style.backgroundColor = '#fff';
+
+    popup.classList.add('text-black', 'rounded-xl', 'shadow-xl');
+
+    popup.innerHTML = `
+        <div class="flex justify-center items-center mb-2" style="margin-top: 75px;">
+    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
+        <linearGradient id="1ayUTr30BaMDjOG69N2fSa_xTkoPEFGI0P7_gr1" x1="21.241" x2="3.541" y1="39.241" y2="21.541" gradientUnits="userSpaceOnUse">
+            <stop offset=".108" stop-color="#0d7044"></stop>
+            <stop offset=".433" stop-color="#11945a"></stop>
+        </linearGradient>
+        <path fill="url(#1ayUTr30BaMDjOG69N2fSa_xTkoPEFGI0P7_gr1)" d="M16.599,41.42L1.58,26.401c-0.774-0.774-0.774-2.028,0-2.802l4.019-4.019c0.774-0.774,2.028-0.774,2.802,0L23.42,34.599c0.774,0.774,0.774,2.028,0,2.802l-4.019,4.019C18.627,42.193,17.373,42.193,16.599,41.42z"></path>
+        <linearGradient id="1ayUTr30BaMDjOG69N2fSb_xTkoPEFGI0P7_gr2" x1="-15.77" x2="26.403" y1="43.228" y2="43.228" gradientTransform="rotate(134.999 21.287 38.873)" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#2ac782"></stop>
+            <stop offset="1" stop-color="#21b876"></stop>
+        </linearGradient>
+        <path fill="url(#1ayUTr30BaMDjOG69N2fSb_xTkoPEFGI0P7_gr2)" d="M12.58,34.599L39.599,7.58c0.774-0.774,2.028-0.774,2.802,0l4.019,4.019c0.774,0.774,0.774,2.028,0,2.802L19.401,41.42c-0.774,0.774-2.028,0.774-2.802,0l-4.019-4.019C11.807,36.627,11.807,35.373,12.58,34.599z"></path>
+    </svg>
+</div>
+<p class="font-bold mb-2 mt-3 text-black" style="font-size:30px; text-align:center">Token created.</p>
+<h3 class="mb-5 text-black" style="text-align:center; margin-top: 25px;">To auto-configure your node, run the following command:</h3>
+<pre class="status-gray p-3 rounded-xl mb-4 mt-3" style="overflow-x: scroll"><code id="commandCode" class="text-black">${command}</code></pre>
+<button id="doneBtn" class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg hover:bg-neutral-200 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-4">Done</button>
+
+    `;
+    document.body.appendChild(popup);
+
+    const commandCode = document.getElementById('commandCode');
+    commandCode.addEventListener('click', function() {
+        const textarea = document.createElement('textarea');
+        textarea.value = commandCode.textContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      const notification = document.getElementById('notification');
+      notification.classList.remove('tranneutral-y-full', 'opacity-0');
+      
+      setTimeout(() => {
+        notification.classList.add('tranneutral-y-full', 'opacity-0');
+      }, 3000);
+    });
+
+    document.getElementById('doneBtn').addEventListener('click', function() {
+
+        document.body.removeChild(popup);
+    });
+}
+
+
+  
+
+  function setupBadgeInput(inputId, containerId, validator) {
+    const input = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+
+    function processInput() {
+        const value = input.value.trim();
+
+        const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+
+        let allValid = true;
+        tags.forEach(tag => {
+            if (tag !== '' && (!validator || validator(tag))) {
+                createBadge(tag);
+            } else {
+                allValid = false;
+            }
+        });
+
+        if (!allValid) {
+            alert('Invalid format. Ports should be like this: 8080:8080 [external:internal]. For example, if you wanted to assign 8080 to the internal port 2022, you could do: 8080:2022.');
+        }
+
+        input.value = '';
+    }
+
+    input.addEventListener('blur', function() {
+        processInput();
+    });
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            processInput();
+        }
+    });
+
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const value = input.value.trim();
+
+            const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+
+            let allValid = true;
+            tags.forEach(tag => {
+                if (tag !== '' && (!validator || validator(tag))) {
+                    createBadge(tag, container, input);
+                } else {
+                    allValid = false;
+                }
+            });
+
+            if (!allValid) {
+                alert('Invalid format. Ports should be like this: 8080:8080 [external:internal]. For example, if you wanted to assign 8080 to the internal port 2022, you could do: 8080:2022.');
+            }
+
+            input.value = '';
+        }
+    });
+
+
+    function createBadge(text, container, inputField) {
+    const badge = document.createElement('span');
+    badge.className = 'bg-white/5 text-neutral-300 text-xs font-medium mr-1 px-2.5 py-0.5 rounded-xl';
+    badge.textContent = text;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'ml-2 text-neutral-600';
+    removeBtn.textContent = '×';
+    removeBtn.onclick = function() {
+      container.removeChild(badge);
+    };
+
+    badge.appendChild(removeBtn);
+    container.appendChild(badge);
+    inputField.value = '';
+  }
+  }
+
+  setupBadgeInput('tagInput', 'tagContainer');
+
+  document.getElementById('createNodeBtn').addEventListener('click', function() {
+    const name = document.getElementById('nodeName').value;
+    const tags = Array.from(document.getElementById('tagContainer').children).map(badge => badge.textContent.slice(0, -1).trim());
+    const ram = document.getElementById('nodeRam').value;
+    const disk = document.getElementById('nodeDisk').value;
+    const processor = document.getElementById('nodeProcessor').value;
+    const address = document.getElementById('nodeAddress').value;
+    const port = document.getElementById('nodePort').value;
+
+    const nodeData = {
+      name,
+      tags: tags.join(' - '),
+      ram,
+      disk,
+      processor,
+      address,
+      port
+    };
+
+    fetch('/nodes/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(nodeData)
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to create node');
+    })
+    .then(data => {
+      console.log('Node created:', data);
+      window.location.href = '../admin/nodes?err=none'
+    })
+    .catch(error => alert('Error creating node:', error));
+  });
+</script>
+<%- include('../components/footer') %>

@@ -1,0 +1,221 @@
+<%- include('../components/admin_template') %>
+<main id="content">
+  <div class="bg-transparent">
+    <div class="sm:flex sm:items-center px-8 pt-4">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.users %></h1>
+      </div>
+      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+      
+      </div>
+    </div>
+    <div id="nodeTable" class="mt-6 w-full">
+      <table class="mt-6 w-full whitespace-nowrap text-left">
+        <colgroup>
+          <col class="w-full sm:w-4/12" />
+          <col class="lg:w-4/12" />
+          <col class="lg:w-2/12" />
+          <col class="lg:w-4/12" />
+          <col class="lg:w-1/12" />
+          <col class="lg:w-1/12" />
+        </colgroup>
+        <thead class="bg-gray-700/25">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.name %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.email %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.information %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.role %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.edit %></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.remove %></th>
+            <th><button
+          id="createButton"
+          type="button"
+          class="transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"
+        >
+         <%= req.translations.createUserButton %>
+        </button></th>
+
+          </tr>
+          
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <% users.forEach(function(user) { %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= user.username %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= user.email %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= user.userId %></td>
+              <% if (user.admin==true) { %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= req.translations.admin %></td>
+              <% } else if (user.admin==false) { %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= req.translations.regularUserRole %></td>
+              <% } %>
+              <td><a href="/admin/users/edit/<%= user.userId %>" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"> <%= req.translations.edit %></a></td>
+              <td><a id="removeButton"  type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400" data-user-id="<%= user.userId %>"> <%= req.translations.remove %></a></td>
+
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <div id="nodeForm" class="mt-6 px-8 w-full hidden">
+      <form>
+        <label class="text-neutral-400 text-sm tracking-tight mb-2"
+          ><%= req.translations.username %>:</label
+        >
+        <input
+          id="userName"
+          type="text"
+          name="username"
+          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+          placeholder="<%= req.translations.usernamePlaceholder %>"
+        />
+        <input
+          id="email"
+          type="email"
+          name="email"
+          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+          placeholder="<%= req.translations.emailPlaceholder %>"
+        />
+
+        <label class="text-neutral-400 text-sm tracking-tight mb-2"
+          ><%= req.translations.passwordLabel %>:</label
+        >
+        <input
+          id="userPass"
+          type="password"
+          name="password"
+          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+          placeholder="******"
+        />
+
+        <label class="text-neutral-400 text-sm tracking-tight mb-2"
+          ><%= req.translations.admin %>:</label
+        >
+        <select
+          id="userAdmin"
+          name="admin"
+          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+        >
+          <option value="true"><%= req.translations.true %></option>
+          <option value="false"><%= req.translations.false %></option>
+        </select>
+
+        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.verifiedStatus %>:</label>
+        <select
+          id="userVerified"
+          name="verified"
+          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+        >
+        <option value="true"><%= req.translations.true %></option>
+        <option value="false"><%= req.translations.false %></option>
+        </select>
+        
+
+        <button
+          id="createNodeBtn"
+          type="button"
+          class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"
+        >
+        <%= req.translations.create %>
+        </button>
+      </form>
+    </div>
+  </div>
+</main>
+<script>
+  document
+    .getElementById("createButton")
+    .addEventListener("click", function () {
+      var table = document.getElementById("nodeTable");
+      var form = document.getElementById("nodeForm");
+      if (table.style.display !== "none") {
+        table.style.display = "none";
+        form.style.display = "block";
+      } else {
+        table.style.display = "block";
+        form.style.display = "none";
+      }
+    });
+</script>
+<script>
+  document
+    .getElementById("createNodeBtn")
+    .addEventListener("click", function () {
+      const username = document.getElementById("userName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("userPass").value;
+      const adminString = document.getElementById("userAdmin").value;
+      const admin = adminString === "true";
+
+      const nodeData = {
+        username,
+        email,
+        password,
+        admin,
+        verified: false,
+      };
+
+      console.log(nodeData);
+
+      fetch("/users/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(nodeData),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error("Failed to create user");
+        })
+        .then((data) => {
+          console.log("user created:", data);
+          alert('<%= req.translations.userCreatedSuccess %>');
+          window.location.reload();
+        })
+        .catch((error) =>
+          alert('<%= req.translations.userCreateError %>: ' + error.message)
+        );
+    });
+</script>
+<!-- remove -->
+<script>
+
+  document.querySelectorAll('removeButton').forEach(button => {
+    button.addEventListener('click', function() {
+      const userId = this.dataset.userId;
+      const totalUsers = document.querySelectorAll('removeButton').length;
+      if (totalUsers === 1) {
+        alert('<%= req.translations.databaseCannotDelete %>');
+        return;
+      }
+      const currentUserId = '<%= user.userId %>';
+      if (userId === currentUserId) {
+        alert('<%= req.translations.userCannotDelete %>');
+        return;
+      }
+      const confirmation = confirm('<%= req.translations.userDeletingConfirmation %>');
+      if (!confirmation) return;
+
+      fetch('/user/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          throw new Error('Failed to delete user');
+        }
+      })
+      .catch(error => alert('<%= req.translations.userDeletingError %>' + error.message));
+    });
+  });
+</script>
+
+<%- include('../components/footer') %>

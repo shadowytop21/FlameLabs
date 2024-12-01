@@ -1,0 +1,888 @@
+<%- include('../components/template') %>
+<style>
+  .select-all-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 0.5rem;
+      margin-right: 1rem;
+  }
+
+  .file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+  
+  .select-all-checkbox input[type="checkbox"] {
+      margin-right: 0.5rem;
+  }
+  
+  .select-all-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
+      user-select: none;
+  }
+  /* Existing styles */
+  @media (max-width: 640px) {
+      .file-manager-header {
+          flex-direction: column;
+          align-items: stretch;
+      }
+      .file-manager-title {
+          margin-bottom: 1rem;
+      }
+      .file-manager-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+      }
+      .file-manager-actions button {
+          flex: 1;
+          white-space: nowrap;
+      }
+      .breadcrumb {
+          flex-wrap: wrap;
+      }
+      .file-list-item {
+          flex-wrap: wrap;
+          padding: 0.5rem;
+      }
+      .file-info {
+          width: 100%;
+          margin-top: 0.5rem;
+          justify-content: space-between;
+      }
+      .drop-zone {
+          padding: 1rem;
+      }
+  }
+  .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .modal-content {
+      background-color: #1a1c20;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: auto;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+  }
+  .modal-overlay.active .modal-content {
+      transform: scale(1);
+      opacity: 1;
+  }
+  
+  /* New styles for smoother transitions and better UX */
+  .file-list-item {
+      transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  .file-list-item:hover {
+      transform: translateY(-2px);
+  }
+  .file-list-item:active {
+      transform: translateY(0);
+  }
+  .action-button {
+      transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  .action-button:hover {
+      transform: translateY(-2px);
+  }
+  .action-button:active {
+      transform: translateY(0);
+  }
+  .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .loading-overlay.active {
+      opacity: 1;
+      visibility: visible;
+  }
+  .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #ffffff;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+ 
+  .file-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  .file-card .context-menu-button {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+  }
+  .file-card:hover .context-menu-button {
+      opacity: 1;
+  }
+  #mass-actions-bar {
+      transition: all 0.3s ease-in-out;
+  }
+  .file-card input[type="checkbox"] {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+  }
+  .file-card:hover input[type="checkbox"],
+  .file-card input[type="checkbox"]:checked {
+      opacity: 1;
+  }
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive columns */
+    gap: 1rem; /* Space between items */
+}
+
+.file-grid > div {
+    display: flex;
+    flex-direction: column; /* Stack icon and name vertically */
+    align-items: center; /* Center align items horizontally */
+    justify-content: center; /* Center align items vertically */
+    text-align: center; /* Center align text */
+}
+.file-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem; /* Space between icon and name */
+}
+.file-name {
+    font-size: 0.9rem;
+    word-break: break-word; /* Prevent overflow for long names */
+}
+  .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+  }
+  .toast.show {
+      opacity: 1;
+  }
+  .context-menu {
+  position: fixed;
+  background-color: #05050e;
+  border: 1px solid #0d0d22;
+  border-radius: 4px;
+  padding: 5px 0;
+  min-width: 150px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+} 
+
+.context-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: #2c2e33;
+}
+
+.file-icon-small {
+    width: 16px;
+    height: 16px;
+    color: white;
+    display: none;
+} 
+</style>
+<main id="content">
+   <%
+      function formatLastUpdated(dateString) {
+         const date = new Date(dateString);
+         const now = new Date();
+         const diffTime = Math.abs(now - date);
+         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+         if (diffDays > 30) {
+           return date.toLocaleString('en-US', { 
+             year: 'numeric', 
+             month: 'short', 
+             day: 'numeric', 
+             hour: 'numeric', 
+             minute: '2-digit', 
+             hour12: true 
+           });
+         } else {
+           return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+         }
+       }
+       %>
+   <%
+      function getFileIcon(purpose) {
+        const icons = {
+          programming: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+           <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" />
+         </svg>
+         `,
+          webDevelopment: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+           <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" />
+         </svg>
+         `,
+         folder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-8 h-8"><path d="M3.75 3A1.75 1.75 0 002 4.75v3.26a3.235 3.235 0 011.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0016.25 5h-4.836a.25.25 0 01-.177-.073L9.823 3.513A1.75 1.75 0 008.586 3H3.75zM3.75 9A1.75 1.75 0 002 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0018 15.25v-4.5A1.75 1.75 0 0016.25 9H3.75z" /></svg>`,
+          textDocument: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm2.25 8.5a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" /></svg>`,
+          other: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 text-neutral-400">
+           <path fill-rule="evenodd" d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+         </svg>
+         `
+        };
+      
+        return icons[purpose] || icons.other;
+      }
+      %>
+      <style>
+        .select-all-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 0.5rem;
+        margin-right: 1rem;
+    }
+    
+    .select-all-checkbox input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+    
+    .select-all-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        user-select: none;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        background-color: #4CAF50;
+        color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 9999;
+    }
+    .toast.show {
+        opacity: 1;
+    }
+      </style>
+  <div class="bg-white/5 rounded-xl p-6 mb-6">
+    <%- include('../components/instance') %>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold heavy">Files</h2>
+            <div class="flex items-center space-x-2">
+                <div class="p-2.5 bg-black/20 rounded-lg">
+                    <input 
+                        type="checkbox" 
+                        id="selectAll" 
+                        class="form-checkbox h-4 w-4 text-indigo-500 border border-white/5 bg-white/5 rounded focus:ring-indigo-500"
+                    >
+                    <label for="selectAll" class="select-all-label px-4">Select All</label>
+                </div>
+    <div class="relative flex-grow">
+        <input 
+            type="text" 
+            id="file-search" 
+            class="w-full bg-black/20 border border-transparent rounded-lg py-2 px-4 pl-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            placeholder="Search files..."
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+    </div>
+    <div class="flex items-center space-x-2">
+        <select 
+            id="sort-by" 
+            class=" bg-black/20 rounded-lg border border-transparent py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+        >
+            <option value="name">Name</option>
+            <option value="size">Size</option>
+            <option value="date">Last Updated</option>
+            <option>&nbsp;</option>
+        </select>
+        
+    </div>
+</div>
+            <div class="flex space-x-2">
+                <button id="uploadBtn" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
+                <input type="file" id="fileInput" multiple style="display: none;">
+                <button id="create-folder" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
+                <button id="new-file" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New File</button>
+            </div>
+        </div>
+        
+        <div class="file-grid">
+          <% files.filter(file => file.isDirectory).forEach(function(directory) { %>
+            <% let currentPath = req.query.path ? req.query.path + '/' : ''; %>
+            <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95">
+              <div class="absolute top-2 left-2">
+                  <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-500 rounded focus:ring-indigo-500" data-name="<%= directory.name %>">
+              </div>
+              <div class="absolute top-2 right-2">
+                <button onclick="redirectToInstanceDirectory('<%= req.query.id %>', '<%= currentPath %>', '<%= directory.name %>')">
+              </div>
+              <div class="file-icon mt-6"><%- getFileIcon('folder') %></div>
+              <div class="file-name mt-2 text-center"><%= directory.name %></div>
+            </button>
+              
+          </div>
+            <% }); %>
+          </div>   
+   
+        
+          <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
+            <% let extension = req.query.path ? '?path=' + req.query.path : ''; %>
+            <div class="file-grid">
+            <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95">
+              <div class="absolute top-2 left-2">
+                  <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-500 rounded focus:ring-indigo-500" data-name="eula.txt">
+              </div>
+              <button onclick="redirectToInstanceFile('<%= req.query.id %>', '<%= file.name %>', '<%= extension %>')">
+              
+              <div class="file-icon mt-6"><%- getFileIcon('textDocument) %></div>
+              <div class="file-name mt-2 text-center"><%= file.name %></div>
+              <div class="file-size text-sm text-gray-400 text-center"><%= file.size %></div>
+          </div>
+        </button>
+        </div>
+          <% }); %>
+            
+        
+    <div id="drop-zone" class="drop-zone mt-4 border-2 border-dashed border-white/10 p-8 rounded-2xl transition-all duration-200 hover:border-indigo-500/50 hover:bg-indigo-500/5 group">
+        <div class="flex flex-col items-center justify-center gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-neutral-500 group-hover:text-indigo-400 transition-colors duration-200">
+                <path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06l-3.22-3.22V16.5a.75.75 0 0 1-1.5 0V4.81L8.03 8.03a.75.75 0 0 1-1.06-1.06l4.5-4.5ZM3 15.75a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Zm0 2.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+            </svg>
+            <div class="text-center">
+                <p class="text-sm font-medium text-neutral-300 group-hover:text-indigo-300 transition-colors duration-200">Drag and drop files here</p>
+                <p class="text-xs text-neutral-500 group-hover:text-indigo-400 transition-colors duration-200 mt-1">or click "Upload File"</p>
+            </div>
+        </div>
+    </div>
+    <div id="new-file-modal" class="modal-overlay z-50">
+      <div class="modal-content">
+          <h3 class="text-xl font-semibold mb-4">Create New File</h3>
+          <input type="text" id="new-file-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="File Name">
+          <div class="flex justify-end">
+              <button id="new-file-cancel" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
+              <button id="new-file-confirm" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
+          </div>
+      </div>
+  </div>
+  <!-- Create Folder Modal -->
+<div id="create-folder-modal" class="modal-overlay z-50">
+  <div class="modal-content">
+      <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
+      <input type="text" id="new-folder-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Folder Name">
+      <div class="flex justify-end">
+          <button id="create-folder-cancel" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
+          <button id="create-folder-confirm" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
+      </div>
+  </div>
+</div>
+<div id="uploadModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
+     <h2 class="text-2xl font-medium mb-4 text-neutral-800">Uploading File(s)</h2>
+     <div class="mb-4">
+        <div class="w-full bg-neutral-200 rounded-full h-2.5">
+           <div id="uploadProgress" class="bg-neutral-400 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+     </div>
+     <p id="uploadStatus" class="text-center text-neutral-600">Preparing upload...</p>
+  </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/5 backdrop-blur-lg text-white py-3 px-6 rounded-full shadow-lg hidden z-50 transition-all duration-300 ease-in-out">
+  <div class="flex items-center space-x-4">
+    <h2 class="text-xl font-semibold heavy">Confirm Deletion</h2>
+      <p id="deleteMessage" class="mb-6 text-neutral-600"></p>
+      <div class="flex space-x-2">
+          <button id="confirmDelete" class="bg-red-500 hover:bg-red-600 text-white transition-all duration-200 ease-in-out hover:scale-105 font-medium py-2 px-4 rounded-full flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+          </button>
+      </div>
+  </div>
+</div>
+  <!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
+</div>
+<div id="toast" class="toast">
+  Operation completed successfully
+</div>
+</main>
+
+   <script>
+    
+    function redirectToInstanceDirectory(id, currentPath, directoryName) {
+            // Construct the redirect URL
+            const redirectToInstanceDirectoryPath = `/instance/${id}/files?path=${currentPath}${directoryName}`;
+            
+            // Perform the redirection
+            window.location.href = redirectToInstanceDirectoryPath;
+        }
+
+    function redirectToInstanceFile(id, FileName, FileExtension) {
+            // Construct the redirect URL
+            const redirectToInstanceFilePath = `/instance/${id}/files/view/${FileName}${FileExtension}`;
+            
+            // Perform the redirection
+            window.location.href = redirectToInstanceFilePath;
+        }    
+
+    function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('active');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('active');
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+      function toggleDropdown(event, fileName) {
+        event.stopPropagation();
+        const dropdown = document.getElementById(`dropdown-${fileName}`);
+        
+        // Close other open dropdowns with animation
+        document.querySelectorAll('[id^="dropdown-"]').forEach((el) => {
+          if (el.id !== `dropdown-${fileName}` && !el.classList.contains('pointer-events-none')) {
+            closeDropdown(el);
+          }
+        });
+      
+        // Toggle the clicked dropdown
+        if (dropdown.classList.contains('pointer-events-none')) {
+          openDropdown(dropdown);
+        } else {
+          closeDropdown(dropdown);
+        }
+      }
+      
+      function openDropdown(dropdown) {
+        dropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        dropdown.classList.add('opacity-100', 'scale-100');
+      }
+      
+      function closeDropdown(dropdown) {
+        dropdown.classList.remove('opacity-100', 'scale-100');
+        dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+      }
+      
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('td')) {
+          document.querySelectorAll('[id^="dropdown-"]').forEach((dropdown) => {
+            if (!dropdown.classList.contains('pointer-events-none')) {
+              closeDropdown(dropdown);
+            }
+          });
+        }
+      });
+      
+      const searchInput2 = document.getElementById('searchInput2');
+      const fileRows = document.querySelectorAll('tbody tr');
+      
+      searchInput2.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        fileRows.forEach(row => {
+          const fileName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          if (fileName.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+      
+      document.getElementById('uploadBtn').addEventListener('click', function() {
+          document.getElementById('fileInput').click();
+      });
+      
+      document.getElementById('fileInput').addEventListener('change', function(event) {
+          const files = event.target.files;
+          if (files.length === 0) return;
+      
+          const formData = new FormData();
+          Array.from(files).forEach(file => formData.append('files', file));
+      
+          // Open the upload modal
+          const modal = document.getElementById('uploadModal');
+          modal.classList.remove('opacity-0', 'pointer-events-none');
+          modal.querySelector('div').classList.remove('scale-95');
+          modal.querySelector('div').classList.add('scale-100');
+      
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/instance/<%= req.params.id %>/files/upload<%= query %>', true);
+          xhr.upload.onprogress = function(e) {
+              if (e.lengthComputable) {
+                  const percentComplete = (e.loaded / e.total) * 100;
+                  document.getElementById('uploadProgress').style.width = percentComplete + '%';
+                  document.getElementById('uploadStatus').textContent = 'Uploading: ' + Math.floor(percentComplete) + '%';
+              }
+          };
+          xhr.onload = function() {
+              if (xhr.status == 200) {
+                  document.getElementById('uploadStatus').textContent = 'Upload complete!';
+                  setTimeout(() => {
+                      // Close the modal
+                      modal.classList.add('opacity-0', 'pointer-events-none');
+                      modal.querySelector('div').classList.remove('scale-100');
+                      modal.querySelector('div').classList.add('scale-95');
+                      // Reload the page
+                      window.location.reload();
+                  }, 1000);
+              } else {
+                  document.getElementById('uploadStatus').textContent = 'Upload failed. Server responded with status ' + xhr.status;
+                  setTimeout(() => {
+                      // Close the modal
+                      modal.classList.add('opacity-0', 'pointer-events-none');
+                      modal.querySelector('div').classList.remove('scale-100');
+                      modal.querySelector('div').classList.add('scale-95');
+                  }, 3000);
+              }
+          };
+          xhr.send(formData);
+          document.getElementById('fileInput').value = ''; // Reset file input
+      });
+      
+      let deleteUrl = '';
+      
+      function openDeleteModal(fileName, extension) {
+        const modal = document.getElementById('deleteModal');
+        const message = document.getElementById('deleteMessage');
+        deleteUrl = `/instance/<%= req.params.id %>/files/delete/${fileName}${extension}`;
+        
+        message.textContent = `Are you sure you want to delete ${fileName}? This is a permanent action and cannot be reversed.`;
+        
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.querySelector('div').classList.remove('scale-95');
+        modal.querySelector('div').classList.add('scale-100');
+      }
+      
+      function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.querySelector('div').classList.remove('scale-100');
+        modal.querySelector('div').classList.add('scale-95');
+      }
+      
+      document.getElementById('confirmDelete').addEventListener('click', function() {
+        window.location.href = deleteUrl;
+      });
+      
+      let currentFileName = '';
+            let currentExtension = '';
+      
+            function openRenameModal(fileName, extension) {
+              const modal = document.getElementById('renameModal');
+              const input = document.getElementById('newFileName');
+              currentFileName = fileName;
+              currentExtension = extension;
+              
+              input.value = fileName;
+              
+              modal.classList.remove('opacity-0', 'pointer-events-none');
+              modal.querySelector('div').classList.remove('scale-95');
+              modal.querySelector('div').classList.add('scale-100');
+      
+              input.focus();
+              input.setSelectionRange(0, fileName.lastIndexOf('.'));
+            }
+      
+            function closeRenameModal() {
+              const modal = document.getElementById('renameModal');
+              modal.classList.add('opacity-0', 'pointer-events-none');
+              modal.querySelector('div').classList.remove('scale-100');
+              modal.querySelector('div').classList.add('scale-95');
+            }
+      
+            function confirmRename() {
+              const newFileName = document.getElementById('newFileName').value.trim();
+              if (newFileName && newFileName !== currentFileName) {
+                const encodedNewFileName = encodeURIComponent(newFileName);
+                const renameUrl = `/instance/<%= req.params.id %>/files/rename/${currentFileName}/${encodedNewFileName}${currentExtension}`;
+                window.location.href = renameUrl;
+              } else {
+                closeRenameModal();
+              }
+            }
+      
+            document.getElementById('newFileName').addEventListener('input', function(event) {
+              const warningElement = document.getElementById('extensionWarning');
+              const newExtension = event.target.value.split('.').pop();
+              const originalExtension = currentFileName.split('.').pop();
+              
+              if (newExtension !== originalExtension) {
+                warningElement.classList.remove('hidden');
+              } else {
+                warningElement.classList.add('hidden');
+              }
+            });
+      
+// Mass actions functionality
+const selectAllCheckbox = document.getElementById('selectAll');
+const fileCheckboxes = document.querySelectorAll('.file-checkbox:not(#selectAll)');
+const floatingActionBar = document.getElementById('floatingActionBar');
+const selectedFilesCount = document.getElementById('selectedFilesCount');
+const massDeleteBtn = document.getElementById('massDeleteBtn');
+const massDeleteModal = document.getElementById('massDeleteModal');
+const massDeleteMessage = document.getElementById('massDeleteMessage');
+const confirmMassDeleteBtn = document.getElementById('confirmMassDelete');
+document.getElementById('new-file-cancel').addEventListener('click', () => closeModal('new-file-modal'));
+document.getElementById('new-file').addEventListener('click', () => {
+    showModal('new-file-modal');
+});
+
+function showLoading() {
+    document.getElementById('loading-overlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('active');
+}
+
+document.getElementById('new-file-confirm').addEventListener('click', () => {
+    const fileName = document.getElementById('new-file-name').value;
+    if (fileName) {
+        showLoading();
+        fetch(`/instance/<%= req.params.id %>/files/create/${fileName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+            body: ''
+        }).then(() => {
+            closeModal('new-file-modal');
+            loadFileList(currentPath);
+            showToast('File created successfully');
+                        loadFileList(currentPath);
+        }).catch(error => {
+            console.error('Error creating new file:', error);
+            showToast('Error creating new file. Please try again.');
+                        loadFileList(currentPath);
+        }).finally(() => {
+            hideLoading();
+        });
+    }
+});
+
+// Event Listeners
+document.getElementById('close-modal').addEventListener('click', () => closeModal('file-edit-modal'));
+document.getElementById('create-folder-cancel').addEventListener('click', () => closeModal('create-folder-modal'));
+document.getElementById('new-file-cancel').addEventListener('click', () => closeModal('new-file-modal'));
+
+document.getElementById('upload-file').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.onchange = e => {
+        const files = e.target.files;
+        uploadFiles(files);
+    };
+    input.click();
+});
+
+document.getElementById('create-folder').addEventListener('click', () => {
+    showModal('create-folder-modal');
+});
+
+document.getElementById('create-folder-confirm').addEventListener('click', () => {
+    const folderName = document.getElementById('new-folder-name').value;
+    if (folderName) {
+        showLoading();
+        fetch(`/instance/<%= req.params.id %>/files/folder/create/${folderName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            } 
+        }).then(() => {
+            closeModal('create-folder-modal');
+            loadFileList(currentPath);
+            showToast('Folder created successfully');
+                        loadFileList(currentPath);
+        }).catch(error => {
+            console.error('Error creating folder:', error);
+            showToast('Error creating folder. Please try again.');
+                        loadFileList(currentPath);
+        }).finally(() => {
+            hideLoading();
+        });
+    }
+});
+
+let selectedFiles = [];
+
+function updateSelectedFiles() {
+  selectedFiles = Array.from(fileCheckboxes)
+    .filter(checkbox => checkbox.checked)
+    .map(checkbox => checkbox.dataset.filename);
+
+  selectedFilesCount.textContent = `${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''} selected`;
+
+  if (selectedFiles.length > 0) {
+    floatingActionBar.classList.remove('translate-y-full');
+  } else {
+    floatingActionBar.classList.add('translate-y-full');
+  }
+
+  // Update the "select all" checkbox
+  selectAllCheckbox.checked = fileCheckboxes.length > 0 && selectedFiles.length === fileCheckboxes.length;
+
+  // Store the current state in sessionStorage
+  sessionStorage.setItem('selectedFiles', JSON.stringify(selectedFiles));
+}
+
+function initializeSelectedFiles() {
+  const storedSelectedFiles = JSON.parse(sessionStorage.getItem('selectedFiles') || '[]');
+  fileCheckboxes.forEach(checkbox => {
+    checkbox.checked = storedSelectedFiles.includes(checkbox.dataset.filename);
+  });
+  updateSelectedFiles();
+}
+
+selectAllCheckbox.addEventListener('change', function() {
+  fileCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
+  updateSelectedFiles();
+});
+
+fileCheckboxes.forEach(checkbox => {
+  checkbox.addEventListener('change', updateSelectedFiles);
+});
+
+massDeleteBtn.addEventListener('click', function() {
+  massDeleteMessage.textContent = `Are you sure you want to delete ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}? This is a permanent action and cannot be reversed.`;
+  massDeleteModal.classList.remove('opacity-0', 'pointer-events-none');
+  massDeleteModal.querySelector('div').classList.remove('scale-95');
+  massDeleteModal.querySelector('div').classList.add('scale-100');
+});
+
+function closeMassDeleteModal() {
+  massDeleteModal.classList.add('opacity-0', 'pointer-events-none');
+  massDeleteModal.querySelector('div').classList.remove('scale-100');
+  massDeleteModal.querySelector('div').classList.add('scale-95');
+}
+
+confirmMassDeleteBtn.addEventListener('click', async function() {
+  closeMassDeleteModal();
+  
+  const deletePromises = selectedFiles.map(fileName => 
+    fetch(`/instance/<%= req.params.id %>/files/delete/${fileName}<%= query %>`, { method: 'GET' })
+  );
+
+  try {
+    await Promise.all(deletePromises);
+    window.location.reload();
+  } catch {
+    console.error('Error deleting files:', error);
+    alert('An error occurred while deleting files. Please try again.');
+  }
+});
+
+// Initialize the state when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initializeSelectedFiles);
+
+// Clear the stored state when leaving the page
+window.addEventListener('beforeunload', () => {
+  sessionStorage.removeItem('selectedFiles');
+});
+
+// Initial update to set the correct state
+updateSelectedFiles();
+            
+   </script>
+   <script>
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const instanceId = '<%= req.params.id %>';
+
+
+      function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+      const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
+
+      statsWs.onmessage = event => {
+        const stats = JSON.parse(event.data);
+            if (stats.error) {
+                console.error('Error fetching stats:', stats.error);
+                return;
+            }
+
+            const diskUsageRaw = parseFloat(stats.volumeSize);
+            const diskLimitRaw = 10 * 1024; // Assuming 10GB limit
+            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
+            document.getElementById('diskUsage').textContent = `${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)} (${diskUsagePercent}%)`;
+        
+      }
+    
+   </script>
+</main>
+<%- include('../components/footer') %>

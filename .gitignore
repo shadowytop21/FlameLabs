@@ -1,0 +1,9 @@
+node_modules/
+public/assets/logo.png
+airlink.db
+sessions.db
+package-lock.json
+tmp/
+bs-config.json
+plugins/plugins.json
+daemon
