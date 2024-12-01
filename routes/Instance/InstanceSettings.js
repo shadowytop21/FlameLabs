@@ -116,7 +116,7 @@ router.get("/instance/:id/change/name/:name", async (req, res) => {
     // Save the updated instance
     await db.set(id + '_instance', instance);
 
-    res.redirect('/instance/' + id + '/settings');
+    res.redirect('/instance/' + id + '/startup');
 });
 
 module.exports = router;

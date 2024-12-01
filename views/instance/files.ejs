@@ -388,13 +388,14 @@
               </div>
               <button onclick="redirectToInstanceFile('<%= req.query.id %>', '<%= file.name %>', '<%= extension %>')">
               
-              <div class="file-icon mt-6"><%- getFileIcon('textDocument) %></div>
+              <div class="file-icon mt-6"><%- getFileIcon('textDocument') %></div>
               <div class="file-name mt-2 text-center"><%= file.name %></div>
               <div class="file-size text-sm text-gray-400 text-center"><%= file.size %></div>
           </div>
         </button>
         </div>
           <% }); %>
+          
             
         
     <div id="drop-zone" class="drop-zone mt-4 border-2 border-dashed border-white/10 p-8 rounded-2xl transition-all duration-200 hover:border-indigo-500/50 hover:bg-indigo-500/5 group">
@@ -575,7 +576,7 @@ function showToast(message) {
           modal.querySelector('div').classList.add('scale-100');
       
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/instance/<%= req.params.id %>/files/upload<%= query %>', true);
+          xhr.open('POST', '/instance/<%= req.params.id %>/files/upload', true);
           xhr.upload.onprogress = function(e) {
               if (e.lengthComputable) {
                   const percentComplete = (e.loaded / e.total) * 100;
@@ -829,7 +830,7 @@ confirmMassDeleteBtn.addEventListener('click', async function() {
   closeMassDeleteModal();
   
   const deletePromises = selectedFiles.map(fileName => 
-    fetch(`/instance/<%= req.params.id %>/files/delete/${fileName}<%= query %>`, { method: 'GET' })
+    fetch(`/instance/<%= req.params.id %>/files/delete/${fileName}`, { method: 'GET' })
   );
 
   try {
