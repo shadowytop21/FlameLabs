@@ -3,7 +3,7 @@
    <div class="bg-transparent">
       <div class="sm:flex sm:items-center px-8 pt-4">
          <div class="sm:flex-auto">
-           <h1 class="text-base font-medium leading-6 text-white mb-4"><%= req.translations.nodes %></h1>
+           <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.nodes %></h1>
          </div>
          <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           
@@ -49,54 +49,81 @@
         </div>
       </div>
       <% } %>
-      <table id="nodeTable" class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12">
-          <col class="lg:w-4/12">
-          <col class="lg:w-2/12">
-          <col class="lg:w-1/12">
-          <col class="lg:w-1/12">
-        </colgroup>
-        <thead class="bg-gray-700/25">
-          <tr>
-            
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.name %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.connection %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.configure %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.edit %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.remove %></th>
-            <th> <button id="createButton" type="button" class=" transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
-              <%= req.translations.createNewNode %>
-            </button></th>
+      
+      <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
+        <div class="col-span-2"><%= req.translations.name %></div>
+        <div class="col-span-2">Status</div>
+        <div class="col-span-2">Version</div>
+        <div class="col-span-2"><%= req.translations.connection %></div>
+        <div class="col-span-2"><%= req.translations.actions %></div>
+        <div class="flex items-center gap-3"> <!-- Moved button and server list directly under "Instances" -->
+          <!-- Button -->
+          <% if (req.user.admin === true) { %>
+           <!-- Actions -->
+           <div class="flex items-center gap-3">
+        <button id="createButton" type="button" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
+        <span>Create</span>
+        
+        </button>
+        </div>
+        </div>
+        </div>
+   </div>
+          <% } %>
 
-          </tr>
-          
-        </thead>
-        <tbody class="divide-y divide-white/5">
-         <% nodes.forEach(function(node) { %>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= node.name %></td>
-            <% if (node.status == "Online") { %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-online">Online</td> 
-          <% } else if (node.status == "Offline") { %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-offline">Offline</td> 
-          <% } else { %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium status-unknown">unknown</td> 
-          <% } %>         
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= node.address %>:<%= node.port %></td>
-            <td> <button onclick="configure('<%= node.id %>')" type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-              <%= req.translations.configure %>
-            </button></td>
-            <td><a href="./node/<%= node.id %>" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"> <%= req.translations.edit %></a></td>
-            <td><button onclick="deletenode('<%= node.id %>')"  type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400" data-user-id="<%= user.userId %>"> <%= req.translations.remove %></button></td>
+      
+      <% nodes.forEach(function(node) { %>
+      <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+              
+              <!-- Server Name & Node -->
+              <div class="col-span-2">
+                  <div class="font-medium text-white"><%= node.name %></div>
+              </div>
 
-          </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    
-      </div>
+              <!-- Status -->
+
+              <div class="col-span-2 ">
+                  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                
+                    <% if (node.status == "Online") { %>
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 rounded-full bg-emerald-500/20 flex justify-center items-center">
+                          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                        </div>
+                        <span class="text-emerald-300 text-sm">Online</span>
+                      </div>
+                    <% } else if (node.status == "Offline") { %>
+                      <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 rounded-full bg-red-500/20 flex justify-center items-center">
+                          <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        </div>
+                        <span class="text-red-300 text-sm">Offline</span>
+                      </div>
+                    <% } %>
+                    
+              </div>
+              </div>
+
+              <!-- Memory Usage -->
+              <div class="col-span-2">
+                  <div class="flex  items-center gap-2">  
+                      <span class="text-xs"><%= node.versionRelease || 'unknown' %></span>
+                  </div>
+              </div>
+
+              <!-- CPU Usage -->
+              <div class="col-span-2">
+                  <div class="flex  items-center gap-2">
+                    
+                      <span data-status class="text-xs"><%= node.address %>:<%= node.port %></span>
+                  </div>
+              </div>
+
+              <button class="bg-white hover:bg-white text-black font-medium py-1 px-4 rounded-full text-sm hover:scale-95" onclick="configure('<%= node.id %>')">Configure</button>
+              <button class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95" onclick="deletenode('<%= node.id %>')">Remove</button>
+
+          </div>
+   <% }); %>
       <div id="nodeForm" class="mt-6 px-8 w-full hidden">
         <div class="p-3 bg-transparent shadow-xl rounded-xl overflow-hidden sm:p-6 lg:p-10 card" style="width: 800px;">
             <form>
@@ -246,8 +273,8 @@ async function deletenode(nodeId) {
 </div>
 <p class="font-bold mb-2 mt-3 text-black" style="font-size:30px; text-align:center">Token created.</p>
 <h3 class="mb-5 text-black" style="text-align:center; margin-top: 25px;">To auto-configure your node, run the following command:</h3>
-<pre class="status-gray p-3 rounded-xl mb-4 mt-3" style="overflow-x: scroll"><code id="commandCode" class="text-black">${command}</code></pre>
-<button id="doneBtn" class="block rounded-xl bg-white text-black px-3 py-2 text-center text-sm font-medium shadow-lg hover:bg-neutral-200 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-4">Done</button>
+<pre class="status-gray p-3 rounded-xl mb-4 mt-3" style="overflow-x: scroll"><code id="commandCode" class="text-emerald-500">${command}</code></pre>
+<button id="doneBtn" class="block rounded-xl bg-black text-white px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mt-4">Done</button>
 
     `;
     document.body.appendChild(popup);
