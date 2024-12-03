@@ -363,11 +363,9 @@ const eulaPopupHTML = `
                     ws.close();
                 }
         
-                if (trimmedLine.includes("DAEMON instance appears to be down")) {
+                if (trimmedLine.includes("HydraDaemon instance appears to be down")) {
                     ws.close();
-                    document.getElementById('daemonIsDown').classList.remove('hidden');
                 } else {
-                    document.getElementById('daemonIsDown').classList.add('hidden');
                 }
         
                 isFirstLine = false;

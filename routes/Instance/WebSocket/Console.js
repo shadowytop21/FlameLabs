@@ -30,7 +30,7 @@ router.ws("/console/:id", async (ws, req) => {
     };
 
     socket.onerror = (error) => {
-        ws.send('\x1b[31;1mThis instance is unavailable! \n\x1b[0mThe DAEMON instance appears to be down. Retrying...\n')
+        ws.send('\x1b[31;1mThis instance is unavailable! \n\x1b[0mThe HydraDaemon instance appears to be down. Retrying...\n')
     };
 
     socket.onclose = (event) => {};
