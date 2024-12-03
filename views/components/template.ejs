@@ -252,6 +252,7 @@
           </svg>
           <span class="text-sm">Instances</span>
       </a>
+      
       <a href="../account"
           class="flex items-center gap-2 px-4 py-2 text-white/70 hover:bg-white/5 transition rounded-lg">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -262,6 +263,12 @@
           </svg>
           <span class="text-sm">Account</span>
       </a>
+      <% if (req.user.admin === true) { %>
+      <a href="/admin/overview"
+          class="flex items-center gap-2 px-4 py-2 text-white/70 hover:bg-white/5 transition rounded-lg">
+          <span class="text-sm">Admin</span>
+      </a>
+      <% } %>
   </div>
 </div>
 </aside>

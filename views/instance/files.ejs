@@ -356,11 +356,12 @@
     </div>
 </div>
             <div class="flex space-x-2">
-                <button id="uploadBtn" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
-                <input type="file" id="fileInput" multiple style="display: none;">
                 <button onclick="showModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
                 <button onclick="showModal('new-file-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New File</button>
+                <button onclick="uploadFile('<%= req.query.path %>', '<%= req.params.id %>')" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
+                <input type="file" id="fileInput" multiple style="display: none;">
             </div>
+            
         </div>
         
         <div class="file-grid">
@@ -460,8 +461,52 @@
   Operation completed successfully
 </div>
 </main>
-
    <script>
+    function uploadFile(subPath, instanceId) {
+      // Simulate file input click
+      document.getElementById('fileInput').click();
+  
+      // Handle file selection and upload
+      document.getElementById('fileInput').addEventListener('change', function (event) {
+          const files = event.target.files;
+          if (files.length === 0) return;
+  
+          const formData = new FormData();
+          Array.from(files).forEach(file => formData.append('files', file));
+  
+          // Open the upload modal
+          const modal = document.getElementById('uploadModal');
+          modal.classList.remove('opacity-0', 'pointer-events-none');
+          modal.querySelector('div').classList.remove('scale-95');
+          modal.querySelector('div').classList.add('scale-100');
+  
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `/instance/${instanceId}/files/upload?path=${subPath}`, true);
+  
+          xhr.upload.onprogress = function (e) {
+              if (e.lengthComputable) {
+                  const percentComplete = (e.loaded / e.total) * 100;
+                  document.getElementById('uploadProgress').style.width = percentComplete + '%';
+                  document.getElementById('uploadStatus').textContent = 'Uploading: ' + Math.floor(percentComplete) + '%';
+              }
+          };
+  
+          xhr.onload = function () {
+              if (xhr.status == 200) {
+                  document.getElementById('uploadStatus').textContent = 'Upload complete!';
+                  setTimeout(() => {
+                    closeModal(modal);
+                      window.location.reload();
+                  }, 1000);
+              } else {
+                  document.getElementById('uploadStatus').textContent = 'Upload failed. Server responded with status ' + xhr.status;
+                  setTimeout(() => closeModal(modal), 3000);
+              }
+          };
+  
+          xhr.send(formData);
+          document.getElementById('fileInput').value = ''; // Reset file input
+      });}
     
     function redirectToInstanceDirectory(id, currentPath, directoryName) {
             // Construct the redirect URL
@@ -554,56 +599,6 @@ function showToast(message) {
         });
       });
       
-      document.getElementById('uploadBtn').addEventListener('click', function() {
-          document.getElementById('fileInput').click();
-      });
-      
-      document.getElementById('fileInput').addEventListener('change', function(event) {
-          const files = event.target.files;
-          if (files.length === 0) return;
-      
-          const formData = new FormData();
-          Array.from(files).forEach(file => formData.append('files', file));
-      
-          // Open the upload modal
-          const modal = document.getElementById('uploadModal');
-          modal.classList.remove('opacity-0', 'pointer-events-none');
-          modal.querySelector('div').classList.remove('scale-95');
-          modal.querySelector('div').classList.add('scale-100');
-      
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/instance/<%= req.params.id %>/files/upload', true);
-          xhr.upload.onprogress = function(e) {
-              if (e.lengthComputable) {
-                  const percentComplete = (e.loaded / e.total) * 100;
-                  document.getElementById('uploadProgress').style.width = percentComplete + '%';
-                  document.getElementById('uploadStatus').textContent = 'Uploading: ' + Math.floor(percentComplete) + '%';
-              }
-          };
-          xhr.onload = function() {
-              if (xhr.status == 200) {
-                  document.getElementById('uploadStatus').textContent = 'Upload complete!';
-                  setTimeout(() => {
-                      // Close the modal
-                      modal.classList.add('opacity-0', 'pointer-events-none');
-                      modal.querySelector('div').classList.remove('scale-100');
-                      modal.querySelector('div').classList.add('scale-95');
-                      // Reload the page
-                      window.location.reload();
-                  }, 1000);
-              } else {
-                  document.getElementById('uploadStatus').textContent = 'Upload failed. Server responded with status ' + xhr.status;
-                  setTimeout(() => {
-                      // Close the modal
-                      modal.classList.add('opacity-0', 'pointer-events-none');
-                      modal.querySelector('div').classList.remove('scale-100');
-                      modal.querySelector('div').classList.add('scale-95');
-                  }, 3000);
-              }
-          };
-          xhr.send(formData);
-          document.getElementById('fileInput').value = ''; // Reset file input
-      });
       
       let deleteUrl = '';
       

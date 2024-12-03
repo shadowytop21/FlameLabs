@@ -5,9 +5,6 @@
          <div class="sm:flex-auto">
            <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.nodes %></h1>
          </div>
-         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          
-         </div>
        </div>
        <% if (req.query.err=="none" ) { %>
         <div class="bg-green-900/50 border-l-4 border-green-400 rounded-lg text-green-100 px-4 py-3 relative" role="alert">
@@ -106,10 +103,16 @@
 
               <!-- Memory Usage -->
               <div class="col-span-2">
-                  <div class="flex  items-center gap-2">  
-                      <span class="text-xs"><%= node.versionRelease || 'unknown' %></span>
-                  </div>
-              </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
+                        <code class="font-mono">
+                          <%= (node.versionRelease || 'unknown').replace('HydraDaemon ', '').trim() %>
+                        </code>
+                    </span>
+                </div>
+            </div>
+            
+            
 
               <!-- CPU Usage -->
               <div class="col-span-2">
