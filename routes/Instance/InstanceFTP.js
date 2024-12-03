@@ -67,7 +67,7 @@ router.get("/instance/:id/ftp", async (req, res) => {
                 req, 
                 logindata, 
                 user: req.user, 
-                name: await db.get('name') || 'AirLink', 
+                name: await db.get('name') || 'HydraPanel', 
                 logo: await db.get('logo') || false, 
                 addons: {
                     plugins: allPluginData

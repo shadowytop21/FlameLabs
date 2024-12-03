@@ -46,7 +46,7 @@ router.get("/instance/:id/settings", async (req, res) => {
     res.render('instance/settings', {
         req,
         user: req.user,
-        name: await db.get('name') || 'AirLink',
+        name: await db.get('name') || 'HydraPanel',
         logo: await db.get('logo') || false, 
         instance,
         addons: {

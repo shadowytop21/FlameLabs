@@ -52,7 +52,7 @@ router.get("/instance/:id/db", async (req, res) => {
             res.render('instance/db', { 
                 req,
                 user: req.user,  
-                name: await db.get('name') || 'AirLink', 
+                name: await db.get('name') || 'HydraPanel', 
                 logo: await db.get('logo') || false, 
                 databases, 
                 settings,

@@ -1,10 +1,10 @@
 {
-  "name": "AirLink",
+  "name": "HydraPanel",
   "version": "0.2.1",
-  "description": "AirLink is an open source panel for managing and operating game servers and applications built using Node.js with Express and Dockerode.",
+  "description": "HydraPanel is an open source panel for managing and operating game servers and applications built using Node.js with Express and Dockerode.",
   "main": "index.js",
   "bin": {
-    "AirLink": "./exec/bin/index.js"
+    "HydraPanel": "./exec/bin/index.js"
   },
   "scripts": {
     "start": "node index.js",
@@ -15,7 +15,7 @@
     "createUser": "node exec/createUser.js",
     "build:css": "npx tailwindcss -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
   },
-  "author": "AirLinklabs",
+  "author": "HydraPanelLabs",
   "license": "ISC",
   "dependencies": {
     "@keyv/sqlite": "^3.6.7",

@@ -10,7 +10,7 @@ const saltRounds = 10;
 
 // Middleware to check for a valid API key
 async function validateApiKey(req, res, next) {
-  const apiKey = req.headers['x-api-key'];
+  const apiKey = req.query.x_api_key;
   
   if (!apiKey) {
     return res.status(401).json({error: 'API key is required' });
@@ -21,7 +21,7 @@ async function validateApiKey(req, res, next) {
     const validKey = apiKeys.find(key => key.key === apiKey);
 
     if (!validKey) {
-      return res.status(401).json({ error: '' });
+      return res.status(401).json({ error: 'Invaild Key' });
     }
 
     req.apiKey = validKey;
@@ -72,9 +72,9 @@ router.post('/api/getUser', validateApiKey, async (req, res) => {
   }
 });
 
-router.post('/api/auth/create-user', validateApiKey, async (req, res) => {
+router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
   try {
-    const { username, email, password, userId, admin } = req.body;
+    const { username, email, password, userId, admin } = req.query;
     
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Username and password are required' });
@@ -340,7 +340,7 @@ router.get('/api/images', validateApiKey, async (req, res) => {
 
 router.get('/api/name', validateApiKey, async (req, res) => {
   try {
-    const name = await db.get('name') || 'AirLink';
+    const name = await db.get('name') || 'HydraPanel';
     res.json({ name });
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve name' });
