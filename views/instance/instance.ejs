@@ -97,7 +97,9 @@ const eulaPopupHTML = `
         }
     }
 </script>
+
 <main class="flex-grow container mx-auto px-4 py-8 transition-all">
+    <%- include('../components/instance') %>
     <% if (Array.isArray(files) && files.length > 0 && !files.some(file => file.name === 'eula.txt')) { %>
         <% if (instance.imageData.features && instance.imageData.features.includes('eula')) { %>
             <script>
@@ -109,15 +111,15 @@ const eulaPopupHTML = `
         <% } %>
     <% } %>
     
-      <%- include('../components/instance') %>
+
 
       <div id="alert-container" class="mb-4 space-y-2"></div>
       <div class="flex space-x-2 mb-4">
         
     </div>
-    <div class="card rounded-xl p-6">
+    <!--div class="card rounded-xl p-4">
         <div class="flex items-center justify-between mb-2">
-            <h2 class="text-lg font-semibold text-white heavy"><%= req.params.id %></h2>
+            <h2 class="text-lg font-semibold text-white heavy"><%= instance.Name %></h2>
         </div>
         <div class="space-y-2 text-sm">
     <div class="flex items-center text-gray-400">
@@ -133,17 +135,17 @@ const eulaPopupHTML = `
     
                 <span><%= instance.Node.address %>:<%= instance.Primary %></span>
             </div>
-            <button id="startButton" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Start Server">
+            <button id="startButton" onclick="powerAction('start')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Start Server">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
                     <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
                 </svg>
             </button>
-            <button id="restartButton" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Restart Server">
+            <button id="restartButton" onclick="powerAction('restart')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Restart Server">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
                     <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd" />
                 </svg>
             </button>
-            <button id="stopButton" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Stop Server">
+            <button id="stopButton" onclick="powerAction('stop')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Stop Server">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
                     <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd" />
                 </svg>
@@ -155,7 +157,8 @@ const eulaPopupHTML = `
         Settings
             </div>
         </div>
-    </div>
+    </div-->
+
     <br>
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div class="lg:col-span-3 space-y-6">
@@ -166,7 +169,7 @@ const eulaPopupHTML = `
                 <div style="height: 30rem;" id="terminal" class="bg-black/20 p-4 rounded-xl border border-white/5 shadow-sm scrollbar-hide mt-4 overflow-y-auto mb-4 font-mono text-sm">
                 </div>
                 <div class="flex border-t border-white/5 pt-4">
-                    <input type="text" id="console-input" class="flex-grow border-none bg-transparent text-white py-2 focus:border-white/5 focus:outline-none focus:ring-2 focus:ring-transparent transition placeholder-white/30" placeholder="container@<%= name %>~">
+                    <input type="text" id="console-input" class="flex-grow border-none bg-transparent text-white py-2 focus:border-white/5 focus:outline-none focus:ring-2 focus:ring-transparent transition placeholder-white/30" placeholder="container@<%= name %>~" onkeypress="handleKeyUp(event)">
                     <button onclick="sendCommand()" class="bg-indigo-500/15 hover:bg-indigo-500/20 text-indigo-200 font-medium py-2 px-4 rounded-xl transition duration-300">
                         Send command <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mb-0.5 inline-flex ml-1">
   <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
@@ -206,7 +209,91 @@ const eulaPopupHTML = `
                     </div>
 
                     
+                </div>
+        </div>
+                        <div class="card rounded-xl p-6">
+                            <div>
+                                <div class="flex space-x-2 mb-4">
+                                    <button id="startButton" onclick="powerAction('start')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Start Server">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
+                                            <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button id="restartButton" onclick="powerAction('restart')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Restart Server">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
+                                            <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button id="stopButton" onclick="powerAction('stop')" class="heavy h-12 w-12 hover:scale-95 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" title="Stop Server">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mx-auto">
+                                            <path fill-rule="evenodd" d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <div onclick="window.location.href='/instance/<%= req.params.id %>/startup'" style="font-family: 'Inter'; width: 6.5rem;" class=" h-12 hover:bg-white/10 hover:scale-95 cursor-pointer bg-white/5 transition rounded-lg flex pt-4 justify-center p-1 text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-white/50 inline-flex mr-0.5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495" />
+                                </svg>
+                                Settings
+                                    </div>
+                                </div>
+                                </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <h2 class="text-lg font-semibold text-white heavy" id="server-name-card"><%= instance.Name %></h2>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                
+                        <div class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+                            </svg>
+                            <span id="node"><%= instance.Node.name %></span>
+                           
+                        </div>
+                                <div class="flex items-center text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4 mr-2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                        </svg>
+                        
+                                    <span id="ip"><%= instance.Node.address %>:<%= instance.Primary %></span>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            function powerAction(action) {
+                            const instanceId = '<%= req.params.id %>';  // Get the instance ID dynamically from your server-side templating (EJS)
+                        
+                            // Construct the URL dynamically based on the action
+                            const url = `/instance/action/${action}/${instanceId}`;
+                        
+                            // Send the request to the server
+                            fetch(url, {
+                                method: 'GET',  // Using GET method for performing the action
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    // Add any other necessary headers here (e.g., authorization token)
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Failed to ${action} instance: ${response.statusText}`);        }
+                                showAlert('success', `Action Executed`, 'Server is ${action}ing , Please Wait for a while or refresh the page')
+                            })
+                            .catch(error => {
+                                console.error(`Error while trying to ${action} instance:`, error);
+                            });
+                        }
+                        
+                        // Call the function for each action
+                        const actions = ['start', 'stop', 'restart'];
+                        
+                        actions.forEach(action => {
+                            document.getElementById(`${action}Button`).addEventListener('click', function () {
+                                powerAction(action);  // Call the powerAction function for the clicked action
+                            });
+                        });
+                        </script>
 </main>
+
     <script>
         const baseTheme = {
             foreground: '#c5c9d1',
@@ -300,8 +387,16 @@ const eulaPopupHTML = `
                 allowTransparency: true,
                 fontSize: 12,
             });
+
             term.open(document.getElementById('terminal'));
+
+            const originalWrite = term.write.bind(term);
+            term.write = (data) => {
+                const formattedData = data.replace(/([^\r\n]+)(\r?\n)?/g, '$1\r\n');
+                originalWrite(formattedData);
+            };
         }
+
         
         function sendCommand() {
             const inputElement = document.getElementById('console-input');
@@ -325,23 +420,37 @@ const eulaPopupHTML = `
         }
         
         function handleKeyUp(event) {
-            if (event.key === 'ArrowUp') {
-                if (currentCommandIndex > 0) {
-                    currentCommandIndex--;
-                    document.getElementById('input').value = commandHistory[currentCommandIndex];
-                }
-                event.preventDefault();
-            } else if (event.key === 'ArrowDown') {
-                if (currentCommandIndex < commandHistory.length - 1) {
-                    currentCommandIndex++;
-                    document.getElementById('input').value = commandHistory[currentCommandIndex];
-                } else {
-                    currentCommandIndex = commandHistory.length;
-                    document.getElementById('input').value = '';
-                }
-                event.preventDefault();
-            }
+    const input = document.getElementById('input');
+    
+    if (event.key === 'ArrowUp') {
+        if (currentCommandIndex > 0) {
+            currentCommandIndex--;
+            input.value = commandHistory[currentCommandIndex];
         }
+        event.preventDefault();
+    } else if (event.key === 'ArrowDown') {
+        if (currentCommandIndex < commandHistory.length - 1) {
+            currentCommandIndex++;
+            input.value = commandHistory[currentCommandIndex];
+        } else {
+            currentCommandIndex = commandHistory.length;
+            input.value = '';
+        }
+        event.preventDefault();
+    } else if (event.key === 'Enter') {
+        const command = input.value.trim();
+        if (command) {
+            console.log("Command sent:", command);
+            // Add the command to the history
+            commandHistory.push(command);
+            currentCommandIndex = commandHistory.length; // Reset the index
+            // Logic to process the command (e.g., send it to a server)
+            input.value = ''; // Clear the input field after sending
+        }
+        event.preventDefault(); // Prevent default "Enter" behavior
+    }
+}
+
         
         document.addEventListener('DOMContentLoaded', function () {
             setupTerminal();
@@ -355,18 +464,7 @@ const eulaPopupHTML = `
             });
         
             inputElement.addEventListener('keydown', handleKeyUp);
-        
-            ['start', 'stop', 'restart'].forEach(action => {
-                document.getElementById(`${action}Button`).addEventListener('click', function () {
-                    if (ws) {
-                        ws.send(JSON.stringify({
-                            event: `power:${action}`,
-                            containerId: instanceId
-                        }));
-                    }
-                });
-            });
-        
+
             initStatsWebSocket();
         });
         
@@ -482,7 +580,7 @@ const eulaPopupHTML = `
                 statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
                 updateStatusChart('rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)');
                 term.clear();
-                term.write('\u001b[33m[DAEMON] \x1b[0mThis instance appears to be offline!\r\n');
+                term.write('\u001b[33mWings \x1b[0mThis instance appears to be offline!\r\n');
             }
         }
         

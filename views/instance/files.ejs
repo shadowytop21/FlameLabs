@@ -1,4 +1,6 @@
+
 <%- include('../components/template') %>
+<br>
 <style>
   .select-all-checkbox {
       display: flex;
@@ -315,8 +317,9 @@
         opacity: 1;
     }
       </style>
-  <div class="bg-white/5 rounded-xl p-6 mb-6">
+
     <%- include('../components/instance') %>
+    <div class="bg-white/5 rounded-xl p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold heavy">Files</h2>
             <div class="flex items-center space-x-2">
@@ -355,8 +358,8 @@
             <div class="flex space-x-2">
                 <button id="uploadBtn" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
                 <input type="file" id="fileInput" multiple style="display: none;">
-                <button id="create-folder" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
-                <button id="new-file" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New File</button>
+                <button onclick="showModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
+                <button onclick="showModal('new-file-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New File</button>
             </div>
         </div>
         
@@ -367,34 +370,27 @@
               <div class="absolute top-2 left-2">
                   <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-500 rounded focus:ring-indigo-500" data-name="<%= directory.name %>">
               </div>
-              <div class="absolute top-2 right-2">
-                <button onclick="redirectToInstanceDirectory('<%= req.query.id %>', '<%= currentPath %>', '<%= directory.name %>')">
-              </div>
+                <button onclick="redirectToInstanceDirectory('<%= req.params.id %>', '<%= currentPath %>', '<%= directory.name %>')">
               <div class="file-icon mt-6"><%- getFileIcon('folder') %></div>
               <div class="file-name mt-2 text-center"><%= directory.name %></div>
-            </button>
-              
           </div>
+        </button>
             <% }); %>
-          </div>   
-   
-        
           <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
             <% let extension = req.query.path ? '?path=' + req.query.path : ''; %>
-            <div class="file-grid">
             <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95">
               <div class="absolute top-2 left-2">
                   <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-500 rounded focus:ring-indigo-500" data-name="eula.txt">
               </div>
-              <button onclick="redirectToInstanceFile('<%= req.query.id %>', '<%= file.name %>', '<%= extension %>')">
-              
+              <button onclick="redirectToInstanceFile('<%= req.params.id %>', '<%= file.name %>', '<%= extension %>')">
               <div class="file-icon mt-6"><%- getFileIcon('textDocument') %></div>
               <div class="file-name mt-2 text-center"><%= file.name %></div>
               <div class="file-size text-sm text-gray-400 text-center"><%= file.size %></div>
           </div>
         </button>
-        </div>
+        
           <% }); %>
+        </div>
           
             
         
@@ -414,8 +410,8 @@
           <h3 class="text-xl font-semibold mb-4">Create New File</h3>
           <input type="text" id="new-file-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="File Name">
           <div class="flex justify-end">
-              <button id="new-file-cancel" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
-              <button id="new-file-confirm" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
+              <button onclick="closeModal('new-file-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
+              <button onclick="createfileconfirm()" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
           </div>
       </div>
   </div>
@@ -425,8 +421,8 @@
       <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
       <input type="text" id="new-folder-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Folder Name">
       <div class="flex justify-end">
-          <button id="create-folder-cancel" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
-          <button id="create-folder-confirm" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
+          <button onclick="closeModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
+          <button onclick="createfolderconfirm()" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
       </div>
   </div>
 </div>
@@ -705,30 +701,60 @@ function hideLoading() {
     document.getElementById('loading-overlay').classList.remove('active');
 }
 
-document.getElementById('new-file-confirm').addEventListener('click', () => {
+function createfileconfirm() {
     const fileName = document.getElementById('new-file-name').value;
+    const subPath = "?path=<%= req.query.path %>" || '';
+
     if (fileName) {
         showLoading();
-        fetch(`/instance/<%= req.params.id %>/files/create/${fileName}`, {
+        fetch(`/instance/<%= req.params.id %>/files/create/${fileName}${subPath}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain',
+                'Content-Type': 'application/json', // Specify JSON content type
             },
-            body: ''
+            body: JSON.stringify({
+                content: '', // Explicitly set content as an empty string
+            })
         }).then(() => {
             closeModal('new-file-modal');
-            loadFileList(currentPath);
             showToast('File created successfully');
-                        loadFileList(currentPath);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }).catch(error => {
             console.error('Error creating new file:', error);
             showToast('Error creating new file. Please try again.');
-                        loadFileList(currentPath);
         }).finally(() => {
             hideLoading();
         });
     }
-});
+}
+
+function createfolderconfirm() {
+    const folderName = document.getElementById('new-folder-name').value;
+    const subPath = "?path=<%= req.query.path %>" || '';
+
+    if (folderName) {
+        showLoading();
+        fetch(`/instance/<%= req.params.id %>/files/folder/create/${folderName}${subPath}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(() => {
+            closeModal('create-folder-modal');
+            showToast('Folder created successfully');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }).catch(error => {
+            console.error('Error creating new folder:', error);
+            showToast('Error creating new folder. Please try again.');
+        }).finally(() => {
+            hideLoading();
+        });
+    }
+}
 
 // Event Listeners
 document.getElementById('close-modal').addEventListener('click', () => closeModal('file-edit-modal'));
@@ -750,29 +776,6 @@ document.getElementById('create-folder').addEventListener('click', () => {
     showModal('create-folder-modal');
 });
 
-document.getElementById('create-folder-confirm').addEventListener('click', () => {
-    const folderName = document.getElementById('new-folder-name').value;
-    if (folderName) {
-        showLoading();
-        fetch(`/instance/<%= req.params.id %>/files/folder/create/${folderName}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            } 
-        }).then(() => {
-            closeModal('create-folder-modal');
-            loadFileList(currentPath);
-            showToast('Folder created successfully');
-                        loadFileList(currentPath);
-        }).catch(error => {
-            console.error('Error creating folder:', error);
-            showToast('Error creating folder. Please try again.');
-                        loadFileList(currentPath);
-        }).finally(() => {
-            hideLoading();
-        });
-    }
-});
 
 let selectedFiles = [];
 

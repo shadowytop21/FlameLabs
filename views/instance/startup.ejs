@@ -27,6 +27,8 @@
 <main id="content">
     
     <%- include('../components/instance') %>
+    
+<div class="bg-white/5 rounded-xl overflow-hidden ">
     <div class="bg-white/5 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <h2 class="text-lg font-semibold text-white">Rename Server</h2>
@@ -34,7 +36,7 @@
     </div>
     <div class="p-6">
         <div class="flex space-x-4">
-            <input type="text" id="nameServer" value="<%= instance.Name %>" class="flex-1 p-3 bg-black/20 text-white border border-transparent rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition" placeholder="Enter new server name">
+            <input type="text" id="nameServer" class="flex-1 p-3 bg-black/20 text-white border border-transparent rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition" placeholder="Enter new server name">
             <button id="saveName" class="bg-indigo-500 text-sm hover:bg-indigo-600 text-white font-medium px-6 rounded-xl flex items-center space-x-2 transition duration-200 hover:scale-95">
                 <span>Rename</span>
             </button>
@@ -81,9 +83,13 @@
                 });
             }
         %>
+        <div class="bg-white/5 rounded-xl p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Advanced Settings</h2>
+        <div id="variables-list" class="space-y-4">
         <% if (instance.imageData && instance.imageData.Variables) { %>
             <% Object.keys(instance.imageData.Variables).forEach(function(variableName) { %>
                 <% const variable = instance.imageData.Variables[variableName]; %>
+                
                 <div class="flex justify-between items-center">
                     <div>
                         <h3 class="text-lg font-semibold"><%= variableName %></h3>
