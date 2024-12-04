@@ -165,7 +165,7 @@
             const ramStatsLimit = stats.memory_stats.limit || 0;
 
             const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-            const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory %>;
+            const ramLimitRaw = ramStatsLimit / 1024 / 1024 ;
             const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
             
             document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
@@ -234,5 +234,8 @@
             statusChart.data.datasets[0].data = [100];
             statusChart.update();
         }
+    }
+    
         </script>
-<%- include('../components/footer') %>
+</body>
+</html>
