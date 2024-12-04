@@ -159,14 +159,13 @@ const eulaPopupHTML = `
         </div>
     </div-->
 
-    <br>
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div class="lg:col-span-3 space-y-6">
             <div class="card rounded-xl p-6">
                 <h2 class="text-xl font-semibold heavy">Console</h2>
                 <span class="text-gray-300 text-sm mt-1 mb-4">Send commands to your server, view important logs and more.</span>
 <div class="border-t border-white/5 mt-4"></div>
-                <div style="height: 30rem;" id="terminal" class="bg-black/20 p-4 rounded-xl border border-white/5 shadow-sm scrollbar-hide mt-4 overflow-y-auto mb-4 font-mono text-sm">
+                <div id="terminal" class="bg-black/20 p-4 rounded-xl border border-white/5 shadow-sm scrollbar-hide overflow-x-auto mb-4">
                 </div>
                 <div class="flex border-t border-white/5 pt-4">
                     <input type="text" id="console-input" class="flex-grow border-none bg-transparent text-white py-2 focus:border-white/5 focus:outline-none focus:ring-2 focus:ring-transparent transition placeholder-white/30" placeholder="container@<%= name %>~" onkeypress="handleKeyUp(event)">
@@ -276,7 +275,7 @@ const eulaPopupHTML = `
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`Failed to ${action} instance: ${response.statusText}`);        }
-                                showAlert('success', `Action Executed`, 'Server is ${action}ing , Please Wait for a while or refresh the page')
+                                showAlert('success', 'Action Executed', `Server is ${action}ing`, 'Please Wait for a while or refresh the page')
                             })
                             .catch(error => {
                                 console.error(`Error while trying to ${action} instance:`, error);
@@ -293,8 +292,43 @@ const eulaPopupHTML = `
                         });
                         </script>
 </main>
-
+<style>
+    .console-line {
+    padding: 4px 6px;
+    margin: 1px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .console-line:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .console-line-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .console-line-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    font-size: 0.7rem;
+  }
+  .console-line:hover .console-line-info {
+    opacity: 1;
+  }
+</style>
     <script>
+        function smoothScrollConsole() {
+            const consoleOutput = document.getElementById('terminal');
+            consoleOutput.scrollTo({
+                top: consoleOutput.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
         const baseTheme = {
             foreground: '#c5c9d1',
             background: 'rgba(0 0 0 / 0)',
@@ -363,44 +397,58 @@ const eulaPopupHTML = `
                     ws.close();
                 }
         
-                if (trimmedLine.includes("HydraDaemon instance appears to be down")) {
-                    ws.close();
-                } else {
-                }
+                let alertShown = false; // Flag to track if the alert has been shown
+               
+               if (trimmedLine.includes("HydraDaemon instance appears to be down")) {
+                   if (!alertShown) {
+                       showAlert('error', 'Node Connection Failed', 'Unable to establish a connection with the node. Please check the network or server status and try again.');
+                       alertShown = true; // Set the flag to true after showing the alert
+                   }
+                   ws.close();
+               } else {
+                  console.log('Node Connection Success!')
+               }
+
         
                 isFirstLine = false;
                 previousLineWasEmpty = (trimmedLine === '');
             });
         }
-        
+           
         function setupTerminal() {
-            term = new Terminal({
-                disableStdin: true,
-                allowProposedApi: true,
-                lineHeight: 1.35,
-                rows: 19,
-                cols: 100,
-                fontFamily: 'Menlo, monospace',
-                theme: baseTheme,
-                allowTransparency: true,
-                fontSize: 12,
-            });
+    term = new Terminal({
+        disableStdin: true,
+        allowProposedApi: true,
+        rows: 20,
+        cols: 100,
+        fontFamily: 'Menlo, monospace',
+        theme: baseTheme,
+        allowTransparency: true,
+        fontSize: 12,
+        lineHeight: 1.0, // Standard line height
+    });
 
-            term.open(document.getElementById('terminal'));
+    const terminalContainer = document.getElementById('terminal');
+    term.open(terminalContainer);
 
-            const originalWrite = term.write.bind(term);
-            term.write = (data) => {
-                const formattedData = data.replace(/([^\r\n]+)(\r?\n)?/g, '$1\r\n');
-                originalWrite(formattedData);
-            };
-        }
+    const originalWrite = term.write.bind(term);
+    term.write = (data) => {
+        // Filter out Docker-related logs
+        const filteredData = data
+            .split(/\r?\n/) // Split into lines
+            .filter(line => !line.includes("Unpacking")) // Exclude lines containing "docker"
+            .join('\r\n'); // Rejoin the remaining lines
+
+        // Write the filtered data to the terminal
+        originalWrite(filteredData);
+    };
+}
 
         
         function sendCommand() {
             const inputElement = document.getElementById('console-input');
             const command = inputElement.value.trim();
             if (command && ws) {
-                term.write('\u001b[1m\u001b[33m~ \u001b[0m' + command + '\r\n');
                 ws.send(JSON.stringify({
                     event: 'cmd',
                     command: command,
