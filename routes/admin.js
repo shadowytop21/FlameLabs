@@ -111,7 +111,7 @@ router.post('/apikeys/create', isAdmin, async (req, res) => {
   try {
     const newApiKey = {
       id: uuidv4(),
-      key: 'hpk' + uuidv4(),
+      key: 'hpk_' + uuidv4(),
       createdAt: new Date().toISOString()
     };
     
@@ -830,6 +830,25 @@ router.get('/admin/instances', isAdmin, async (req, res) => {
   });
 });
 
+router.get('/admin/new/rd', isAdmin, async (req, res) => {
+  let instances = await db.get('instances') || [];
+  let images = await db.get('images') || [];
+  let nodes = await db.get('nodes') || [];
+  let users = await db.get('users') || [];
+
+  nodes = await Promise.all(nodes.map(id => db.get(id + '_node').then(checkNodeStatus)));
+
+  res.render('admin/rd', {
+    req,
+    user: req.user,
+    name: await db.get('name') || 'HydraPanel',
+    logo: await db.get('logo') || false,
+    instances,
+    images,
+    nodes,
+    users
+  });
+});
 
 router.get('/admin/instances/:id/edit', isAdmin, async (req, res) => {
   const { id } = req.params;
@@ -1066,6 +1085,7 @@ router.post('/admin/instances/unsuspend/:id', isAdmin, async (req, res) => {
   }
 });
 
+const workflowsFilePath = path.join(__dirname, '../storage/workflows.json');
 
 async function deleteInstance(instance) {
   try {
@@ -1080,9 +1100,31 @@ async function deleteInstance(instance) {
     await db.set('instances', globalInstances);
     
     await db.delete(instance.ContainerId + '_instance');
+    await deleteWorkflowFromFile(instance.Id);
   } catch (error) {
     console.error(`Error deleting instance ${instance.ContainerId}:`, error);
     throw error;
+  }
+}
+
+function deleteWorkflowFromFile(instanceId) {
+  try {
+      if (fs.existsSync(workflowsFilePath)) {
+          const data = fs.readFileSync(workflowsFilePath, 'utf8');
+          const workflows = JSON.parse(data);
+          
+          if (workflows[instanceId]) {
+              delete workflows[instanceId];
+              fs.writeFileSync(workflowsFilePath, JSON.stringify(workflows, null, 2), 'utf8');
+              console.log(`Workflow for instance ${instanceId} deleted successfully from file.`);
+          } else {
+              console.log(`No workflow found for instance ${instanceId} in the file.`);
+          }
+      } else {
+          console.error('Workflows file does not exist.');
+      }
+  } catch (error) {
+      console.error('Error deleting workflow from file:', error);
   }
 }
 
