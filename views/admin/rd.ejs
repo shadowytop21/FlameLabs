@@ -1,0 +1,118 @@
+<%- include('../components/admin_template') %>
+<main>
+    <br>
+      <div id="alert-container" class="flex-center mb-4 space-y-2"></div>
+<div id="RDPForm" class="flex gap-4 mt-6 px-8 w-full">
+    <div class="p-3 bg-transparent shadow-xl rounded-xl overflow-hidden sm:p-6 lg:p-10 card" style="width: 800px;">
+        <form>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.name %>:</label>
+                    <input id="rdp-hostname" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-600 bg-gray-700 placeholder:text-white/20 border border-white/5" placeholder="My instance">
+                </div>
+                <div>
+                    <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.user %>:</label>
+                    <select id="rdp-user" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-600 bg-gray-700 placeholder:text-white/20 border border-white/5">
+                        <% users.forEach(function(user) { %>
+                            <option value="<%= user.userId %>" class="text-neutral-800 text-sm tracking-tight mb-2"><%= user.username %></option>
+                        <% }); %>
+                    </select>
+                </div> 
+                <div>
+                    <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.node %>:</label>
+                    <select id="rdp-node" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-600 bg-gray-700 placeholder:text-white/20 border border-white/5">
+                        <% nodes.forEach(function(node) { %>
+                            <option value="<%= node.id %>" class="text-neutral-800 text-sm tracking-tight mb-2"><%= node.name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.memory %> (MiB):</label>
+                    <input id="rdp-memory" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-600 bg-gray-700 placeholder:text-white/20 border border-white/5" placeholder="2048">
+                </div>
+                <div>
+                    <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.cpuThreads %>:</label>
+                    <input id="rdp-cpu" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-600 bg-gray-700 placeholder:text-white/20 border border-white/5" placeholder="1">
+                </div>
+            </div>
+            <div class="mt-4">
+                <button onclick="showinstallingPopup()" type="button" class="mt-8 transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
+                    <%= req.translations.create %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="installing-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+    <div class="bg-[#1b1d21] p-10 rounded-2xl shadow-xl max-w-md w-full flex flex-col items-center text-center">
+      <!-- Windows logo -->
+      <div class="mb-4">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Windows_logo_-_2012_%28dark_blue%29.svg/640px-Windows_logo_-_2012_%28dark_blue%29.svg.png" alt="Windows Logo" class="w-12 h-12">
+      </div>
+  
+      <!-- Text -->
+      <h1 id="progressText" class="text-xl font-bold mb-4 text-white heavy">DOWNLOADING WINDOWS 10 (0%)</h1>
+       <p class="text-gray-300 mb-6">This Process May Take Few hours.</p>
+        <div class="flex justify-end space-x-2.5">
+                <button onclick="hideinstallingPopup()" class="px-4 py-2 bg-red-600 text-white rounded-l-xl rounded-r-lg hover:bg-red-700 transition-colors">Cancel</button>
+              </div>
+    </div>
+  </div>
+</main>
+<script>
+    // Initialize the percentage to 17
+    let percentage = 0;
+    let alertShown = false; // Flag to track if the alert has already been shown
+
+    function updateProgress() {
+        if (percentage <= 100) {
+            // Update the text inside the <h1> with the new percentage
+            document.getElementById('progressText').innerText = `DOWNLOADING WINDOWS 10 (${percentage}%)`;
+            percentage++;  // Increment the percentage by 1
+        } else {
+            if (!alertShown) { // Check if the alert hasn't been shown yet
+                hideinstallingPopup();
+                showAlert('error', 'Internal Error', 'Internal Error: Something went wrong! Check the console for more details.');
+                alertShown = true; // Set the flag to true after showing the alert
+            }
+        }
+    }
+
+    // Update the progress every second (1000 milliseconds)
+    setInterval(updateProgress, 154);
+</script>
+
+<script>
+     function showAlert(type, title, message) {
+    const alertContainer = document.getElementById('alert-container');
+    const alertElement = document.createElement('div');
+    alertElement.className = `p-4 rounded-2xl ${type === 'error' ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'} fade-in`;
+    alertElement.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <h3 class="text-lg font-medium">${title}</h3>
+        </div>
+        <p class="mt-2 text-sm">${message}</p>
+    `;
+    alertContainer.appendChild(alertElement);
+    setTimeout(() => {
+        alertElement.classList.add('fade-out');
+        setTimeout(() => alertContainer.removeChild(alertElement), 500);
+    }, 5000);
+} 
+    function showinstallingPopup() {
+        const popup = document.getElementById('installing-popup');
+        popup.classList.remove('hidden');
+        popup.classList.add('flex');
+    }
+
+    function hideinstallingPopup() {
+        const popup = document.getElementById('installing-popup');
+        popup.classList.add('hidden');
+        popup.classList.remove('flex');
+    }
+</script>
+</body>
+</html>

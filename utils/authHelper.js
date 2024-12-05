@@ -39,6 +39,32 @@ async function isUserAuthorizedForContainer(userId, containerId) {
     }
 }
 
+async function isInstanceSuspended(instanceId) {
+    // Retrieve the instance data
+    let instance = await db.get(`${instanceId}_instance`);
+
+    // If the instance doesn't exist, initialize it
+    if (!instance) {
+        instance = { suspended: false }; // Default instance object
+        await db.set(`${instanceId}_instance`, instance);
+    }
+
+    // Check if the instance is suspended
+    if (instance.suspended === true) {
+        return res.redirect(`../../instance/${instanceId}/suspended`);
+    }
+
+    // Ensure the suspended property is set (if missing)
+    if (typeof instance.suspended === 'undefined') {
+        instance.suspended = false;
+        await db.set(`${instanceId}_instance`, instance);
+    }
+
+    // If not suspended, continue as normal
+    return false;
+}
+
 module.exports = {
-    isUserAuthorizedForContainer
+    isUserAuthorizedForContainer,
+    isInstanceSuspended
 };
