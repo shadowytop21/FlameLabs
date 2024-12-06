@@ -175,17 +175,18 @@
   }
   .file-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive columns */
+    grid-template-columns: 1fr; /* Ensure each file takes up a full row */
     gap: 1rem; /* Space between items */
 }
 
 .file-grid > div {
     display: flex;
-    flex-direction: column; /* Stack icon and name vertically */
-    align-items: center; /* Center align items horizontally */
-    justify-content: center; /* Center align items vertically */
-    text-align: center; /* Center align text */
+    flex-direction: row; /* Arrange icon, name, and size horizontally */
+    align-items: center; /* Vertically center the items in the row */
+    justify-content: flex-start; /* Align the items to the left */
+    text-align: left; /* Left align text */
 }
+
 .file-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem; /* Space between icon and name */
@@ -367,28 +368,29 @@
         <div class="file-grid">
           <% files.filter(file => file.isDirectory).forEach(function(directory) { %>
             <% let currentPath = req.query.path ? req.query.path + '/' : ''; %>
-            <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95" oncontextmenu="showContextMenu(event, '<%= directory.name %>')">
+            <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between" oncontextmenu="showContextMenu(event, '<%= directory.name %>')">
               <div class="absolute top-2 right-2">
-                <!-- Three-dot button -->
-                <button 
-                  class="menu-button text-gray-500 hover:text-white p-1 rounded-full"
-                  onclick="showContextMenu(event, '<%= directory.name %>', '')"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-</svg>
-                </button>
+                  <!-- Three-dot button -->
+                  <button 
+                    class="menu-button text-gray-500 hover:text-white p-1 rounded-full"
+                    onclick="showContextMenu(event, '<%= directory.name %>', '')"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                    </svg>
+                  </button>
               </div>
-                <button onclick="redirectToInstanceDirectory('<%= req.params.id %>', '<%= currentPath %>', '<%= directory.name %>')">
-              <div class="file-icon mt-6"><%- getFileIcon('folder') %></div>
-              <div class="file-name mt-2 text-center"><%= directory.name %></div>
+              <button onclick="redirectToInstanceDirectory('<%= req.params.id %>', '<%= currentPath %>', '<%= directory.name %>')" class="flex items-center space-x-4 w-full">
+                  <div class="file-icon"><%- getFileIcon('folder') %></div>
+                  <div class="file-name text-center flex-grow"><%= directory.name %></div>
+              </button>
           </div>
-        </button>
+          
             <% }); %>
           <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
             <% let extension = req.query.path ? '?path=' + req.query.path : ''; %>
             <div 
-            class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95"
+            class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between"
             oncontextmenu="showContextMenu(event, '<%= file.name %>')"
           >
             <div class="absolute top-2 right-2">
@@ -397,17 +399,21 @@
                 class="menu-button text-gray-500 hover:text-white p-1 rounded-full"
                 onclick="showContextMenu(event, '<%= file.name %>', '<%= extension %>')"
               >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-              </svg>              
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                </svg>              
               </button>
             </div>
-            <button onclick="redirectToInstanceFile('<%= req.params.id %>', '<%= file.name %>', '<%= extension %>')">
-              <div class="file-icon mt-6"><%- getFileIcon('textDocument') %></div>
-              <div class="file-name mt-2 text-center"><%= file.name %></div>
+            
+            <!-- Button for file with flexbox to make everything in a single line -->
+            <button onclick="redirectToInstanceFile('<%= req.params.id %>', '<%= file.name %>', '<%= extension %>')" class="flex items-center space-x-2 w-full">
+              <div class="file-icon"><%- getFileIcon('textDocument') %></div>
+              <div class="file-name text-center flex-grow"><%= file.name %></div>
               <div class="file-size text-sm text-gray-400 text-center"><%= file.size %></div>
             </button>
           </div>
+          
+          
           <% }); %>
         </div>
           

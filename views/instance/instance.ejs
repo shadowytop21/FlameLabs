@@ -30,7 +30,7 @@
     function showAlert(type, title, message) {
     const alertContainer = document.getElementById('alert-container');
     const alertElement = document.createElement('div');
-    alertElement.className = `p-4 rounded-2xl ${type === 'error' ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'} fade-in`;
+    alertElement.className = `p-4 rounded-2xl ${type === 'error' ? 'bg-red-600 text-white' : 'bg-emerald-500 text-white'} fade-in`;
     alertElement.innerHTML = `
         <div class="flex items-center">
             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -181,27 +181,20 @@ const eulaPopupHTML = `
                     <div class="bg-white/5 rounded-l-2xl rounded-lg p-6">
                         <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.cpuUsage %></h3>
                         <div class="flex items-center">
-                            <div class="w-full bg-white/10 rounded-xl h-2 mr-2">
-                                <div class="bg-indigo-500 h-2 rounded-full transition-all" id="cpu-usage-bar" style="width: 0%"></div>
-                            </div>
+                           
                             <span id="cpuUsage" class="text-sm font-medium"></span>
                         </div>
                     </div>
                     <div class="bg-white/5 rounded-lg p-6">
                         <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.ramUsage %></h3>
                         <div class="flex items-center">
-                            <div class="w-full bg-white/10 rounded-xl h-2 mr-2">
-                                <div class="bg-indigo-500 h-2 rounded-full transition-all" id="ram-usage-bar" style="width: 0%"></div>
-                            </div>
                             <span id="ramUsage" class="text-sm font-medium"></span>
                         </div>
                     </div>
                     <div class="bg-white/5 rounded-lg p-6">
                         <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.diskUsage %></h3>
                         <div class="flex items-center">
-                            <div class="w-full bg-white/10 rounded-xl h-2 mr-2">
-                                <div class="bg-indigo-500 h-2 rounded-full transition-all" id="disk-usage-bar" style="width: 0%"></div>
-                            </div>
+                          
                             <span id="diskUsage" class="text-sm font-medium"></span>
                         </div>
                     </div>
@@ -283,43 +276,78 @@ const eulaPopupHTML = `
                        
                         </div>
                         <script>
+                            
+                                const friendlyMessages = {
+                                    "Checking server disk space usage, this could take a few seconds...": 
+                                        "\u001b[1m\u001b[33m > hydraD\x1b[0m Performing container disk usage checks...",
+                                    "Updating process configuration files...": 
+                                        "\u001b[1m\u001b[33m > hydraD\x1b[0m Updating environment...",
+                                    "Ensuring file permissions are set correctly, this could take a few seconds...": 
+                                        "\u001b[1m\u001b[33m > hydraD\x1b[0m Performing file permission checks...",
+                                    "Pulling Docker container image, this could take a few minutes to complete...": 
+                                        "\u001b[1m\u001b[33m > hydraD\x1b[0m Fetching Docker image...",
+                                    "Finished pulling Docker container image": 
+                                        "\u001b[1m\u001b[33m > hydraD\x1b[0m Completed Docker image pull!"
+                                };
+
+                        
                             function powerAction(action) {
-                            const instanceId = '<%= req.params.id %>';  // Get the instance ID dynamically from your server-side templating (EJS)
+                                const instanceId = '<%= req.params.id %>';  // Get the instance ID dynamically from your server-side templating (EJS)
                         
-                            // Construct the URL dynamically based on the action
-                            const url = `/instance/action/${action}/${instanceId}`;
+                                // Construct the URL dynamically based on the action
+                                const url = `/instance/action/${action}/${instanceId}`;
                         
-                            // Send the request to the server
-                            fetch(url, {
-                                method: 'GET',  // Using GET method for performing the action
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    // Add any other necessary headers here (e.g., authorization token)
+                                // Send the request to the server
+                                fetch(url, {
+                                    method: 'GET',  // Using GET method for performing the action
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        // Add any other necessary headers here (e.g., authorization token)
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`Failed to ${action} instance: ${response.statusText}`);
+                                    }
+                        
+                                    showAlert('success', 'Action Executed', `Server is ${action}ing. Please wait for a while or refresh the page.`);
+                        
+                                    // If action is start, log friendly messages to the terminal
+                                    if (action === 'start') {
+                                        logToTerminal(friendlyMessages);
+                                    }
+
+                                
+                        
+                                    // Clear the terminal and refresh after the action
+                                    term.clear();
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 4000);
+                                })
+                                .catch(error => {
+                                    console.error(`Error while trying to ${action} instance:`, error);
+                                });
+                            }
+                        
+                            // Log the friendly messages to the terminal
+                            function logToTerminal(messages) {
+                                for (let message in messages) {
+                                    term.write(messages[message] + '\r\n');
                                 }
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error(`Failed to ${action} instance: ${response.statusText}`);        }
-                                showAlert('success', 'Action Executed', `Server is ${action}ing`, 'Please Wait for a while or refresh the page')
-                                term.clear();
-                                setTimeout(() => {
-                                      window.location.reload();
-                                    }, 1);
-                            })
-                            .catch(error => {
-                                console.error(`Error while trying to ${action} instance:`, error);
-                            });
-                        }
+                            }
                         
-                        // Call the function for each action
-                        const actions = ['start', 'stop', 'restart'];
+                            // Call the function for each action
+                            const actions = ['start', 'stop', 'restart'];
                         
-                        actions.forEach(action => {
-                            document.getElementById(`${action}Button`).addEventListener('click', function () {
-                                powerAction(action);  // Call the powerAction function for the clicked action
+                            actions.forEach(action => {
+                                document.getElementById(`${action}Button`).addEventListener('click', function () {
+                                    powerAction(action);  // Call the powerAction function for the clicked action
+                                });
+                                initStatsWebSocket();
                             });
-                        });
                         </script>
+                        
                          <script>
                             function playeraction(action) {
                             const instanceId = '<%= req.params.id %>';  // Get the instance ID dynamically from your server-side templating (EJS)
@@ -330,6 +358,8 @@ const eulaPopupHTML = `
                                 command: `${action} ${playernameaction}`,
                                 containerId: instanceId
                             }));
+
+                            showAlert('success', 'Action Executed', `Player ${playernameaction} have been ${action}`)
                         }
                         </script>
 </main>
@@ -514,7 +544,7 @@ const eulaPopupHTML = `
         }
         
         function handleKeyUp(event) {
-    const input = document.getElementById('input');
+    const input = document.getElementById('console-input');
     
     if (event.key === 'ArrowUp') {
         if (currentCommandIndex > 0) {
@@ -534,12 +564,7 @@ const eulaPopupHTML = `
     } else if (event.key === 'Enter') {
         const command = input.value.trim();
         if (command) {
-            console.log("Command sent:", command);
-            // Add the command to the history
-            commandHistory.push(command);
-            currentCommandIndex = commandHistory.length; // Reset the index
-            // Logic to process the command (e.g., send it to a server)
-            input.value = ''; // Clear the input field after sending
+           sendCommand()
         }
         event.preventDefault(); // Prevent default "Enter" behavior
     }
@@ -550,7 +575,7 @@ const eulaPopupHTML = `
             setupTerminal();
             initWebSocket();
         
-            const inputElement = document.getElementById('input');
+            const inputElement = document.getElementById('console-input');
             inputElement.addEventListener('keypress', function (event) {
                 if (event.key === 'Enter') {
                     sendCommand();
@@ -618,10 +643,6 @@ const eulaPopupHTML = `
             });
         }
         
-        const statusChart = createBackgroundChart('statusChart');
-        const ramChart = createBackgroundChart('ramChart');
-        const cpuChart = createBackgroundChart('cpuChart');
-        const diskChart = createBackgroundChart('diskChart', 'doughnut');
         
         function updateRamUsage(stats) {
             const ramStatsUsage = stats.memory_stats.usage || 0;
@@ -633,15 +654,12 @@ const eulaPopupHTML = `
             
             document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
         
-            if (ramStatsUsage > 0) {
-                updateChart(ramChart, ramUsagePercent);
-            }
         }
         
         function updateCpuUsage(stats) {
             const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
             const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-            let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+            const cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
         
             if (isNaN(cpuUsagePercent)) {
                 cpuUsagePercent = 0;
@@ -649,9 +667,6 @@ const eulaPopupHTML = `
         
             document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
             
-            if (cpuUsagePercent > 0) {
-                updateChart(cpuChart, cpuUsagePercent);
-            }
         }
         
         function updateDiskUsage(stats) {
@@ -668,34 +683,14 @@ const eulaPopupHTML = `
             if (ramUsageRaw > 1) {
                 statusElement.textContent = 'Online';
                 statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-emerald-500';
-                updateStatusChart('rgba(16, 185, 129, 0.1)', 'rgba(16, 185, 129, 0.2)');
             } else {
                 statusElement.textContent = 'Offline';
                 statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
-                updateStatusChart('rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)');
                 term.clear();
-                term.write('\u001b[33mWings \x1b[0mThis instance appears to be offline!\r\n');
+                term.write('\u001b[HydraD] \x1b[0mThis instance appears to be offline!\r\n');
             }
         }
         
-        function updateChart(chart, value) {
-            chart.data.labels.push('');
-            chart.data.datasets[0].data.push(value);
-        
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-        
-            chart.update();
-        }
-        
-        function updateStatusChart(backgroundColor, borderColor) {
-            statusChart.data.datasets[0].backgroundColor = backgroundColor;
-            statusChart.data.datasets[0].borderColor = borderColor;
-            statusChart.data.labels = [''];
-            statusChart.data.datasets[0].data = [100];
-            statusChart.update();
-        }
+    
         </script>
 <%- include('../components/footer') %>

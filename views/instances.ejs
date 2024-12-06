@@ -108,7 +108,7 @@
         const isSecure = window.location.protocol === 'https:';
         const wsProtocol = isSecure ? 'wss' : 'ws';
         const wsPort = isSecure ? '' : `:<%= config.port %>`;
-        const socket = new WebSocket(`${wsProtocol}://<%= config.domain %>${wsPort}/stats/${containerId}`);
+        const socket = new WebSocket(`${wsProtocol}://${window.location.hostname}:${window.location.port}/stats/${containerId}`);
   
         const statusElement = instance.querySelector('[data-status]');
         const statusBg = instance.querySelector('[data-status-bg]');
@@ -155,11 +155,7 @@
             });
         }
         
-        const statusChart = createBackgroundChart('statusChart');
-        const ramChart = createBackgroundChart('ramChart');
-        const cpuChart = createBackgroundChart('cpuChart');
-        const diskChart = createBackgroundChart('diskChart', 'doughnut');
-        
+       
         function updateRamUsage(stats) {
             const ramStatsUsage = stats.memory_stats.usage || 0;
             const ramStatsLimit = stats.memory_stats.limit || 0;
@@ -170,9 +166,7 @@
             
             document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
         
-            if (ramStatsUsage > 0) {
-                updateChart(ramChart, ramUsagePercent);
-            }
+           
         }
         
         function updateCpuUsage(stats) {
@@ -186,9 +180,7 @@
         
             document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
             
-            if (cpuUsagePercent > 0) {
-                updateChart(cpuChart, cpuUsagePercent);
-            }
+          
         }
         
         function updateDiskUsage(stats) {
@@ -205,36 +197,18 @@
             if (ramUsageRaw > 1) {
                 statusElement.textContent = 'Online';
                 statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-emerald-500';
-                updateStatusChart('rgba(16, 185, 129, 0.1)', 'rgba(16, 185, 129, 0.2)');
             } else {
                 statusElement.textContent = 'Offline';
                 statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
-                updateStatusChart('rgba(239, 68, 68, 0.1)', 'rgba(239, 68, 68, 0.2)');
                 term.clear();
                 term.write('\u001b[33mWings \x1b[0mThis instance appears to be offline!\r\n');
             }
         }
         
-        function updateChart(chart, value) {
-            chart.data.labels.push('');
-            chart.data.datasets[0].data.push(value);
+    
         
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-        
-            chart.update();
-        }
-        
-        function updateStatusChart(backgroundColor, borderColor) {
-            statusChart.data.datasets[0].backgroundColor = backgroundColor;
-            statusChart.data.datasets[0].borderColor = borderColor;
-            statusChart.data.labels = [''];
-            statusChart.data.datasets[0].data = [100];
-            statusChart.update();
-        }
-    }
+    });
+});
     
         </script>
 </body>
