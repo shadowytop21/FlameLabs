@@ -359,7 +359,7 @@
             <div class="flex space-x-2">
                 <button onclick="showModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
                 <button onclick="showModal('new-file-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New File</button>
-                <button onclick="uploadFile('<%= req.query.path %>', '<%= req.params.id %>')" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
+                <button id="uploadBtn" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-1.5 px-4 rounded-full transition">Upload</button>
                 <input type="file" id="fileInput" multiple style="display: none;">
             </div>
             
@@ -370,15 +370,18 @@
             <% let currentPath = req.query.path ? req.query.path + '/' : ''; %>
             <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between" oncontextmenu="showContextMenu(event, '<%= directory.name %>')">
               <div class="absolute top-2 right-2">
-                  <!-- Three-dot button -->
-                  <button 
-                    class="menu-button text-gray-500 hover:text-white p-1 rounded-full"
-                    onclick="showContextMenu(event, '<%= directory.name %>', '')"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                    </svg>
-                  </button>
+                <!-- Three-dot button -->
+                <button 
+                class="menu-button text-red-500 hover:text-red-700 p-1 rounded-full"
+                onclick="confirmDelete('<%= directory.name %>', '');">
+                Delete     
+              </button>
+              <button 
+              class="menu-button text-white hover:text-gray-300 p-1 rounded-full"
+              onclick="confirmRename('<%= directory.name %>', '');"
+              >
+              Rename     
+            </button>
               </div>
               <button onclick="redirectToInstanceDirectory('<%= req.params.id %>', '<%= currentPath %>', '<%= directory.name %>')" class="flex items-center space-x-4 w-full">
                   <div class="file-icon"><%- getFileIcon('folder') %></div>
@@ -391,35 +394,38 @@
             <% let extension = req.query.path ? '?path=' + req.query.path : ''; %>
             <div 
             class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between"
-            oncontextmenu="showContextMenu(event, '<%= file.name %>')"
           >
             <div class="absolute top-2 right-2">
               <!-- Three-dot button -->
               <button 
-                class="menu-button text-gray-500 hover:text-white p-1 rounded-full"
-                onclick="showContextMenu(event, '<%= file.name %>', '<%= extension %>')"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                </svg>              
+                class="menu-button text-red-500 hover:text-red-700 p-1 rounded-full"
+                onclick="confirmDelete('<%= file.name %>', '<%= extension %>');">
+                Delete     
               </button>
+              <button 
+              class="menu-button text-white hover:text-gray-300 p-1 rounded-full"
+              onclick="confirmRename('<%= file.name %>', '<%= extension %>');"
+              >
+              Rename     
+            </button>
             </div>
             
             <!-- Button for file with flexbox to make everything in a single line -->
             <button onclick="redirectToInstanceFile('<%= req.params.id %>', '<%= file.name %>', '<%= extension %>')" class="flex items-center space-x-2 w-full">
               <div class="file-icon"><%- getFileIcon('textDocument') %></div>
               <div class="file-name text-center flex-grow"><%= file.name %></div>
-              <div class="file-size text-sm text-gray-400 text-center"><%= file.size %></div>
             </button>
           </div>
           
           
           <% }); %>
-        </div>
           
+        </div>
+           
         <div id="context-menu" class="custom-menu hidden fixed bg-gray-100 text-black rounded-lg shadow-lg">
           <!-- Buttons will be dynamically added here -->
         </div>
+       
         
         <script>
           function showContextMenu(event, fileName, extension) {
@@ -551,52 +557,60 @@
 let currentFileName = '';
 let currentExtension = '';
 let deleteUrl = '';
-    function uploadFile(subPath, instanceId) {
-      // Simulate file input click
-      document.getElementById('fileInput').click();
-  
-      // Handle file selection and upload
-      document.getElementById('fileInput').addEventListener('change', function (event) {
+    
+document.getElementById('uploadBtn').addEventListener('click', function() {
+          document.getElementById('fileInput').click();
+      });
+
+      document.getElementById('fileInput').addEventListener('change', function(event) {
           const files = event.target.files;
+          const subPathuploading = "<%= req.query.path %>"
           if (files.length === 0) return;
-  
+      
           const formData = new FormData();
           Array.from(files).forEach(file => formData.append('files', file));
-  
+      
           // Open the upload modal
           const modal = document.getElementById('uploadModal');
           modal.classList.remove('opacity-0', 'pointer-events-none');
           modal.querySelector('div').classList.remove('scale-95');
           modal.querySelector('div').classList.add('scale-100');
-  
+      
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', `/instance/${instanceId}/files/upload?path=${subPath}`, true);
-  
-          xhr.upload.onprogress = function (e) {
+          xhr.open('POST', `/instance/<%= req.params.id %>/files/upload?path=${subPathuploading}`, true);
+          xhr.upload.onprogress = function(e) {
               if (e.lengthComputable) {
                   const percentComplete = (e.loaded / e.total) * 100;
+                  alert('Uploading file Please wait')
                   document.getElementById('uploadProgress').style.width = percentComplete + '%';
                   document.getElementById('uploadStatus').textContent = 'Uploading: ' + Math.floor(percentComplete) + '%';
               }
           };
-  
-          xhr.onload = function () {
+          xhr.onload = function() {
               if (xhr.status == 200) {
-                  document.getElementById('uploadStatus').textContent = 'Upload complete!';
+                  showToast('Upload Complete Please wait!')
                   setTimeout(() => {
-                    closeModal(modal);
+                      // Close the modal
+                      modal.classList.add('opacity-0', 'pointer-events-none');
+                      modal.querySelector('div').classList.remove('scale-100');
+                      modal.querySelector('div').classList.add('scale-95');
+                      // Reload the page
                       window.location.reload();
-                  }, 1000);
+                  }, 2000);
               } else {
                   document.getElementById('uploadStatus').textContent = 'Upload failed. Server responded with status ' + xhr.status;
-                  setTimeout(() => closeModal(modal), 3000);
+                  setTimeout(() => {
+                      // Close the modal
+                      modal.classList.add('opacity-0', 'pointer-events-none');
+                      modal.querySelector('div').classList.remove('scale-100');
+                      modal.querySelector('div').classList.add('scale-95');
+                  }, 3000);
               }
           };
-  
           xhr.send(formData);
           document.getElementById('fileInput').value = ''; // Reset file input
-      });}
-    
+      });
+
     function redirectToInstanceDirectory(id, currentPath, directoryName) {
             // Construct the redirect URL
             const redirectToInstanceDirectoryPath = `/instance/${id}/files?path=${currentPath}${directoryName}`;
@@ -701,7 +715,7 @@ function showToast(message) {
         const Find_extension = extension || '';
         const subPath = "<%= req.query.path %>" || '';
 
-        deleteUrl = `/instance/<%= req.params.id %>/files/delete/${fileName}${Find_extension}?path=${subPath}`;
+        deleteUrl = `/instance/<%= req.params.id %>/files/delete/${fileName}${Find_extension}`;
 
         showToast('Deleted the file Successfully');
             setTimeout(() => {
