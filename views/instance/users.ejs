@@ -104,6 +104,12 @@
     document.getElementById('add-subuser-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
+        const currentUsername = '<%= req.user.username %>'; 
+        
+        if (username === currentUsername) {
+        alert("You cannot add yourself as a subuser.");
+        return;  // Prevent form submission if the username is the same as the logged-in user
+    }
         
         fetch(`/instance/<%= req.params.id %>/users/add`, {
             method: 'POST',

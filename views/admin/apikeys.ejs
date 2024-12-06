@@ -79,7 +79,13 @@
           <% apiKeys.forEach(function(key) { %>
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= key.id %></td>    
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= key.key %></td>
+              <td>   
+              <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
+                        <code class="font-mono">
+                          <%= key.key %>
+                        </code>
+                    </span>
+                  </td>   
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= key.createdAt %></td>
               <td>
                 <button id="removeButton" type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 removeButton" data-keyid="<%= key.id %>">

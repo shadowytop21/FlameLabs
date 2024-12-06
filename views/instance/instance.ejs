@@ -256,6 +256,31 @@ const eulaPopupHTML = `
                                     <span id="ip"><%= instance.Node.address %>:<%= instance.Primary %></span>
                                 </div>
                             </div>
+                            <br>
+                            <% if (instance.Image == "quay.io/skyport/java:21") { %>
+                            <div class="card rounded-xl p-6">
+                                <input type="text" id="playername" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Player Name">
+                                
+                                    <div class="flex space-x-2">
+                                        <button onclick="playeraction('ban')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Ban
+                                        </button>
+                                        <button onclick="playeraction('unban')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            UnBan
+                                        </button>
+                                     
+                                                <button onclick="playeraction('kick')" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                                    Kick
+                                                </button>
+                                                <button onclick="playeraction('op')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                                    Op
+                                                </button>
+                                                            </div>
+                                </div>
+                                <% } else { %>
+                                    <% } %>
+                        </div>
+                       
                         </div>
                         <script>
                             function powerAction(action) {
@@ -276,6 +301,10 @@ const eulaPopupHTML = `
                                 if (!response.ok) {
                                     throw new Error(`Failed to ${action} instance: ${response.statusText}`);        }
                                 showAlert('success', 'Action Executed', `Server is ${action}ing`, 'Please Wait for a while or refresh the page')
+                                term.clear();
+                                setTimeout(() => {
+                                      window.location.reload();
+                                    }, 1);
                             })
                             .catch(error => {
                                 console.error(`Error while trying to ${action} instance:`, error);
@@ -290,6 +319,18 @@ const eulaPopupHTML = `
                                 powerAction(action);  // Call the powerAction function for the clicked action
                             });
                         });
+                        </script>
+                         <script>
+                            function playeraction(action) {
+                            const instanceId = '<%= req.params.id %>';  // Get the instance ID dynamically from your server-side templating (EJS)
+                            const playernameaction = document.getElementById('playername').value;
+                        
+                            ws.send(JSON.stringify({
+                                event: 'cmd',
+                                command: `${action} ${playernameaction}`,
+                                containerId: instanceId
+                            }));
+                        }
                         </script>
 </main>
 <style>
@@ -368,10 +409,12 @@ const eulaPopupHTML = `
             ws.onmessage = handleWebSocketMessage;
             ws.onclose = () => {
                 console.log('WebSocket connection closed, attempting to reconnect...');
+                showAlert('error', 'Connection Lost', 'Unable to Connect to WebSocket Please check your internet')
                 setTimeout(initWebSocket, 3000);
             };
             ws.onerror = (error) => {
                 console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
+                showAlert('error', 'Connection Lost', 'Unable to Connect to WebSocket Please check your internet')
                 setTimeout(initWebSocket, 5000);
             };
         }
@@ -433,10 +476,15 @@ const eulaPopupHTML = `
 
     const originalWrite = term.write.bind(term);
     term.write = (data) => {
-        // Filter out Docker-related logs
-        const filteredData = data
-            .split(/\r?\n/) // Split into lines
-            .filter(line => !line.includes("Unpacking")) // Exclude lines containing "docker"
+        // Split the data into lines
+        const lines = data.split(/\r?\n/);
+
+        // Check if the user is an admin by accessing the user status (this can be done in various ways depending on your setup)
+        const isAdmin = <%= req.user.admin %>; // Assuming this is set server-side in your template
+
+        // If the user is an admin, include "Unpacking" lines, else filter them out
+        const filteredData = lines
+            .filter(line => isAdmin || !line.includes("Unpacking")) // Show Unpacking only for admins
             .join('\r\n'); // Rejoin the remaining lines
 
         // Write the filtered data to the terminal
