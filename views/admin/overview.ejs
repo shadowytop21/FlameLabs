@@ -1,51 +1,43 @@
 <%- include('../components/admin_template') %>
 <main id="content">
-   <div class="bg-transparent">
-    <section class="mt-12 mb-12 flex justify-center">
+  <div class="bg-transparent flex flex-auto">
+   
+    <!-- Platform Statistics Section -->
+    <section class="flex justify-center">
       <div class="max-w-7xl w-full">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-semibold text-white heavy">Platform Statistics</h2>
+          <h2 class="text-3xl font-semibold text-white">Platform Statistics</h2>
         </div>
+
         <!-- Main Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Total Users -->
-          <div class="bg-white/5 p-6 rounded-2xl border border-white/5 hover:bg-white/[0.07] transition-colors">
-            <div class="flex items-center gap-4">
-              <div>
-                <p class="text-sm font-medium text-white/60">Total Users</p>
-                <p class="text-2xl font-semibold text-white mt-1"><%= usersTotal %></p>
-              </div>
+          <div class="bg-gradient-to-r from-teal-400 to-teal-600 p-6 rounded-xl border border-white/20 hover:scale-105 transform transition-all duration-300">
+            <div>
+              <p class="text-sm font-medium text-white/70">Total Users</p>
+              <p class="text-3xl font-semibold text-white mt-2"><%= usersTotal %></p>
             </div>
           </div>
-    
+
           <!-- Active Servers -->
-          <div class="bg-white/5 p-6 rounded-2xl border border-white/5 hover:bg-white/[0.07] transition-colors">
-            <div class="flex items-center gap-4">
-              <div>
-                <p class="text-sm font-medium text-white/60">Active Servers</p>
-                <p class="text-2xl font-semibold text-white mt-1"><%= instancesTotal %></p>
-              </div>
+          <div class="bg-gradient-to-r from-yellow-400 to-orange-500 p-6 rounded-xl border border-white/20 hover:scale-105 transform transition-all duration-300">
+            <div>
+              <p class="text-sm font-medium text-white/70">Active Servers</p>
+              <p class="text-3xl font-semibold text-white mt-2"><%= instancesTotal %></p>
             </div>
           </div>
-    
+
           <!-- Total Nodes -->
-          <div class="bg-white/5 p-6 rounded-2xl border border-white/5 hover:bg-white/[0.07] transition-colors">
-            <div class="flex items-center gap-4">
-              <div>
-                <p class="text-sm font-medium text-white/60">Nodes</p>
-                <p class="text-2xl font-semibold text-white mt-1"><%= nodesTotal %></p>
-              </div>
+          <div class="bg-gradient-to-r from-blue-400 to-blue-600 p-6 rounded-xl border border-white/20 hover:scale-105 transform transition-all duration-300">
+            <div>
+              <p class="text-sm font-medium text-white/70">Total Nodes</p>
+              <p class="text-3xl font-semibold text-white mt-2"><%= nodesTotal %></p>
             </div>
           </div>
         </div>
       </div>
     </section>
-    
-       
-    </div>
-  
-   
-   </div>
-  
+  </div>
 </main>
+
 <%- include('../components/footer') %>

@@ -404,7 +404,7 @@
               </button>
               <button 
               class="menu-button text-white hover:text-gray-300 p-1 rounded-full"
-              onclick="confirmRename('<%= file.name %>', '<%= extension %>');"
+              onclick="openRenameModal('<%= file.name %>', '<%= extension %>');"
               >
               Rename     
             </button>
@@ -775,7 +775,6 @@ function confirmRename() {
     // Construct the URL with the proper file name and extension
     const encodedNewFileName = encodeURIComponent(newFileName);
     const renameUrl = `/instance/<%= req.params.id %>/files/rename/${encodeURIComponent(currentFileName)}${currentExtension}/${encodedNewFileName}`;
-opacity-0
     // Redirect to the URL for renaming
     window.location.href = renameUrl;
   } else {
