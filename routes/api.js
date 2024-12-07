@@ -3,7 +3,9 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const { v4: uuid } = require('uuid');
 const { sendPasswordResetEmail } = require('../handlers/email.js');
+const { logAudit } = require('../handlers/auditlog');
 const { db } = require('../handlers/db.js');
 
 const saltRounds = 10;
@@ -149,119 +151,62 @@ router.get('/api/instances', validateApiKey, async (req, res) => {
   }
 });
 
-router.post('/api/instances/deploy', validateApiKey, async (req, res) => {
-  const {
-    image,
-    memory,
-    cpu,
-    ports,
-    nodeId,
-    name,
-    user,
-    primary
-  } = req.body;
-
+router.get('/api/instances/deploy', validateApiKey, async (req, res) => {
+  const { image, imagename, memory, cpu, ports, nodeId, name, user, primary, variables } =
+    req.query;
   if (!image || !memory || !cpu || !ports || !nodeId || !name || !user || !primary) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
 
   try {
     const Id = uuid().split('-')[0];
-    const Node = await db.get(`${nodeId}_node`);
-    if (!Node) return res.status(400).json({ error: 'Invalid node' });
-
-    let rawImage = await db.get('images');
-    rawImage = rawImage.find(i => i.Image === image);
-    if (!rawImage) return res.status(400).json({ error: 'Invalid image' });
-
-    const { Env, Scripts, AltImages } = rawImage;
-
-    const Memory = parseInt(memory);
-    const Cpu = parseInt(cpu);
-    const ExposedPorts = {};
-    const PortBindings = {};
-    const PrimaryPort = primary;
-
-    const RequestData = {
-      method: 'post',
-      url: `http://${Node.address}:${Node.port}/instances/create`,
-      auth: {
-        username: 'Skyport',
-        password: Node.apiKey
-      },
-      headers: { 
-        'Content-Type': 'application/json'
-      },
-      data: {
-        Name: name,
-        Id,
-        Image: image,
-        Env,
-        Scripts,
-        Memory,
-        Cpu,
-        ExposedPorts,
-        PortBindings,
-        AltImages // Add AltImages to request data
-      }
-    };
-
-    // Process ports
-    if (ports) {
-      ports.split(',').forEach(portMapping => {
-        const [containerPort, hostPort] = portMapping.split(':');
-        const key = `${containerPort}/tcp`;
-        RequestData.data.ExposedPorts[key] = {};
-        RequestData.data.PortBindings[key] = [{ HostPort: hostPort }];
-      });
+    const node = await db.get(`${nodeId}_node`);
+    if (!node) {
+      return res.status(400).json({ error: 'Invalid node' });
     }
 
-    const response = await axios(RequestData);
-
-    // Attempt to get the user's current server list
-    const userId = user;
-    const userServers = await db.get(`${userId}_instances`) || [];
-    const globalServers = await db.get('instances') || [];
-
-    // Append the new server ID to the user's server list
-    const newInstance = {
-      Name: name,
+    const requestData = await prepareRequestData(
+      image,
+      memory,
+      cpu,
+      ports,
+      name,
+      node,
       Id,
-      Node,
-      User: userId,
-      ContainerId: response.data.containerId,
-      VolumeId: response.data.volumeId,
-      Memory,
-      Cpu,
-      Ports: ports,
-      Primary: PrimaryPort,
-      ExposedPorts,
-      PortBindings,
-      Image: image,
-      AltImages // Include AltImages in the new instance
-    };
+      variables,
+      imagename,
+    );
+    const response = await axios(requestData);
 
-    userServers.push(newInstance);
-    globalServers.push(newInstance);
+    await updateDatabaseWithNewInstance(
+      response.data,
+      user,
+      node,
+      image,
+      memory,
+      cpu,
+      ports,
+      primary,
+      name,
+      Id,
+      imagename,
+    );
 
-    // Save the updated list back to the database
-    await db.set(`${userId}_instances`, userServers);
-    await db.set('instances', globalServers);
-    await db.set(`${response.data.containerId}_instance`, newInstance);
-
+    logAudit(req.user.userId, req.user.username, 'instance:create', req.ip);
     res.status(201).json({
-      Message: 'Container created successfully and added to user\'s servers',
-      ContainerId: response.data.containerId,
-      VolumeId: response.data.volumeId
+      message: "Container created successfully and added to user's servers",
+      containerId: response.data.containerId,
+      volumeId: response.data.volumeId,
     });
   } catch (error) {
     console.error('Error deploying instance:', error);
     res.status(500).json({
       error: 'Failed to create container',
-      details: error.response ? error.response.data : 'No additional error info'
+      details: error.response ? error.response.data : 'No additional error info',
     });
   }
 });
+
 router.delete('/api/instance/delete', validateApiKey, async (req, res) => {
   const { id } = req.body;
   
@@ -432,6 +377,113 @@ async function deleteInstance(instance) {
     console.error(`Error deleting instance ${instance.ContainerId}:`, error);
     throw error;
   }
+}
+
+async function updateDatabaseWithNewInstance(
+  responseData,
+  userId,
+  node,
+  image,
+  memory,
+  cpu,
+  ports,
+  primary,
+  name,
+  Id,
+  imagename,
+) {
+  const rawImages = await db.get('images');
+  const imageData = rawImages.find(i => i.Name === imagename);
+
+  let altImages = imageData ? imageData.AltImages : [];
+
+  const instanceData = {
+    Name: name,
+    Id,
+    Node: node,
+    User: userId,
+    ContainerId: responseData.containerId,
+    VolumeId: Id,
+    Memory: parseInt(memory),
+    Cpu: parseInt(cpu),
+    Ports: ports,
+    Primary: primary,
+    Image: image,
+    AltImages: altImages,
+    StopCommand: imageData ? imageData.StopCommand : undefined,
+    imageData,
+    Env: responseData.Env,
+  };
+
+  const userInstances = (await db.get(`${userId}_instances`)) || [];
+  userInstances.push(instanceData);
+  await db.set(`${userId}_instances`, userInstances);
+
+  const globalInstances = (await db.get('instances')) || [];
+  globalInstances.push(instanceData);
+  await db.set('instances', globalInstances);
+
+  await db.set(`${Id}_instance`, instanceData);
+}
+
+async function prepareRequestData(image, memory, cpu, ports, name, node, Id, variables, imagename) {
+  const rawImages = await db.get('images');
+  const imageData = rawImages.find(i => i.Name === imagename);
+
+  const requestData = {
+    method: 'post',
+    url: `http://${node.address}:${node.port}/instances/create`,
+    auth: {
+      username: 'Skyport',
+      password: node.apiKey,
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: {
+      Name: name,
+      Id,
+      Image: image,
+      Env: imageData ? imageData.Env : undefined,
+      Scripts: imageData ? imageData.Scripts : undefined,
+      Memory: memory ? parseInt(memory) : undefined,
+      Cpu: cpu ? parseInt(cpu) : undefined,
+      ExposedPorts: {},
+      PortBindings: {},
+      variables,
+      AltImages: imageData ? imageData.AltImages : [],
+      StopCommand: imageData ? imageData.StopCommand : undefined,
+      imageData,
+    },
+  };
+
+  if (ports) {
+    ports.split(',').forEach(portMapping => {
+      const [containerPort, hostPort] = portMapping.split(':');
+
+      // Adds support for TCP
+      const tcpKey = `${containerPort}/tcp`;
+      if (!requestData.data.ExposedPorts[tcpKey]) {
+        requestData.data.ExposedPorts[tcpKey] = {};
+      }
+
+      if (!requestData.data.PortBindings[tcpKey]) {
+        requestData.data.PortBindings[tcpKey] = [{ HostPort: hostPort }];
+      }
+
+      // Adds support for UDP
+      const udpKey = `${containerPort}/udp`;
+      if (!requestData.data.ExposedPorts[udpKey]) {
+        requestData.data.ExposedPorts[udpKey] = {};
+      }
+
+      if (!requestData.data.PortBindings[udpKey]) {
+        requestData.data.PortBindings[udpKey] = [{ HostPort: hostPort }];
+      }
+    });
+  }
+
+  return requestData;
 }
 
 /**
