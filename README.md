@@ -1,5 +1,5 @@
 <h1> <center> HydraPanel</center></h1>
-![181263366](https://github.com/user-attachments/assets/6fee99af-08de-459c-9617-f6e9f333d809)
+https://github.com/user-attachments/assets/6fee99af-08de-459c-9617-f6e9f333d809
 
 <h2> HydraPanel is an open source panel for managing your game servers, applications and more built with modern technologies such as Node.js, Docker and Express - made to work with our HydraDaemon software.</h2>
 
