@@ -1,4 +1,3 @@
-<h1 align="center">HydraPanel</h1>
 <p align="center">
     <img src="https://github.com/user-attachments/assets/6fee99af-08de-459c-9617-f6e9f333d809" alt="HydraPanel Logo">
 </p>
