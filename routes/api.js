@@ -12,7 +12,7 @@ const saltRounds = 10;
 
 // Middleware to check for a valid API key
 async function validateApiKey(req, res, next) {
-  const apiKey = req.query.x_api_key;
+  const apiKey = req.query.key;
   
   if (!apiKey) {
     return res.status(401).json({error: 'API key is required' });
@@ -145,7 +145,7 @@ router.post('/api/auth/reset-password', validateApiKey, async (req, res) => {
 router.get('/api/instances', validateApiKey, async (req, res) => {
   try {
     const instances = await db.get('instances') || [];
-    res.json(instances);
+    res.status(200).json(instances);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve instances' });
   }
@@ -227,8 +227,8 @@ router.delete('/api/instance/delete', validateApiKey, async (req, res) => {
   }
 });
 
-router.post('/api/instances/suspend/:id', validateApiKey, async (req, res) => {
-  const { id } = req.query;
+router.get('/api/instances/suspend', validateApiKey, async (req, res) => {
+  const id = req.query.id;
 
   try {
     if (!id) {
@@ -250,8 +250,6 @@ router.post('/api/instances/suspend/:id', validateApiKey, async (req, res) => {
 
     await db.set('instances', instances);
 
-    logAudit(req.user.userId, req.user.username, 'instance:suspend', req.ip);
-
     res.status(200).json({ success: `Server ${id} Have Been Suspended` });
   } catch (error) {
     console.error('Error in unsuspend instance endpoint:', error);
@@ -259,8 +257,8 @@ router.post('/api/instances/suspend/:id', validateApiKey, async (req, res) => {
   }
 });
 
-router.post('/api/instances/unsuspend/:id', validateApiKey, async (req, res) => {
-  const { id } = req.query;
+router.get('/api/instances/unsuspend', validateApiKey, async (req, res) => {
+  const id = req.query.id;
 
   try {
     if (!id) {
