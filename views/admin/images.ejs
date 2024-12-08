@@ -34,7 +34,7 @@
         </thead>
         <tbody class="divide-y divide-white/5">
          <% images.forEach(function(image) { %>
-          <tr>
+          <tr class="image-row" data-image='<%= JSON.stringify(image) %>'>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= image.Name %></td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= image.Author %> (<%= image.AuthorName %>)</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= image.Image %></td>
