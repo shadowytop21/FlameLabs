@@ -25,7 +25,8 @@
                      <span id="passwordText" style="filter: blur(5px)" onclick="navigator.clipboard.writeText('<%- logindata.password %>');" onmouseover="this.style.filter = 'none';" onmouseout="this.style.filter = 'blur(5px)';"><%- logindata.password %></span>
                   </div>
                </div>
-               <button class="block mt-8 rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onclick="loginToWinSCP()">Connect via your FTP client</button>
+               <br>
+               <button class="bg-emerald-500/20 hover:bg-emerald-300/20 text-white font-medium py-1.5 px-4 rounded-full hover:scale-95 transition" onclick="loginToWinSCP()">Connect via your FTP client</button>
                <script>
                   function loginToWinSCP() {
                       const username = "<%- logindata.username %>";
