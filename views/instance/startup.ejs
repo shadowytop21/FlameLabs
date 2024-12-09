@@ -86,6 +86,7 @@
         <div class="bg-white/5 rounded-xl p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Advanced Settings</h2>
         <div id="variables-list" class="space-y-4">
+           
         <% if (instance.imageData && instance.imageData.Variables) { %>
             <% Object.keys(instance.imageData.Variables).forEach(function(variableName) { %>
                 <% const variable = instance.imageData.Variables[variableName]; %>
@@ -103,7 +104,12 @@
                     <span class="text-sm ml-2"><%= envObject[variableName] || '' %></span>
                 </div>
             <% }); %>
-        <% } %>
+            <% } else { %>
+                <div class="flex items-center justify-center p-4 bg-white/5 text-white rounded-lg shadow-md">
+                  <p class="text-xl font-semibold">No Variables Found</p>
+                </div>
+              <% } %>
+              
     </div>
 </div>
 
