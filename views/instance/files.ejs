@@ -175,26 +175,48 @@
   }
   .file-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Ensure each file takes up a full row */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Auto adjust columns based on screen width */
     gap: 1rem; /* Space between items */
+    padding: 1rem; /* Optional: Add padding around the grid container */
 }
 
-.file-grid > div {
+.file-grid > a, .file-grid > button {
     display: flex;
     flex-direction: row; /* Arrange icon, name, and size horizontally */
     align-items: center; /* Vertically center the items in the row */
-    justify-content: flex-start; /* Align the items to the left */
+    justify-content: space-between; /* Spread items across the row */
     text-align: left; /* Left align text */
+    padding: 1rem; /* Padding inside each file/directory item */
+    background-color: rgba(255, 255, 255, 0.05); /* Background color for items */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Border for items */
+    border-radius: 8px; /* Rounded corners for items */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition on hover */
+}
+
+.file-grid > a:hover, .file-grid > button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Change background on hover */
+    transform: scale(1.05); /* Slightly scale the item on hover */
 }
 
 .file-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem; /* Space between icon and name */
+    margin-right: 0.75rem; /* Space between the icon and the name */
 }
+
 .file-name {
-    font-size: 0.9rem;
-    word-break: break-word; /* Prevent overflow for long names */
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if text overflows */
 }
+
+.file-size {
+    font-size: 0.875rem; /* Smaller font size for file size */
+    color: rgba(255, 255, 255, 0.7); /* Lighter color for the file size */
+    min-width: 100px; /* Ensure space for file size, preventing items from becoming too squished */
+}
+
   .toast {
       position: fixed;
       bottom: 1rem;
@@ -264,20 +286,20 @@
    <%
       function getFileIcon(purpose) {
         const icons = {
-          programming: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w8 h-8">
+          programming: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5">
            <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" />
          </svg>
          `,
-         webDevelopment: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w8 h-8">
+         webDevelopment: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5">
           <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z" clip-rule="evenodd" />
         </svg>
         `,
-         database: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+         database: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
         </svg>
         `,
-         folder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-8 h-8"><path d="M3.75 3A1.75 1.75 0 002 4.75v3.26a3.235 3.235 0 011.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0016.25 5h-4.836a.25.25 0 01-.177-.073L9.823 3.513A1.75 1.75 0 008.586 3H3.75zM3.75 9A1.75 1.75 0 002 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0018 15.25v-4.5A1.75 1.75 0 0016.25 9H3.75z" /></svg>`,
-          other: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm2.25 8.5a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" /></svg>`,
+         folder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5"><path d="M3.75 3A1.75 1.75 0 002 4.75v3.26a3.235 3.235 0 011.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0016.25 5h-4.836a.25.25 0 01-.177-.073L9.823 3.513A1.75 1.75 0 008.586 3H3.75zM3.75 9A1.75 1.75 0 002 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0018 15.25v-4.5A1.75 1.75 0 0016.25 9H3.75z" /></svg>`,
+          other: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm2.25 8.5a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" /></svg>`,
          
         };
       
@@ -323,25 +345,29 @@
 
     <%- include('../components/instance') %>
     <div class="bg-white/5 rounded-xl p-6 mb-6">
+      <div class="flex flex-grow-0 items-center text-sm text-neutral-500 overflow-x-hidden">
+        <div class="flex items-center">
+          <div class="">/<span class="px-1 text-neutral-300">app</span></div>
+          <span class="px-1 text-neutral-300">/</span>
+          <a href="/instance/<%= req.params.id %>/files" class="px-1 text-neutral-200 no-underline hover:text-neutral-100">
+            <p>data</p>
+          </a>
+          
+          <% if (req.query.path) { %>
+            <span class="px-1 text-neutral-300">/</span>
+            <p class="px-1 text-neutral-200 no-underline hover:text-neutral-100"><%= req.query.path %></p>
+          <% } %>
+        </div>
+      </div>
+      
+      
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold heavy">Files</h2>
+            <h2 class="text-xl font-semibold text-center">Files</h2>
             <div class="flex items-center space-x-2">
               <br>
-              <th class="px-6 py-3 text-left">
-                <input type="checkbox" id="selectAll" class="form-checkbox h-5 w-5 text-neutral-500 bg-white/10 border border-white/15 rounded focus:ring-offset-neutral-800 focus:ring-neutral-700 transition focus:border-none file-checkbox">
-              </th>
-    <div class="relative flex-grow">
-        <input 
-            type="text" 
-            id="file-search" 
-            class="w-full bg-black/20 border border-transparent rounded-lg py-2 px-4 pl-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-            placeholder="Search files..."
-        >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-    </div>
-    <div class="flex items-center space-x-2">
+       
+   
+    <!--div class="flex items-center space-x-2">
         <select 
             id="sort-by" 
             class=" bg-black/20 rounded-lg border border-transparent py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
@@ -352,7 +378,7 @@
             <option>&nbsp;</option>
         </select>
         
-    </div>
+    </div-->
 </div>
             <div class="flex space-x-2">
                 <button onclick="showModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-1.5 px-4 rounded-full transition">New Folder</button>
@@ -363,63 +389,73 @@
             
         </div>
         
-        <div class="file-grid">
+        <div class="px-4 sm:px-6 lg:px-8">
+          <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-6">
           <% files.filter(file => file.isDirectory).forEach(function(directory) { %>
-            <% let currentPath = req.query.path ? req.query.path + '/' : ''; %>
-            <div class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between" oncontextmenu="showContextMenu(event, '<%= directory.name %>')">
-              
-              <div class="absolute top-2 right-2">
-                <!-- Three-dot button -->
-                <button 
-                class="menu-button text-red-500 hover:text-red-700 p-1 rounded-full"
-                onclick="confirmDelete('<%= directory.name %>', '');">
-                Delete     
-              </button>
-              <button 
-              class="menu-button text-white hover:text-gray-300 p-1 rounded-full"
-              onclick="confirmRename('<%= directory.name %>', '');"
-              >
-              Rename     
-            </button>
-              </div>
-              <button onclick="redirectToInstanceDirectory('<%= req.params.id %>', '<%= currentPath %>', '<%= directory.name %>')" class="flex items-center space-x-4 w-full">
-                  <div class="file-icon"><%- getFileIcon('folder') %></div>
-                  <div class="file-name text-center flex-grow"><%= directory.name %></div>
-              </button>
-          </div>
-          
-            <% }); %>
-          <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
-            <% let extension = req.query.path ? '?path=' + req.query.path : ''; %>
-            <div 
-            class="file-card relative bg-white/5 p-4 rounded-lg transition-all duration-200 hover:bg-white/10 cursor-pointer hover:scale-95 flex items-center justify-between"
-          >
-            <div class="absolute top-2 right-2">
-              <!-- Three-dot button -->
-              <button 
-                class="menu-button text-red-500 hover:text-red-700 p-1 rounded-full"
-                onclick="confirmDelete('<%= file.name %>', '<%= extension %>');">
-                Delete     
-              </button>
-              <button 
-              class="menu-button text-white hover:text-gray-300 p-1 rounded-full"
-              onclick="openRenameModal('<%= file.name %>', '<%= extension %>');"
-              >
-              Rename     
-            </button>
-            </div>
+            <% let currentPath; %>
+            <% if (req.query.path) { %>
+               <% currentPath = req.query.path + '/' %>
+            <% } else { %>
+               <% currentPath = '' %>
+            <% } %>
             
-            <!-- Button for file with flexbox to make everything in a single line -->
-            <button onclick="redirectToInstanceFile('<%= req.params.id %>', '<%= file.name %>', '<%= extension %>')" class="flex items-center space-x-2 w-full">
-              <div class="file-icon"><%- getFileIcon(file.purpose) %></div>
-              <div class="file-name text-center flex-grow"><%= file.name %></div>
-            </button>
-          </div>
-          
-          
+            <a href="/instance/<%= req.params.id %>/files?path=<%= currentPath %><%= directory.name %>" class="p-3 hover:bg-[#171717] hover:scale-105 transition bg-transparent shadow-xl border border-white/5 rounded-lg overflow-hidden sm:p-3 lg:p-5">
+               <div class="lg:flex lg:items-center lg:justify-between">
+                  <div class="min-w-0 flex-1">
+                     <h2 class="text-md font-medium text-white tracking-tight">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mb-0.5 inline-flex mr-1.5">
+                           <path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v3.26a3.235 3.235 0 0 1 1.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM3.75 9A1.75 1.75 0 0 0 2 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-4.5A1.75 1.75 0 0 0 16.25 9H3.75Z" />
+                         </svg>
+                         <%= directory.name %>
+                     </h2>
+                  </div>
+               </div>
+            </a>
           <% }); %>
-          
-        </div>
+          </dl>
+          <table class="min-w-full mt-5 table-auto border-separate border border-white/5 shadow rounded-xl">
+             <thead class="text-white">
+                <tr>
+                   <th class="px-6 py-3 text-left">File Name</th>
+                   <th class="px-6 py-3 text-left">&nbsp;</th>
+                </tr>
+             </thead>
+             <tbody>
+               <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
+                  <% let extension; %>
+                  <% if (req.query.path) { %>
+                     <% extension = '?path=' + req.query.path %>
+                  <% } else { %>
+                     <% extension = '' %>
+                  <% } %>
+                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class="bg-transparent rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white border-none">
+                      <div class="flex items-center space-x-2">
+                        <%- getFileIcon(file.purpose) %>
+                        <span><%= file.name %></span>
+                      </div>
+                    </td>                    
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-none">
+                      <div class="flex space-x-4">
+                        <!-- Delete Button -->
+                        <button onclick="event.stopPropagation(); confirmDelete('<%= file.name %>', '<%= extension %>');" class="text-red-500 hover:text-red-400 transition bg-transparent border border-red-500 px-4 py-2 rounded-lg">
+                          Delete
+                        </button>
+                        
+                        <!-- Rename Button -->
+                        <button onclick="event.stopPropagation(); openRenameModal('<%= file.name %>', '<%= extension %>')" class="text-white hover:text-gray-200 transition bg-transparent border border-white px-4 py-2 rounded-lg">
+                          Rename
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+               <% }); %>
+             </tbody>
+          </table>
+       </div>
+        
+        
         <div id="floatingActionBar" class="hidden fixed bottom-0 left-0 right-0 bg-neutral-600/20/70 backdrop-blur text-white py-4 px-6 transform tranneutral-y-full transition-transform duration-300 ease-in-out flex justify-between items-center">
           <span id="selectedFilesCount">0 files selected</span>
           <button id="massDeleteBtn" class="bg-red-500 hover:bg-red-600 text-white font-normal py-2 px-4 rounded-xl transition">
