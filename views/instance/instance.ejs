@@ -80,6 +80,7 @@ const eulaPopupHTML = `
 
     // Function to accept the EULA
     async function acceptEula() {
+        const instanceId = "<%= req.params.id %>" || '';
         try {
             // Send a request to write "eula=true" to the server
             await fetch(`/instance/<%= req.params.id %>/imagefeatures/eula`, {
@@ -90,7 +91,7 @@ const eulaPopupHTML = `
             });
 
             hideEulaPopup();
-            showAlert('success', 'EULA Accepted', 'The Minecraft EULA has been accepted, and the server is restarting.');
+            showAlert('success', 'EULA Accepted', 'The Minecraft EULA has been accepted, Please Start your server.');
         } catch (error) {
             console.error('Error accepting EULA:', error);
             showAlert('error', 'EULA Acceptance Failed', 'An error occurred while accepting the EULA. Please try again.');
@@ -124,7 +125,7 @@ const eulaPopupHTML = `
       </div>
 <% } else { %>
     <% } %>
-      <div id="alert-container" class="mb-4 space-y-2"></div>
+      <div id="alert-container" class="mb-4 space-y-2"></div>    
       <div class="flex space-x-2 mb-4">
         
     </div>
@@ -305,12 +306,45 @@ const eulaPopupHTML = `
                                         </button>
                                     </div>
                                 </div>
+                                <br>
+                                <div class="card rounded-xl p-6">                                
+                                    <div class="flex flex-col space-y-2">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h2 class="text-lg font-semibold text-white" id="server-name-card">Server Properties</h2>
+                                        </div>
+                                        
+                                        <!-- Warning Message -->
+                                        <div class="bg-yellow-500 text-black p-3 rounded-lg border border-yellow-600 mb-4">
+                                            <p class="text-sm">
+                                                <strong>Warning:</strong> This will Resetting the <code>server.properties</code> file will revert all custom configurations to default. Please ensure you have backed up any important settings before proceeding.
+                                            </p>
+                                        </div>
+                                        
+                                        <button onclick="enableCrack()" class="bg-emerald-400 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Enable Cracked
+                                        </button>
+                                        <script>
+                                            function enableCrack() {
+                                                const id = "<%= req.params.id %>"
+                                                showAlert('success', 'Enabled Cracked', 'You have successfully enabled the cracked feature. Please restart or start your server to take effect.');
+                                                setTimeout(() => {
+                                                     window.location.href = `/instance/${id}/imagefeatures/cracked`;
+                                                     }, 1700);
+                                              }
+                                        </script>
+                                    </div>
+                                </div>
                                 
                                 <% } else { %>
                                     <% } %>
                         </div>
                        
                         </div>
+                        <% if (req.query.settings === 'success' && req.query.cracked) { %>
+                            <script>
+                              showAlert('success', 'Enabled Cracked', 'You have successfully enabled the cracked feature. Please restart or start your server to take effect.');
+                            </script>
+                          <% } %>  
                         <script>
                            ['start', 'stop', 'restart'].forEach(action => {
                            document.getElementById(`${action}Button`).addEventListener('click', function () {
@@ -456,7 +490,7 @@ const eulaPopupHTML = `
             ws.onmessage = handleWebSocketMessage;
             ws.onclose = () => {
                 console.log('WebSocket connection closed, attempting to reconnect...');
-                setTimeout(initWebSocket, 3000);
+                setTimeout(initWebSocket, 1);
             };
             ws.onerror = (error) => {
                 console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
@@ -485,6 +519,11 @@ const eulaPopupHTML = `
                     term.clear();
                     ws.close();
                 }
+
+                if (trimmedLine.replace(/^\[\d{2}:\d{2}:\d{2} WARN\]: /, '').includes("Failed to load eula.txt")) {
+                   showEulaPopup();
+               }
+
         
                 let alertShown = false; // Flag to track if the alert has been shown
                
@@ -507,17 +546,18 @@ const eulaPopupHTML = `
         }
            
         function setupTerminal() {
-    term = new Terminal({
-        disableStdin: true,
-        allowProposedApi: true,
-        rows: 20,
-        cols: 100,
-        fontFamily: 'Menlo, monospace',
-        theme: baseTheme,
-        allowTransparency: true,
-        fontSize: 12,
-        lineHeight: 1.0, // Standard line height
-    });
+           term = new Terminal({
+               disableStdin: true,
+               allowProposedApi: true,
+               cursorStyle: 'underline',
+               rows: 20,
+               cols: 100,
+               fontFamily: 'Menlo, monospace',
+               theme: baseTheme,
+               allowTransparency: true,
+               fontSize: 12,
+               lineHeight: 1.0, // Standard line height
+           });
 
     const terminalContainer = document.getElementById('terminal');
     term.open(terminalContainer);
@@ -528,7 +568,7 @@ const eulaPopupHTML = `
         const lines = data.split(/\r?\n/);
 
         // Check if the user is an admin by accessing the user status (this can be done in various ways depending on your setup)
-        const isAdmin = <%= req.user.admin %>; // Assuming this is set server-side in your template
+        const isAdmin = "<%= req.user.admin %>"; // Assuming this is set server-side in your template
 
         // If the user is an admin, include "Unpacking" lines, else filter them out
         const filteredData = lines
@@ -667,7 +707,7 @@ const eulaPopupHTML = `
             const ramStatsLimit = stats.memory_stats.limit || 0;
 
             const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-            const ramLimitRaw = ramStatsLimit / 1024 / 1024 || <%= instance.Memory %>;
+            const ramLimitRaw = ramStatsLimit / 1024 / 1024 || "<%= instance.Memory %>";
             const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
             
             document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
