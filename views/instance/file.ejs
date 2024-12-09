@@ -112,7 +112,15 @@ require(['vs/editor/editor.main'], function () {
     var editor = monaco.editor.create(document.getElementById('editor'), {
         value: <%- JSON.stringify(file) %>,
         language: '<%= language %>',
-        theme: 'vs-dark'
+        theme: 'vs-dark',
+        rules: [
+        { token: 'comment', foreground: '7F7F7F', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'C586C0', fontStyle: 'bold' }
+    ],
+    colors: {
+        'editor.background': '#1E1E1E',
+        'editor.foreground': '#D4D4D4',
+    }
     });
     window.editor = editor;
     window.addEventListener('keydown', function(e) {
