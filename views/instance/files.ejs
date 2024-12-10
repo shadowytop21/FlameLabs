@@ -399,7 +399,7 @@
                <% currentPath = '' %>
             <% } %>
             
-            <a href="/instance/<%= req.params.id %>/files?path=<%= currentPath %><%= directory.name %>" class="p-3 hover:bg-[#171717] hover:scale-105 transition bg-transparent shadow-xl border border-white/5 rounded-lg overflow-hidden sm:p-3 lg:p-5">
+            <a href="/instance/<%= req.params.id %>/files?path=<%= currentPath %><%= directory.name %>" class="p-3 hover:bg-[#1c1b1b] hover:scale-105 transition shadow-xl border border-white/5 rounded-lg overflow-hidden sm:p-3 lg:p-5">
                <div class="lg:flex lg:items-center lg:justify-between">
                   <div class="min-w-0 flex-1">
                      <h2 class="text-md font-medium text-white tracking-tight">
@@ -428,7 +428,7 @@
                   <% } else { %>
                      <% extension = '' %>
                   <% } %>
-                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class="bg-transparent rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
+                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class= rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white border-none">
                       <div class="flex items-center space-x-2">
                         <%- getFileIcon(file.purpose) %>
@@ -438,12 +438,12 @@
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-none">
                       <div class="flex space-x-4">
                         <!-- Delete Button -->
-                        <button onclick="event.stopPropagation(); confirmDelete('<%= file.name %>', '<%= extension %>');" class="text-red-500 hover:text-red-400 transition bg-transparent border border-red-500 px-4 py-2 rounded-lg">
+                        <button onclick="event.stopPropagation(); confirmDelete('<%= file.name %>', '<%= extension %>');" class="bg-red-400 text-white hover:text-gray-700 transition border border-red-500 px-4 py-2 rounded-lg">
                           Delete
                         </button>
                         
                         <!-- Rename Button -->
-                        <button onclick="event.stopPropagation(); openRenameModal('<%= file.name %>', '<%= extension %>')" class="text-white hover:text-gray-200 transition bg-transparent border border-white px-4 py-2 rounded-lg">
+                        <button onclick="event.stopPropagation(); openRenameModal('<%= file.name %>', '<%= extension %>')" class="bg-white text-black hover:text-gray-700 transition border border-white px-4 py-2 rounded-lg">
                           Rename
                         </button>
                       </div>
@@ -513,26 +513,26 @@
             menu.classList.add('hidden');
           });
         </script>
-        
-   
-    <div id="new-file-modal" class="modal-overlay z-50">
-      <div class="modal-content">
-          <h3 class="text-xl font-semibold mb-4">Create New File</h3>
-          <input type="text" id="new-file-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="File Name">
-          <div class="flex justify-end">
-              <button onclick="closeModal('new-file-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
-              <button onclick="createfileconfirm()" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
-          </div>
+      
+   <!-- Create Folder Modal -->
+<div id="new-file-modal" class="modal-overlay z-50">
+  <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
+      <h3 class="text-xl text-black font-semibold mb-4">Create New File</h3>
+      <input type="text" id="new-file-name" class="text-black w-full px-3 py-2 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition mb-4" placeholder="File Name">
+      <div class="flex justify-end space-x-4">
+          <button onclick="closeModal('new-file-modal')" class="px-5 py-2 bg-neutral-200 text-neutral-800 rounded-xl hover:bg-neutral-300 transition">Cancel</button>
+          <button onclick="createfileconfirm()" class="px-5 py-2 bg-neutral-800 text-white rounded-xl hover:bg-neutral-700 transition">Create</button>
       </div>
   </div>
+</div>
   <!-- Create Folder Modal -->
 <div id="create-folder-modal" class="modal-overlay z-50">
-  <div class="modal-content">
-      <h3 class="text-xl font-semibold mb-4">Create New Folder</h3>
-      <input type="text" id="new-folder-name" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Folder Name">
-      <div class="flex justify-end">
-          <button onclick="closeModal('create-folder-modal')" class="action-button bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-xl transition mr-2">Cancel</button>
-          <button onclick="createfolderconfirm()" class="action-button bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Create</button>
+  <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
+      <h3 class="text-xl text-black font-semibold mb-4">Create New Folder</h3>
+      <input type="text" id="new-folder-name" class="text-black w-full px-3 py-2 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition mb-4" placeholder="Folder Name">
+      <div class="flex justify-end space-x-4">
+          <button onclick="closeModal('create-folder-modal')" class="px-5 py-2 bg-neutral-200 text-neutral-800 rounded-xl hover:bg-neutral-300 transition">Cancel</button>
+          <button onclick="createfolderconfirm()" class="px-5 py-2 bg-neutral-800 text-white rounded-xl hover:bg-neutral-700 transition">Create</button>
       </div>
   </div>
 </div>

@@ -81,7 +81,6 @@
       transition: transform 0.2s ease;
     }
     .card {
-      background-color: rgba(255, 255, 255, 0.05);
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
     }
@@ -117,32 +116,32 @@
     }
   </style>
     
-  <nav class="relative z-50 mb-6">
-        <div id="menu-items" class="hidden md:block">
-            <div class="rounded-full bg-white/5 backdrop-blur-xl p-1.5 inline-flex items-center">
-                <a href="/instance/<%= req.params.id %>" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    Console
-                </a>
-                <a href="/instance/<%= req.params.id %>/files" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    Files
-                </a>
-                <a href="/instance/<%= req.params.id %>/users" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    Sub Users
-                </a>
-                <!-- Server Content -->
-                <a href="/instance/<%= req.params.id %>/ftp" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    FTP
-                </a>
-                <a href="/instance/<%= req.params.id %>/archives" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    Backups
-                </a>
-                <a href="/instance/<%= req.params.id %>/network" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                    Network
-                </a>
-                <a href="/instance/<%= req.params.id %>/startup" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
-                  Settings
+    <nav class="relative z-50 mb-6">
+      <div id="menu-items" class="hidden md:block">
+          <div class="rounded-full bg-white/5 backdrop-blur-xl p-1.5 inline-flex items-center">
+              <a href="/instance/<%= req.params.id %>" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Console
               </a>
-                    </div>
-                </div>
-    </nav>
-    
+              <a href="/instance/<%= req.params.id %>/files" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Files
+              </a>
+              <a href="/instance/<%= req.params.id %>/users" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Sub Users
+              </a>
+              <!-- Server Content -->
+              <a href="/instance/<%= req.params.id %>/ftp" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  FTP
+              </a>
+              <a href="/instance/<%= req.params.id %>/archives" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Backups
+              </a>
+              <a href="/instance/<%= req.params.id %>/network" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                  Network
+              </a>
+              <a href="/instance/<%= req.params.id %>/startup" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
+                Settings
+              </a>
+          </div>
+      </div>
+  </nav>
+
