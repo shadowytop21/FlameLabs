@@ -428,7 +428,7 @@
                   <% } else { %>
                      <% extension = '' %>
                   <% } %>
-                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class= rounded-xl hover:bg-neutral-700/5 cursor-pointer transition border-none">
+                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class=rounded-xl hover:bg-neutral-700 cursor-pointer transition border-none">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white border-none">
                       <div class="flex items-center space-x-2">
                         <%- getFileIcon(file.purpose) %>

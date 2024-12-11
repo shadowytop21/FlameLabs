@@ -520,6 +520,11 @@ const eulaPopupHTML = `
                     ws.close();
                 }
 
+                if (trimmedLine.includes('INFO]: Done') && trimmedLine.includes('For help, type "help"')) {
+                // Execute custom action if the pattern is found
+                term.write('\n\u001b[1m\u001b[33mcontainer@hydra~ \u001b[0mServer marked as Started\r\n');
+            }
+
                 if (trimmedLine.replace(/^\[\d{2}:\d{2}:\d{2} WARN\]: /, '').includes("Failed to load eula.txt")) {
                    showEulaPopup();
                }
