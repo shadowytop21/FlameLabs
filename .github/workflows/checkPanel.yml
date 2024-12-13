@@ -26,7 +26,7 @@ jobs:
       run: npm run seed
 
     - name: Create a test user
-      run: npm run createuser -- --username=test --email=test --password=test
+      run: npm run createUser -- --username=test --email=test --password=test
 
     - name: Start the application
       run: |
