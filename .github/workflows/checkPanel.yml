@@ -1,0 +1,44 @@
+name: Node.js Application Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Seed the database
+      run: npm run seed
+
+    - name: Create a test user
+      run: npm run createuser -- --username=test --email=test --password=test
+
+    - name: Start the application
+      run: |
+        nohup node . > app.log 2>&1 &
+        sleep 5
+
+    - name: Check if the application is running
+      run: |
+        if grep -q 'HydraPanel is listening on port 3001' app.log; then
+          echo "Application is running successfully.";
+        else
+          echo "Application failed to start.";
+          cat app.log;
+          exit 1;
+        fi
