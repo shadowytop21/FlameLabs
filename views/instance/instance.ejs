@@ -205,26 +205,30 @@ const eulaPopupHTML = `
         <br>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     
-                    <div class="bg-white/5 rounded-l-2xl rounded-lg p-6">
-                       <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.cpuUsage %></h3>
-                        <div class="flex items-center">
-                           
-                            <span id="cpuUsage" class="text-sm font-medium"></span>
-                        </div>
-                    </div>
-                    <div class="bg-white/5 rounded-lg p-6">
+                   <!-- CPU Usage Container -->
+<div id="cpuUsageContainer" class="bg-white/5 rounded-lg p-6">
+    <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.cpuUsage %></h3>
+    <div class="flex items-center">
+        <span id="cpuUsage" class="text-sm font-medium"></span>
+    </div>
+</div>
+
+<!-- Disk Usage Container -->
+<div id="diskUsageContainer" class="bg-white/5 rounded-lg p-6">
+    <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.diskUsage %></h3>
+    <div class="flex items-center">
+        <span id="diskUsage" class="text-sm font-medium"></span>
+    </div>
+</div>
+
+                    <div id="ramUsageContainer" class="bg-white/5 rounded-lg p-6">
+                        
                         <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.ramUsage %></h3>
                         <div class="flex items-center">
                             <span id="ramUsage" class="text-sm font-medium"></span>
                         </div>
-                    </div>
-                    <div class="bg-white/5 rounded-lg p-6">
-                        <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.diskUsage %></h3>
-                        <div class="flex items-center">
-                          
-                            <span id="diskUsage" class="text-sm font-medium"></span>
-                        </div>
-                    </div>
+                    </div>                    
+                   
                     </div>
 
                     
@@ -706,38 +710,77 @@ const eulaPopupHTML = `
             });
         }
         
-        
         function updateRamUsage(stats) {
-            const ramStatsUsage = stats.memory_stats.usage || 0;
-            const ramStatsLimit = stats.memory_stats.limit || 0;
+    const ramStatsUsage = stats.memory_stats.usage || 0;
+    const ramStatsLimit = stats.memory_stats.limit || 0;
 
-            const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-            const ramLimitRaw = ramStatsLimit / 1024 / 1024 || "<%= instance.Memory %>";
-            const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
-            
-            document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
+    const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0; // Convert to MB
+    const ramLimitRaw = ramStatsLimit / 1024 / 1024 || 0; // Convert to MB
+    const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
+
+    // Update the text content for RAM usage
+    document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
+
+    // Select the container div
+    const ramUsageContainer = document.getElementById('ramUsageContainer');
+
+    // Remove the bg-white/5 class and add bg-red-500 if RAM usage exceeds 90%
+    if (ramUsagePercent >= 90) {
+        ramUsageContainer.classList.remove('bg-white/5');
+        ramUsageContainer.classList.add('bg-red-500');
+    } else {
+        ramUsageContainer.classList.remove('bg-red-500');
+        ramUsageContainer.classList.add('bg-white/5');
+    }
+}
         
-        }
-        
-        function updateCpuUsage(stats) {
-            const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
-            const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-            const cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
-        
-            if (isNaN(cpuUsagePercent)) {
-                cpuUsagePercent = 0;
-            }
-        
-            document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
-            
-        }
-        
-        function updateDiskUsage(stats) {
-            const diskUsageRaw = parseFloat(stats.volumeSize);
-            const diskLimitRaw = 10 * 1024; // Assuming 10GB limit
-            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
-            document.getElementById('diskUsage').textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
-        }
+     // Update CPU Usage
+function updateCpuUsage(stats) {
+    const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+    const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+    let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+
+    if (isNaN(cpuUsagePercent)) {
+        cpuUsagePercent = 0;
+    }
+
+    // Update CPU usage text content
+    document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
+
+    // Select the container div for CPU usage
+    const cpuUsageContainer = document.getElementById('cpuUsageContainer');
+
+    // Remove the bg-white/5 class and add bg-red-500 if CPU usage exceeds 90%
+    if (parseFloat(cpuUsagePercent) >= 90) {
+        cpuUsageContainer.classList.remove('bg-white/5');
+        cpuUsageContainer.classList.add('bg-red-500');
+    } else {
+        cpuUsageContainer.classList.remove('bg-red-500');
+        cpuUsageContainer.classList.add('bg-white/5');
+    }
+}
+
+// Update Disk Usage
+function updateDiskUsage(stats) {
+    const diskUsageRaw = parseFloat(stats.volumeSize); // in MB
+    const diskLimitRaw = 10 * 1024; // Assuming 10GB limit (in MB)
+    const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
+
+    // Update disk usage text content
+    document.getElementById('diskUsage').textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
+
+    // Select the container div for Disk usage
+    const diskUsageContainer = document.getElementById('diskUsageContainer');
+
+    // Remove the bg-white/5 class and add bg-red-500 if disk usage exceeds 90%
+    if (parseFloat(diskUsagePercent) >= 90) {
+        diskUsageContainer.classList.remove('bg-white/5');
+        diskUsageContainer.classList.add('bg-red-500');
+    } else {
+        diskUsageContainer.classList.remove('bg-red-500');
+        diskUsageContainer.classList.add('bg-white/5');
+    }
+}
         
         function updateStatus(stats) {
             const statusElement = document.getElementById('status');
@@ -746,12 +789,7 @@ const eulaPopupHTML = `
             if (ramUsageRaw > 1) {
     statusElement.textContent = '.Online';
     statusElement.className = 'text-emerald-500'; // Smaller text
-} else {
-    statusElement.textContent = '-Offline';
-    statusElement.className = ''; // Smaller text
-    term.clear();
-    term.write('\u001b[HydraD] \x1b[0mThis instance appears to be offline!\r\n');
-}
+} 
 
         }
         

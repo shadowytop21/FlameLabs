@@ -56,6 +56,7 @@ router.get("/instance/:id/files", async (req, res) => {
         res.status(500).render('500', { 
             error: errorMessage, 
             req, 
+            instance,
             user: req.user, 
             name: await db.get('name') || 'HydraPanel', 
             logo: await db.get('logo') || false,
