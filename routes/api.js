@@ -7,6 +7,7 @@ const { v4: uuid } = require('uuid');
 const { sendPasswordResetEmail } = require('../handlers/email.js');
 const { logAudit } = require('../handlers/auditlog');
 const { db } = require('../handlers/db.js');
+const nodemon = require('nodemon');
 
 const saltRounds = 10;
 
@@ -367,22 +368,23 @@ router.get('/api/nodes', validateApiKey, async (req, res) => {
   }
 });
 
-router.post('/api/nodes/create', validateApiKey, async (req, res) => {
+router.get('/api/nodes/create/:name/:tags/:ram/:disk/:processor/:address/:port', validateApiKey, async (req, res) => {
+  const configureKey = uuidv4(); // Generate a unique configureKey
   const node = {
     id: uuidv4(),
-    name: req.body.name,
-    tags: req.body.tags,
-    ram: req.body.ram,
-    disk: req.body.disk,
-    processor: req.body.processor,
-    address: req.body.address,
-    port: req.body.port,
+    name: req.params.name,
+    tags: req.params.tags,
+    ram: req.params.ram,
+    disk: req.params.disk,
+    processor: req.params.processor,
+    address: req.params.address,
+    port: req.params.port,
     apiKey: null, // Set to null initially
     configureKey: configureKey, // Add the configureKey
     status: 'Unconfigured' // Status to indicate pending configuration
   };
 
-  if (!req.body.name || !req.body.tags || !req.body.ram || !req.body.disk || !req.body.processor || !req.body.address || !req.body.port) {
+  if (!req.params.name || !req.params.tags || !req.params.ram || !req.params.disk || !req.params.processor || !req.params.address || !req.params.port) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
 
@@ -393,11 +395,11 @@ router.post('/api/nodes/create', validateApiKey, async (req, res) => {
   nodes.push(node.id);
   await db.set('nodes', nodes);
 
-  res.status(201).json({ Message: updatedNode });
+  res.status(201).json({ success: true });
 });
 
-router.delete('/api/nodes/delete', validateApiKey, async (req, res) => {
-  const nodeId = req.body.nodeId;
+router.get('/api/nodes/delete/:id', validateApiKey, async (req, res) => {
+  const nodeId = req.params.nodeId;
   const nodes = await db.get('nodes') || [];
   const newNodes = nodes.filter(id => id !== nodeId);
 
@@ -407,6 +409,38 @@ router.delete('/api/nodes/delete', validateApiKey, async (req, res) => {
   await db.delete(nodeId + '_node');
 
   res.status(201).json({ Message: "The node has successfully deleted." });
+});
+
+router.get('/api/nodes/configure-command', validateApiKey, async (req, res) => {
+  const { id } = req.query.id;
+  try {
+    // Fetch the node from the database
+    const node = await db.get(id + '_node');
+    if (!node) {
+      return res.status(404).json({ error: 'Node not found' });
+    }
+
+    // Generate a new configure key
+    const configureKey = uuidv4();
+
+    // Update the node with the new configure key
+    node.configureKey = configureKey;
+    await db.set(id + '_node', node);
+
+    // Construct the configuration command
+    const panelUrl = `${req.protocol}://${req.get('host')}`;
+    const configureCommand = `npm run configure -- --panel ${panelUrl} --key ${configureKey}`;
+
+    // Return the configuration command
+    res.json({
+      nodeId: id,
+      configureCommand: configureCommand
+    });
+
+  } catch (error) {
+    console.error('Error generating configure command:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Function

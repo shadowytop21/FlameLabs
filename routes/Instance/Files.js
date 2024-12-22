@@ -45,6 +45,7 @@ router.get("/instance/:id/files", async (req, res) => {
             req, 
             files: files, 
             user: req.user, 
+            instance,
             name: await db.get('name') || 'HydraPanel', 
             logo: await db.get('logo') || false ,
             addons: {
