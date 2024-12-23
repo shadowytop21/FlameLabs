@@ -45,6 +45,7 @@ router.get("/instance/:id/files/view/:file", async (req, res) => {
         const fileContent = await fetchFileContent(instance, file, req.query.path);
         res.render('instance/file', { 
             req, 
+            instance,
             file: fileContent, 
             user: req.user, 
             name: await db.get('name') || 'HydraPanel', 

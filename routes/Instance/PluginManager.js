@@ -40,16 +40,27 @@ async function getPluginDetails(id) {
     return null;
   }
 }
-
-async function getPluginVersions(id) {
+async function getPluginVersions(id, minecraftVersion) {
   try {
     const response = await axios.get(`${BASE_URL}/plugin_versions?id=${id}`);
     const pluginVersions = response.data;
 
+    // Filter versions based on the specified Minecraft version
+    const filteredVersions = pluginVersions.filter(
+      (version) => version.game_versions.includes(minecraftVersion)
+    );
+
+    if (filteredVersions.length === 0) {
+      throw new Error(`No compatible versions found for Minecraft version ${minecraftVersion}`);
+    }
+
+    // Return the first valid version (you can modify logic if needed)
+    const selectedVersion = filteredVersions[0];
+
     return {
-      game_versions: pluginVersions.game_versions || [],
-      download: pluginVersions.download || null,
-      size: pluginVersions.size || null,
+      game_versions: selectedVersion.game_versions || [],
+      download: selectedVersion.download || null,
+      size: selectedVersion.size || null,
     };
   } catch (error) {
     console.error('Error fetching plugin versions:', error);
@@ -131,49 +142,79 @@ router.get('/api/plugin/info/:id', async (req, res) => {
         }
     });
 });
-router.get("/instance/:id/plugins/download/:pluginId", async (req, res) => {
-    if (!req.user) return res.redirect('/');
 
-    const { id, pluginId } = req.params;
-    if (!id) return res.redirect('/');
+router.get("/instance/:id/plugins/download/:pluginId/:minecraft_version", async (req, res) => {
+  if (!req.user) return res.redirect('/');
 
-    let instance = await db.get(id + '_instance');
-    if (!instance) return res.redirect('../instances');
+  const { id, pluginId, minecraft_version } = req.params;
+  if (!id || !minecraft_version) return res.redirect('/');
 
-    const java = 'quay.io/skyport/java:21'
+  let instance = await db.get(id + '_instance');
+  if (!instance) return res.redirect('../instances');
 
-    if (!instance.Image === java) {
-        return res.redirect('../../instance/' + id);
+  const java = 'quay.io/skyport/java:21';
+
+  if (instance.Image !== java) {
+    return res.redirect(`../../instance/${id}`);
+  }
+
+  const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+  if (!isAuthorized) {
+    return res.status(403).send('Unauthorized access to this instance.');
+  }
+
+  if (!instance.suspended) {
+    instance.suspended = false;
+    db.set(id + '_instance', instance);
+  }
+
+  if (instance.suspended === true) {
+    return res.redirect(`../../instance/${id}/suspended`);
+  }
+
+  try {
+    // Fetch plugin versions and filter by Minecraft version
+    const pluginData = await getPluginVersions(pluginId, minecraft_version);
+    if (!pluginData || !pluginData.download) {
+      return res.status(404).json({ success: false, message: "Plugin not found or incompatible version." });
     }
-    const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
-    if (!isAuthorized) {
-        return res.status(403).send('Unauthorized access to this instance.');
+
+    // Check if the Minecraft version is compatible
+    const compatibleVersions = pluginData.game_versions || [];
+    if (!compatibleVersions.includes(minecraft_version)) {
+      return res.status(400).json({ success: false, message: `Minecraft version ${minecraft_version} is not supported.` });
     }
 
-    if(!instance.suspended) {
-        instance.suspended = false;
-        db.set(id + '_instance', instance);
-    }
+    const pluginDownloadUrl = encodeURIComponent(pluginData.download); // Encode URL for safety
 
-    if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
-    }
-   
-    const pluginDownload = getPluginVersions(pluginId);
-
-    const pluginDownloadurl = `${pluginDownload.download}`
+    // Prepare the request to upload the plugin
     const requestData = {
-        method: 'get',
-        url: `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/plugin/${pluginDownloadurl}`,
-        auth: {
-            username: 'Skyport',
-            password: instance.Node.apiKey
-        },
-        headers: { 
-            'Content-Type': 'application/json'
-        }
+      method: 'post',
+      url: `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/plugin/${pluginDownloadUrl}`,
+      auth: {
+        username: 'Skyport',
+        password: instance.Node.apiKey,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: {}, // Empty body for POST request
     };
-    axios.get(requestData)
-    res.status(404).json({ success : true })
+
+    // Send the request to download and store the plugin
+    const downloadResponse = await axios(requestData);
+
+    // Check the response and return appropriate status
+    if (downloadResponse.status === 200) {
+      return res.redirect(`/instance/${id}/plugins?success=true`);
+    } else {
+      return res.status(500).json({ success: false, message: "Error downloading plugin." });
+    }
+  } catch (error) {
+    console.error('Error during plugin download:', error.response?.data || error.message);
+    return res.status(500).json({ success: false, message: "An error occurred while processing your request." });
+  }
 });
+
+
 module.exports = router;
