@@ -390,7 +390,119 @@
               <!-- Plugins will be added here by JavaScript -->
             </dl>
           </div>
-          
+         <div id="modal"></div>
+         <div id="pluginInstall" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+          <div class="bg-white rounded-xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300">
+              <h2 class="text-2xl font-medium mb-1 text-neutral-800">Install Plugin</h2>
+              <p class="mb-6 text-neutral-600">Please choose a version for this plugin.</p>
+              <div class="flex justify-end space-x-4">
+                  <!-- Minecraft versions dropdown -->
+                  <select id="minecraftVersion" class="text-black w-full px-3 py-2 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 transition mb-4">
+                    <option value="1.7">1.7.0</option>
+                    <option value="1.7.1">1.7.1</option>
+                    <option value="1.7.2">1.7.2</option>
+                    <option value="1.7.3">1.7.3</option>
+                    <option value="1.7.4">1.7.4</option>
+                    <option value="1.7.5">1.7.5</option>
+                    <option value="1.7.6">1.7.6</option>
+                    <option value="1.7.7">1.7.7</option>
+                    <option value="1.7.8">1.7.8</option>
+                    <option value="1.7.9">1.7.9</option>
+                    <option value="1.8">1.8.0</option>
+                    <option value="1.8.1">1.8.1</option>
+                    <option value="1.8.2">1.8.2</option>
+                    <option value="1.8.3">1.8.3</option>
+                    <option value="1.8.4">1.8.4</option>
+                    <option value="1.8.5">1.8.5</option>
+                    <option value="1.9">1.9.0</option>
+                    <option value="1.9.1">1.9.1</option>
+                    <option value="1.9.2">1.9.2</option>
+                    <option value="1.9.3">1.9.3</option>
+                    <option value="1.9.4">1.9.4</option>
+                    <option value="1.10">1.10.0</option>
+                    <option value="1.10.1">1.10.1</option>
+                    <option value="1.10.2">1.10.2</option>
+                    <option value="1.11">1.11.0</option>
+                    <option value="1.11.1">1.11.1</option>
+                    <option value="1.11.2">1.11.2</option>
+                    <option value="1.12">1.12.0</option>
+                    <option value="1.12.1">1.12.1</option>
+                    <option value="1.12.2">1.12.2</option>
+                    <option value="1.13">1.13.0</option>
+                    <option value="1.13.1">1.13.1</option>
+                    <option value="1.13.2">1.13.2</option>
+                    <option value="1.14">1.14.0</option>
+                    <option value="1.14.1">1.14.1</option>
+                    <option value="1.14.2">1.14.2</option>
+                    <option value="1.15">1.15.0</option>
+                    <option value="1.15.1">1.15.1</option>
+                    <option value="1.15.2">1.15.2</option>
+                    <option value="1.16">1.16.0</option>
+                    <option value="1.16.1">1.16.1</option>
+                    <option value="1.16.2">1.16.2</option>
+                    <option value="1.16.3">1.16.3</option>
+                    <option value="1.16.4">1.16.4</option>
+                    <option value="1.16.5">1.16.5</option>
+                    <option value="1.17">1.17.0</option>
+                    <option value="1.17.1">1.17.1</option>
+                    <option value="1.18.0">1.18.0</option>
+                    <option value="1.18.1">1.18.1</option>
+                    <option value="1.19.0">1.19.0</option>
+                    <option value="1.19.1">1.19.1</option>
+                    <option value="1.19.2">1.19.2</option>
+                    <option value="1.19.3">1.19.3</option>
+                    <option value="1.20">1.20.0</option>
+                    <option value="1.20.1">1.20.1</option>
+                    <option value="1.20.2">1.20.2</option>
+                    <option value="1.20.3">1.20.3</option>
+                    <option value="1.21.5">1.21.5</option>
+                    <option value="1.21.6">1.21.6</option>
+                    <option value="1.22">1.22.0</option>
+                  </select>
+                  <select class="hidden">
+                    <option id="pluginId" value="${id}"></option>
+                  </select>
+                  <button onclick="redirectUrlPlugin(document.getElementById('pluginId').value, document.getElementById('minecraftVersion').value)" class="px-5 py-2 bg-neutral-800 text-white rounded-xl hover:bg-neutral-700 transition">Install</button>
+              </div>
+          </div>
+      </div>
+      <script>
+        // Function to open the modal
+function installPlugin(event, id) {
+    // Prevent any default action (e.g., form submission or redirect)
+    event.preventDefault();
+    
+    const modal = document.getElementById('pluginInstall');
+    
+    // Optionally, you can store the plugin ID for further usage, if needed
+    const pluginIdInput = document.getElementById('pluginId');
+    if (pluginIdInput) {
+        pluginIdInput.value = id;
+    }
+     // Make the modal visible
+     modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById('pluginInstall');
+    modal.classList.add('opacity-0', 'pointer-events-none');
+    modal.classList.remove('opacity-100', 'pointer-events-auto');
+}
+
+// Function to handle redirection with the selected Minecraft version
+function redirectUrlPlugin(id, version) {
+    // The URL format as requested
+    const pluginId = id;
+    const redirectUrl = `/instance/<%= req.params.id %>/plugins/download/${pluginId}/${version}`;
+    
+    // Redirect to the plugin download page
+    window.location.href = redirectUrl;
+}
+
+      </script>
           <script>
             let allPlugins = [];  // Array to store all plugins
           
@@ -446,7 +558,7 @@
                         <!-- Buttons -->
                         <div class="mt-4 flex space-x-4">
                           <!-- Download button -->
-                          <a href="#" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition">Download</a>
+                          <button onclick="installPlugin(event, '${id}')" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition">Download</button>
           
                           <!-- Plugin link button -->
                           <a href="${link}" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition" target="_blank">Visit Plugin</a>

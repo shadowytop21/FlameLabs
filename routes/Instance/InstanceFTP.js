@@ -66,6 +66,7 @@ router.get("/instance/:id/ftp", async (req, res) => {
             res.render('instance/ftp', { 
                 req, 
                 logindata, 
+                instance,
                 user: req.user, 
                 name: await db.get('name') || 'HydraPanel', 
                 logo: await db.get('logo') || false, 
