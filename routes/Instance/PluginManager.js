@@ -10,12 +10,13 @@ const path = require('path');
 
 const plugins = loadPlugins(path.join(__dirname, '../../plugins'));
 
-const BASE_URL = 'http://plugins.multicraft.org/api/v1/spigot';
+const API_URL = 'https://api.spiget.org/v2/resources/free';
 const DEFAULT_LOGO_URL = 'https://static.spigotmc.org/styles/spigot/xenresource/resource_icon.png';
-
+const ITEMS_PER_PAGE = 50;
 async function getPluginList() {
   try {
-    const response = await axios.get(`${BASE_URL}/plugins`);
+    const page = 1;
+    const response = await axios.get(`${API_URL}?size=${ITEMS_PER_PAGE}&page=${page}&sort=-downloads`);
     return response.data;
   } catch (error) {
     console.error('Error fetching plugin list:', error);
@@ -68,33 +69,7 @@ async function getPluginVersions(id, minecraftVersion) {
   }
 }
 
-router.get('/api/plugins', async (req, res) => {
-    const plugins = await getPluginList();
-    res.json(plugins);
-  });
-
-router.get('/api/plugin/info/:id', async (req, res) => {
-    const pluginId = req.params.id;
-    const pluginDetails = await getPluginDetails(pluginId);
-  
-    if (pluginDetails) {
-      res.json(pluginDetails);
-    } else {
-      res.status(404).json({ message: 'Plugin not found' });
-    }
-  });
-  
-  router.get('/api/plugin/versions/:id', async (req, res) => {
-    const pluginId = req.params.id;
-    const pluginVersions = await getPluginVersions(pluginId);
-  
-    if (pluginVersions) {
-      res.json(pluginVersions);
-    } else {
-      res.status(404).json({ message: 'Plugin versions not found' });
-    }
-  });
-  router.get("/instance/:id/plugins", async (req, res) => {
+router.get("/instance/:id/plugins", async (req, res) => {
     if (!req.user) return res.redirect('/');
 
     const { id } = req.params;
@@ -143,11 +118,12 @@ router.get('/api/plugin/info/:id', async (req, res) => {
     });
 });
 
-router.get("/instance/:id/plugins/download/:pluginId/:minecraft_version", async (req, res) => {
+router.get("/instance/:id/plugins/download", async (req, res) => {
   if (!req.user) return res.redirect('/');
 
-  const { id, pluginId, minecraft_version } = req.params;
-  if (!id || !minecraft_version) return res.redirect('/');
+  const { id } = req.params;
+  let { downloadUrl } = req.query; // Destructure downloadUrl from query
+  if (!id) return res.redirect('/instances');
 
   let instance = await db.get(id + '_instance');
   if (!instance) return res.redirect('../instances');
@@ -173,24 +149,15 @@ router.get("/instance/:id/plugins/download/:pluginId/:minecraft_version", async 
   }
 
   try {
-    // Fetch plugin versions and filter by Minecraft version
-    const pluginData = await getPluginVersions(pluginId, minecraft_version);
-    if (!pluginData || !pluginData.download) {
-      return res.status(404).json({ success: false, message: "Plugin not found or incompatible version." });
+    // Remove </pre> from the downloadUrl if it exists
+    if (downloadUrl.includes("</pre>")) {
+      downloadUrl = downloadUrl.replace("</pre>", "");
     }
-
-    // Check if the Minecraft version is compatible
-    const compatibleVersions = pluginData.game_versions || [];
-    if (!compatibleVersions.includes(minecraft_version)) {
-      return res.status(400).json({ success: false, message: `Minecraft version ${minecraft_version} is not supported.` });
-    }
-
-    const pluginDownloadUrl = encodeURIComponent(pluginData.download); // Encode URL for safety
-
+    const encodedDownloadUrl = encodeURIComponent(downloadUrl);
     // Prepare the request to upload the plugin
     const requestData = {
       method: 'post',
-      url: `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/plugin/${pluginDownloadUrl}`,
+      url: `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/plugin/${encodedDownloadUrl}`,
       auth: {
         username: 'Skyport',
         password: instance.Node.apiKey,
@@ -215,6 +182,7 @@ router.get("/instance/:id/plugins/download/:pluginId/:minecraft_version", async 
     return res.status(500).json({ success: false, message: "An error occurred while processing your request." });
   }
 });
+
 
 
 module.exports = router;
