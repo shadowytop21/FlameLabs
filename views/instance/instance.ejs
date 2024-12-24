@@ -523,9 +523,8 @@ const eulaPopupHTML = `
                     term.clear();
                     ws.close();
                 }
-
-                if (trimmedLine.includes('INFO]: Done') && trimmedLine.includes('For help, type "help"')) {
-                // Execute custom action if the pattern is found
+                const instancestartedmessage = "<%= instance.imageData.StartedMessage %>" || 'For help, type "help"';
+                if (trimmedLine.includes(instancestartedmessage)) {
                 term.write('\n\u001b[1m\u001b[33mcontainer@hydra~ \u001b[0mServer marked as Started\r\n');
             }
 
