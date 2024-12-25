@@ -13,18 +13,18 @@ const saltRounds = 10;
 
 // Middleware to check for a valid API key
 async function validateApiKey(req, res, next) {
-  const apiKey = req.query.key;
-  
+  const apiKey = req.headers['x-api-key'];  // Extract API key from custom header
+
   if (!apiKey) {
-    return res.status(401).json({error: 'API key is required' });
+    return res.status(401).json({ error: 'API key is required' });
   }
 
   try {
     const apiKeys = await db.get('apiKeys') || [];
-    const validKey = apiKeys.find(key => key.key === apiKey);
+    const validKey = apiKeys.find(key => key.key === apiKey);  // No need to remove 'Bearer ' prefix
 
     if (!validKey) {
-      return res.status(401).json({ error: 'Invaild Key' });
+      return res.status(401).json({ error: 'Invalid Key' });
     }
 
     req.apiKey = validKey;
@@ -77,8 +77,8 @@ router.post('/api/getUser', validateApiKey, async (req, res) => {
 
 router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
   try {
-    const { username, email, password, userId, admin } = req.query;
-    
+    let { username, email, password, userId, admin } = req.query;  // Use 'let' instead of 'const'
+
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Username and password are required' });
     }
@@ -91,8 +91,8 @@ router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
       return res.status(409).json({ error: 'User already exists' });
     }
 
-    if (!req.body.userId) {
-      userId = uuidv4();
+    if (!userId) {  // Check for userId in the query, not in body
+      userId = uuidv4();  // Generate a new userId if not provided
     }
 
     const user = {
@@ -101,7 +101,7 @@ router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
       email,
       password: await bcrypt.hash(password, saltRounds),
       accessTo: [],
-      admin: admin === true
+      admin: admin === 'true'  // Ensure admin is a boolean, query params are always strings
     };
 
     let users = await db.get('users') || [];
@@ -111,6 +111,7 @@ router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
     res.status(201).json({ userId: user.userId, email, username: user.username, admin: user.admin });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create user' });
+    console.log(error)
   }
 });
 
@@ -152,9 +153,10 @@ router.get('/api/instances', validateApiKey, async (req, res) => {
   }
 });
 
-router.get('/api/instances/deploy', validateApiKey, async (req, res) => {
+router.post('/api/instances/deploy', validateApiKey, async (req, res) => {
   const { image, imagename, memory, cpu, ports, nodeId, name, user, primary, variables } =
-    req.query;
+    req.body;
+
   if (!image || !memory || !cpu || !ports || !nodeId || !name || !user || !primary) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
@@ -177,28 +179,37 @@ router.get('/api/instances/deploy', validateApiKey, async (req, res) => {
       variables,
       imagename,
     );
+
     const response = await axios(requestData);
 
-    await updateDatabaseWithNewInstance(
-      response.data,
-      user,
-      node,
-      image,
-      memory,
-      cpu,
-      ports,
-      primary,
-      name,
-      Id,
-      imagename,
-    );
+    // Check if the response status is 201
+    if (response.status === 201) {
+      await updateDatabaseWithNewInstance(
+        response.data,
+        user,
+        node,
+        image,
+        memory,
+        cpu,
+        ports,
+        primary,
+        name,
+        Id,
+        imagename,
+      );
 
-    logAudit(req.user.userId, req.user.username, 'instance:create', req.ip);
-    res.status(201).json({
-      message: "Container created successfully and added to user's servers",
-      containerId: response.data.containerId,
-      volumeId: response.data.volumeId,
-    });
+      return res.status(201).json({
+        message: "DEPLOYMENT COMPLETE", // Custom message for successful deployment
+        containerId: response.data.containerId,
+        volumeId: response.data.volumeId,
+      });
+    } else {
+      // Handle non-201 statuses
+      return res.status(response.status).json({
+        error: 'Failed to deploy container',
+        details: response.data,
+      });
+    }
   } catch (error) {
     console.error('Error deploying instance:', error);
     res.status(500).json({
