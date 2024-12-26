@@ -1,3 +1,25 @@
+/*
+
+PROPRIETARY RIGHTS NOTICE
+
+THIS SOFTWARE PRODUCT IS THE PROPRIETARY PROPERTY OF HYDREN, 
+149 NEW MONTGOMERY ST 4TH FLOOR, SAN FRANCISCO, CA 94105, UNITED STATES ("HYDREN, INC.").
+
+ALL RIGHT, TITLE, AND INTEREST IN AND TO THIS SOFTWARE PRODUCT AND ANY 
+AND ALL COPIES THEREOF, INCLUDING BUT NOT LIMITED TO ALL INTELLECTUAL 
+PROPERTY RIGHTS, ARE AND SHALL REMAIN THE EXCLUSIVE PROPERTY OF OWNER.
+
+THIS SOFTWARE PRODUCT IS PROTECTED BY COPYRIGHT LAWS AND INTERNATIONAL 
+COPYRIGHT TREATIES, AS WELL AS OTHER INTELLECTUAL PROPERTY LAWS AND 
+TREATIES.
+
+UNAUTHORIZED REPRODUCTION, DISPLAY, DISTRIBUTION, OR USE OF THIS SOFTWARE 
+PRODUCT OR ANY PORTION THEREOF MAY RESULT IN SEVERE CIVIL AND CRIMINAL 
+PENALTIES, AND WILL BE PROSECUTED TO THE MAXIMUM EXTENT POSSIBLE UNDER LAW.
+
+© 2025 Hydren, INC. ALL RIGHTS RESERVED.
+
+*/ 
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
@@ -20,7 +42,9 @@ const theme = require('./storage/theme.json');
 const sqlite = require("better-sqlite3");
 const SqliteStore = require("better-sqlite3-session-store")(session);
 const sessionstorage = new sqlite("sessions.db");
-
+const { loadPlugins } = require('./plugins/loadPls.js');
+let plugins = loadPlugins(path.join(__dirname, './plugins'));
+plugins = Object.values(plugins).map(plugin => plugin.config);
 const { init } = require('./handlers/init.js');
 
 const log = new CatLoggr();
@@ -95,6 +119,12 @@ if (config.mode === 'production' || false) {
 // Initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+const pluginRoutes = require('./plugins/pluginmanager.js');
+app.use("/", pluginRoutes);
+const pluginDir = path.join(__dirname, 'plugins');
+const PluginViewsDir = fs.readdirSync(pluginDir).map(addonName => path.join(pluginDir, addonName, 'views'));
+app.set('views', [path.join(__dirname, 'views'), ...PluginViewsDir]);
 
 // Init
 init();
