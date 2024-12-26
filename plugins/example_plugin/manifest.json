@@ -1,14 +1,17 @@
 {
     "name": "Example Plugin",
     "version": "1.0.0",
-    "description": "The Description of the Example Plugin",
-    "author": "privt00",
+    "description": "Description of the Example Plugin",
+    "author": "ma4z",
     "main": "index.js",
-    "router": "example",
+    "router": "",
     "adminsidebar": {
-        "example url": "/example"
+        "example url": "/instance/%id%/example"
     },
-    "sidebar": {
-        "example url": "/example"
+    "instancesidebar": {
+        "example url": {
+            "url": "/instance/%id%/example",
+            "icon": "fa-solid fa-folder"
+        }
     }
 }
