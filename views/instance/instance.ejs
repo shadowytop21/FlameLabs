@@ -494,6 +494,7 @@ const eulaPopupHTML = `
             ws.onmessage = handleWebSocketMessage;
             ws.onclose = () => {
                 console.log('WebSocket connection closed, attempting to reconnect...');
+                showAlert('error', 'Connection Lost', 'Unable to Connect to WebSocket Please check your internet')
                 setTimeout(initWebSocket, 1);
             };
             ws.onerror = (error) => {

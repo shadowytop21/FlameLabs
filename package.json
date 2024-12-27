@@ -1,6 +1,6 @@
 {
   "name": "HydraPanel",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "HydraPanel is an open source panel for managing and operating game servers and applications built using Node.js with Express and Dockerode.",
   "main": "index.js",
   "bin": {

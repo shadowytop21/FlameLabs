@@ -7,11 +7,5 @@
     "router": "",
     "adminsidebar": {
         "example url": "/instance/%id%/example"
-    },
-    "instancesidebar": {
-        "example url": {
-            "url": "/instance/%id%/example",
-            "icon": "fa-solid fa-folder"
-        }
     }
 }
