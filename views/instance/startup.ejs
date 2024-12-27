@@ -36,7 +36,7 @@
     </div>
     <div class="p-6">
         <div class="flex space-x-4">
-            <input type="text" id="nameServer" class="flex-1 p-3 bg-black/20 text-white border border-transparent rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition" placeholder="Enter new server name">
+            <input type="text" id="nameServer" class="flex-1 p-3 bg-black/20 text-white border border-transparent rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition" placeholder="<%= instance.Name %>">
             <button id="saveName" class="bg-indigo-500 text-sm hover:bg-indigo-600 text-white font-medium px-6 rounded-xl flex items-center space-x-2 transition duration-200 hover:scale-95">
                 <span>Rename</span>
             </button>
@@ -72,7 +72,29 @@
     </div>
 </div>
 <br>
-
+<div class="bg-white/5 rounded-xl overflow-hidden ">
+    <div class="bg-white/5 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <h2 class="text-lg font-semibold text-white">Server Information</h2>
+        </div>
+    </div>
+    <div class="p-6 space-y-4">
+        <td>   
+            <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
+                      <code class="font-mono">
+                       { 
+                          "Name": '<%= instance.Name %>',
+                          "Id": '<%= instance.Id %>',
+                          "IP": '<%= instance.Node.address %>:<%= instance.Primary %>',
+                          "Image": '<%= instance.Image %>',
+                          "ContainerId": '<%= instance.ContainerId %>'
+                       }
+                      </code>
+                  </span>
+                </td> 
+    </div>
+</div>
+<br>
     <div class="space-y-4">
         <% 
             const envObject = {};
