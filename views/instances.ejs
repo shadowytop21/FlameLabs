@@ -48,168 +48,148 @@
   <div class="col-span-2">Status</div>
   <div class="col-span-2">Memory</div>
   <div class="col-span-2">CPU</div>
+  <div class="col-span-2">IP Address</div>
 </div>
 
       
         <!-- Instances Section -->
         <div>
-          <% instances.forEach(function (instance) { %>
-            <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer"
-            id="instancesContainer" 
-            data-instance-id="<%= instance.Id %>"
-            onclick="window.location.href='../instance/<%= instance.Id %>'"
-                    
-                    <!-- Server Name & Node -->
-                    <div class="col-span-2">
-                        <div class="font-medium text-white"><%= instance.Name %></div>
-                    </div>
-
-                    <!-- Status -->
-
-                    <div class="col-span-2 ">
-                        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
-                            <div data-status-bg class="size-2 rounded-full bg-zinc-400 mr-2 status-indicator"></div>
-                            <span data-status class="status-text">Connecting...</span>
-                        </div>
-                    </div>
-
-                    <!-- Memory Usage -->
-                    <div class="col-span-2">
-                        <div class="flex  items-center gap-2">
-                            <div class="w-full bg-white/10 rounded-full h-1.5">
-                                <div data-ram-usage class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
-                            </div>
-                            <span data-status class="text-xs">Connecting...</span>
-                        </div>
-                    </div>
-
-                    <!-- CPU Usage -->
-                    <div class="col-span-2">
-                        <div class="flex  items-center gap-2">
-                            <div class="w-full bg-white/10 rounded-full h-1.5">
-                                <div data-cpu-usage class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
-                            </div>
-                            <span data-status class="text-xs">Connecting...</span>
-                        </div>
-                    </div>
-
-                </div>
-         
-          <% }); %>
+          <script>
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+          
+            function updateRamUsage(stats, instanceId) {
+              const ramStatsUsage = stats.memory_stats.usage || 0;
+              const ramStatsLimit = stats.memory_stats.limit || 0;
+          
+              const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
+              const ramLimitRaw = ramStatsLimit / 1024 / 1024 || 0;
+              const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
+              
+              // Update the specific instance's RAM usage
+              document.getElementById(`ramUsage_${instanceId}`).style.width = `${ramUsagePercent}%`;
+              document.getElementById(`ramUsagetext_${instanceId}`).textContent = `${ramUsagePercent}%`;
+            }
+          
+            function updateCpuUsage(stats, instanceId) {
+              const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+              const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+              let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+          
+              if (isNaN(cpuUsagePercent)) {
+                cpuUsagePercent = 0;
+              }
+          
+              // Update the specific instance's CPU usage
+              document.getElementById(`cpuUsage_${instanceId}`).style.width = `${cpuUsagePercent}%`;
+              document.getElementById(`cpuUsagetext_${instanceId}`).textContent = `${cpuUsagePercent}%`;
+            }
+          
+            function updateStatus(stats, instanceId) {
+              const statusElement = document.getElementById(`status_${instanceId}`);
+              const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+              const ramUsageRaw = stats.memory_stats.usage / 1024 / 1024 || 0;
+              
+              // Set the status based on RAM usage
+              if (ramUsageRaw > 1) {
+                statusElement.textContent = 'Online';
+                statusElement.className = 'text-emerald-500';
+                statusElementtext.className = 'size-2 rounded-full bg-emerald-500 mr-2';
+              } else {
+                statusElement.textContent = 'Offline';
+                statusElement.className = 'text-red-500';
+                statusElementtext.className = 'size-2 rounded-full bg-red-500 mr-2';
+              }
+            }
+          
+            function isValidJson(str) {
+              try {
+                JSON.parse(str);
+              } catch (e) {
+                return false;
+              }
+              return true;
+            }
+          
+            function initStatsWebSocket(instanceId) {
+              const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
+              
+              statsWs.onmessage = event => {
+                  if (isValidJson(event.data)) {
+                      const stats = JSON.parse(event.data);
+                      if (stats.error) {
+                          console.error('Error fetching stats:', stats.error);
+                          return;
+                      }
+          
+                      updateRamUsage(stats, instanceId);
+                      updateCpuUsage(stats, instanceId);
+                      updateStatus(stats, instanceId);
+                  } else {
+                      console.log('Received non-JSON data:', event.data);
+                  }
+              };
+          
+              statsWs.onclose = () => {
+                  console.log(`WebSocket Stats connection for instance ${instanceId} closed, attempting to reconnect...`);
+                  setTimeout(() => initStatsWebSocket(instanceId), 3000);
+              };
+            }
+          </script>          
+         <% instances.forEach(function (instance) { %>
+          <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer"
+              id="instanceContainer_<%= instance.Id %>" 
+              data-instance-id="<%= instance.Id %>"
+              onclick="window.location.href='../instance/<%= instance.Id %>'">
+              
+              <!-- Server Name & Node -->
+              <div class="col-span-2">
+                  <div class="font-medium text-white"><%= instance.Name %></div>
+              </div>
+      
+              <!-- Status -->
+              <div class="col-span-2 ">
+                  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                      <div id="status-color_<%= instance.Id %>" class="size-2 rounded-full bg-zinc-400 mr-2"></div>
+                      <span id="status_<%= instance.Id %>">Connecting...</span>
+                  </div>
+              </div>
+      
+              <!-- Memory Usage -->
+              <div class="col-span-2">
+                  <div class="flex items-center gap-2">
+                      <div class="w-full bg-white/10 rounded-full h-1.5">
+                          <div id="ramUsage_<%= instance.Id %>" class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                      </div>
+                      <span id="ramUsagetext_<%= instance.Id %>" class="text-xs">Connecting...</span>
+                  </div>
+              </div>
+      
+              <!-- CPU Usage -->
+              <div class="col-span-2">
+                  <div class="flex items-center gap-2">
+                      <div class="w-full bg-white/10 rounded-full h-1.5">
+                          <div id="cpuUsage_<%= instance.Id %>" class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                      </div>
+                      <span id="cpuUsagetext_<%= instance.Id %>" class="text-xs">Connecting...</span>
+                  </div>
+              </div>
+      
+              <div class="col-span-2 ">
+                  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                      <div class="size-2 rounded-full mr-2 bg-emerald-400"></div>
+                      <span class="status-text"><%= instance.Node.address %>:<%= instance.Primary %></span>
+                  </div>
+              </div>
+      
+          </div>
+      
+          <!-- Initialize WebSocket for each instance -->
+          <script>
+              initStatsWebSocket('<%= instance.Id %>');
+          </script>
+      <% }); %>      
         </div>
       </div>
     </main>      
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const instances = document.querySelectorAll('[data-instance-id]');
-  
-      instances.forEach(instance => {
-        const containerId = instance.dataset.instanceId;
-        const isSecure = window.location.protocol === 'https:';
-        const wsProtocol = isSecure ? 'wss' : 'ws';
-        const wsPort = isSecure ? '' : `:<%= config.port %>`;
-        const socket = new WebSocket(`${wsProtocol}://${window.location.hostname}:${window.location.port}/stats/${containerId}`);
-  
-        const statusElement = instance.querySelector('[data-status]');
-        const statusBg = instance.querySelector('[data-status-bg]');
-        const ramUsageElement = instance.querySelector('[data-ram-usage]');
-        const ramLimitElement = instance.querySelector('[data-ram-limit]');
-        const cpuUsageElement = instance.querySelector('[data-cpu-usage]');
-  
-        function formatBytes(bytes, decimals = 2) {
-          if (bytes === 0) return '0.00 B';
-          const k = 1024;
-          const dm = decimals < 0 ? 0 : decimals;
-          const sizes = ['B', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-          const i = Math.floor(Math.log(bytes) / Math.log(k));
-          return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-        
-        function createBackgroundChart(canvasId, type = 'line') {
-            return new Chart(document.getElementById(canvasId).getContext('2d'), {
-                type: type,
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    },
-                    animation: false
-                }
-            });
-        }
-        
-       
-        function updateRamUsage(stats) {
-            const ramStatsUsage = stats.memory_stats.usage || 0;
-            const ramStatsLimit = stats.memory_stats.limit || 0;
-
-            const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
-            const ramLimitRaw = ramStatsLimit / 1024 / 1024 ;
-            const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
-            
-            document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
-        
-           
-        }
-        
-        function updateCpuUsage(stats) {
-            const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
-            const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-            let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
-        
-            if (isNaN(cpuUsagePercent)) {
-                cpuUsagePercent = 0;
-            }
-        
-            document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
-            
-          
-        }
-        
-        function updateDiskUsage(stats) {
-            const diskUsageRaw = parseFloat(stats.volumeSize);
-            const diskLimitRaw = 10 * 1024; // Assuming 10GB limit
-            const diskUsagePercent = (diskUsageRaw / diskLimitRaw * 100).toFixed(2);
-            document.getElementById('diskUsage').textContent = `${diskUsagePercent}% (${formatBytes(diskUsageRaw * 1024 * 1024)} / ${formatBytes(diskLimitRaw * 1024 * 1024)})`;
-        }
-        
-        function updateStatus(stats) {
-            const statusElement = document.getElementById('status');
-            const ramUsageRaw = stats.memory_stats.usage / 1024 / 1024 || 0;
-            
-            if (ramUsageRaw > 1) {
-                statusElement.textContent = 'Online';
-                statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-emerald-500';
-            } else {
-                statusElement.textContent = 'Offline';
-                statusElement.className = 'mt-1 text-lg font-medium tracking-tight text-red-500';
-                term.clear();
-                term.write('\u001b[33mWings \x1b[0mThis instance appears to be offline!\r\n');
-            }
-        }
-        
-    
-        
-    });
-});
-    
-        </script>
 </body>
 </html>
