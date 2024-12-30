@@ -26,7 +26,7 @@
         </span>
         </div> 
       <% } %>
-      
+      <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
       <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
         <div class="col-span-2"><%= req.translations.name %></div>
         <div class="col-span-2">Status</div>
@@ -45,12 +45,11 @@
         </div>
         </div>
         </div>
-   </div>
           <% } %>
 
       
       <% nodes.forEach(function(node) { %>
-      <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+      <div class="erver-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
               
               <!-- Server Name & Node -->
               <div class="col-span-2">
