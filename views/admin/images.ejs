@@ -1,53 +1,82 @@
 <%- include('../components/admin_template') %>
 <main id="content">
-   <div class="bg-transparent">
-      <div class="sm:flex sm:items-center px-8 pt-4">
-         <div class="sm:flex-auto">
-           <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.images %></h1>
-           <p class="mt-1 tracking-tight text-sm text-white"><%= req.translations.imagesText %></p>
+    <div class="bg-transparent">
+        <div class="sm:flex sm:items-center px-8 pt-4">
+           <div class="sm:flex-auto">
+             <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.images %></h1>
+           </div>
          </div>
+         <% if (req.query.err=="none" ) { %>
+          <div class="my-4 rounded-full shadow-sm border border-white/10 px-3 py-2 pt-2.5">
+            <span class="text-white text-xs mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            Action completed - Image Have Been Created Successfully. 
+            </span>
+            </div>          
+          <% } %>
+      <% if (req.query.err == "EDITED") { %>
+        <div class="my-4 rounded-full shadow-sm border border-white/10 px-3 py-2 pt-2.5">
+          <span class="text-white text-xs mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+          Action completed - Image Have Been Edited Successfully. 
+          </span>
+          </div> 
+        <% } %>
          <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
-        
-        </div>
-       </div>
-      <div style="display: block;" id="nodeTable" class="mt-6 w-full">
-      <table class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12">
-          <col class="lg:w-4/12">
-          <col class="lg:w-2/12">
-          <col class="lg:w-1/12">
-          <col class="lg:w-1/12">
-        </colgroup>
-        <thead class="border-b border-white/5 text-sm leading-6 text-white">
-          <tr>
-            
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.name %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.author %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.dockerImage %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.remove %></th>
-            <th> <button id="uploadimage" type="button" class=" transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
-              <%= req.translations.importImage %>
-            </button></th>
+            <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
+                <div class="col-span-2"><%= req.translations.name %></div>
+                <div class="col-span-2"><%= req.translations.author %></div>
+                <div class="col-span-2"><%= req.translations.dockerImage %></div>
+                <div class="col-span-2"><%= req.translations.remove %></div>
+                <div class="flex items-center gap-3">
+                  <% if (req.user.admin === true) { %>
+                    <button id="uploadimage" type="button" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
+                      <span>Import Image</span>
+                    </button>
+                  <% } %>
+                </div>
+            </div>
 
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5">
-         <% images.forEach(function(image) { %>
-          <tr class="image-row" data-image='<%= JSON.stringify(image) %>'>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= image.Name %></td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= image.Author %> (<%= image.AuthorName %>)</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= image.Image %></td>
-            <td>
-              <button class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 deleteImageButton" data-image-id="<%= image.Id %>" data-user-id="<%= user.userId %>">
-                  <%= req.translations.imageDelete %>
-              </button>
-          </td>
-          
-          </tr>
-          <% }); %>
-        </tbody>
-      </table>
+            <% images.forEach(function(image) { %>
+            <div data-image='<%= JSON.stringify(image) %>' class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+                <!-- Server Name & Node -->
+                <div class="col-span-2">
+                    <div class="font-medium text-white"><%= image.Name %></div>
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2">
+                    <div class="inline-flex items-center px-7 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 rounded-full bg-emerald-500/20 flex justify-center items-center">
+                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                            </div>
+                            <span class="text-emerald-300 text-sm"><%= image.Author %> (<%= image.AuthorName %>)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docker Image -->
+                <div class="col-span-2 px-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
+                            <code class="font-mono">
+                                <%= image.Image %>
+                            </code>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Remove Button -->
+                <a class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" data-image-id="<%= image.Id %>" data-user-id="<%= user.userId %>">Remove</a>
+            </div>
+            <% }); %>
+
+          </div>
       </div>
       <div style="display: none;" id="imageDetail" class="mt-6 pl-8 w-full text-white">
         <button id="backButton" class="block rounded-xl bg-neutral-800 px-3 py-2 text-center text-sm font-medium text-white shadow-lg hover:bg-neutral-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
@@ -71,146 +100,140 @@
           </button>
         </div>
       </div>
-    </div>
+   </div>
 </main>
 <%- include('../components/footer') %>
 <script>
-  document.addEventListener("DOMContentLoaded", async function(event) {
-      var uploadBtn = document.getElementById('uploadimage');
-      var imageRows = document.querySelectorAll('.image-row');
-      var nodeTable = document.getElementById('nodeTable');
-      var imageDetail = document.getElementById('imageDetail');
-      var backButton = document.getElementById('backButton');
-      var imageName = document.getElementById('imageName');
-      var imageDescription = document.getElementById('imageDescription');
-      var dockerImage = document.getElementById('dockerImage');
-      var envVars = document.getElementById('envVars');
-      var authorInfo = document.getElementById('authorInfo');
-      var deleteImageButton = document.getElementById('deleteImageButton');
-      var replaceImageButton = document.getElementById('replaceImageButton');
-      var currentImage = null;
-
-      uploadBtn.addEventListener('click', async function() {
+    document.addEventListener("DOMContentLoaded", async function(event){
+        var uploadBtn = document.getElementById('uploadimage');
+        var imageRows = document.querySelectorAll('.image-row');
+        var nodeTable = document.getElementById('nodeTable');
+        var imageDetail = document.getElementById('imageDetail');
+        var backButton = document.getElementById('backButton');
+        var imageName = document.getElementById('imageName');
+        var imageDescription = document.getElementById('imageDescription');
+        var dockerImage = document.getElementById('dockerImage');
+        var envVars = document.getElementById('envVars');
+        var authorInfo = document.getElementById('authorInfo');
+        var deleteImageButton = document.getElementById('deleteImageButton');
+        var replaceImageButton = document.getElementById('replaceImageButton');
+        var currentImage = null;
+  
+        uploadBtn.addEventListener('click', async function() {
           var input = document.createElement('input');
           input.type = 'file';
           input.accept = '.json';
           input.click();
           input.addEventListener('change', function(event) {
-              var file = event.target.files[0];
-              if (file && file.type === 'application/json') {
-                  var reader = new FileReader();
-                  reader.onload = function(event) {
-                      var jsonData = event.target.result;
-                      var xhr = new XMLHttpRequest();
-                      xhr.open('POST', '/admin/images/upload', true);
-                      xhr.setRequestHeader('Content-Type', 'application/json');
-                      xhr.onload = function() {
-                          if (xhr.status === 200) {
-                              console.log('Image uploaded successfully.');
-                              
-                              setTimeout(function() {
-                                  window.location.reload();
-                              }, 500);
-                          } else {
-                              console.error('Error uploading image.');
-                          }
-                      };
-                      xhr.onerror = function() {
-                          console.error('Network error.');
-                      };
-                      xhr.send(jsonData);
-                  };
-                  reader.readAsText(file);
-              } else {
-                  alert('<%= req.translations.jsonSelectFile %>');
-              }
+            var file = event.target.files[0];
+            if (file && file.type === 'application/json') {
+              var reader = new FileReader();
+              reader.onload = function(event) {
+                var jsonData = event.target.result;
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/images/upload', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = function() {
+                  if (xhr.status === 200) {
+                    console.log('image uploaded successfully.');
+                    setTimeout(function() {
+                      window.location.reload();
+                    }, 500);
+                  } else {
+                    console.error('Error uploading image.');
+                  }
+                };
+                xhr.onerror = function() {
+                  console.error('Network error.');
+                };
+                xhr.send(jsonData);
+              };
+              reader.readAsText(file);
+            } else {
+              alert('<%= req.translations.jsonSelectFile %>');
+            }
           });
-      });
-
-      imageRows.forEach(function(row) {
+        });
+  
+        imageRows.forEach(function(row) {
           row.addEventListener('click', async function() {
-              var image = JSON.parse(this.dataset.image);
-              currentImage = image;
-              imageName.textContent = image.Name;
-              imageDescription.textContent = image.Description;
-              dockerImage.textContent = image.Image;
-              envVars.textContent = image.Env.join(', ');
-              authorInfo.textContent = image.Author + ' (' + image.AuthorName + ')';
-              nodeTable.style.display = 'none';
-              imageDetail.style.display = 'block';
+            var image = JSON.parse(this.dataset.image);
+            currentImage = image;
+            imageName.textContent = image.Name;
+            imageDescription.textContent = image.Description;
+            dockerImage.textContent = image.Image;
+            envVars.textContent = image.Env.join(', ');
+            authorInfo.textContent = image.Author + ' (' + image.AuthorName + ')';
+            nodeTable.style.display = 'none';
+            imageDetail.style.display = 'block';
           });
-      });
-
-      backButton.addEventListener('click', function() {
+        });
+  
+        backButton.addEventListener('click', function() {
           nodeTable.style.display = 'block';
           imageDetail.style.display = 'none';
-      });
-
-      // After your other event listeners
-document.querySelectorAll('.deleteImageButton').forEach(function(button) {
-    button.addEventListener('click', function() {
-        var imageId = this.dataset.imageId;
-        deleteImage(imageId);
-    });
-});
-
-
-      replaceImageButton.addEventListener('click', async function() {
+        });
+  
+        deleteImageButton.addEventListener('click', async function() {
+          if (currentImage) {
+            deleteImage(currentImage.Id);
+          }
+        });
+  
+        replaceImageButton.addEventListener('click', async function() {
           var input = document.createElement('input');
           input.type = 'file';
           input.accept = '.json';
           input.click();
           input.addEventListener('change', function(event) {
-              var file = event.target.files[0];
-              if (file && file.type === 'application/json') {
-                  var reader = new FileReader();
-                  reader.onload = function(event) {
-                      var jsonData = event.target.result;
-                      var xhr = new XMLHttpRequest();
-                      xhr.open('POST', '/admin/images/upload', true);
-                      xhr.setRequestHeader('Content-Type', 'application/json');
-                      xhr.onload = function() {
-                          if (xhr.status === 200) {
-                              console.log('Image uploaded successfully.');
-                              setTimeout(function() {
-                                  deleteImage(currentImage.Id);
-                              }, 500);
-                          } else {
-                              console.error('Error uploading image.');
-                          }
-                      };
-                      xhr.onerror = function() {
-                          console.error('Network error.');
-                      };
-                      xhr.send(jsonData);
-                  };
-                  reader.readAsText(file);
-              } else {
-                  alert('<%= req.translations.jsonSelectFile %>');
-              }
+            var file = event.target.files[0];
+            if (file && file.type === 'application/json') {
+              var reader = new FileReader();
+              reader.onload = function(event) {
+                var jsonData = event.target.result;
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/admin/images/upload', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = function() {
+                  if (xhr.status === 200) {
+                    console.log('image uploaded successfully.');
+                    setTimeout(function() {
+                      deleteImage(currentImage.Id);
+                    }, 500);
+                  } else {
+                    console.error('Error uploading image.');
+                  }
+                };
+                xhr.onerror = function() {
+                  console.error('Network error.');
+                };
+                xhr.send(jsonData);
+              };
+              reader.readAsText(file);
+            } else {
+              alert('<%= req.translations.jsonSelectFile %>');
+            }
           });
-      });
-
-      async function deleteImage(id) {
+        });
+  
+        async function deleteImage(id) {
           var xhr = new XMLHttpRequest();
           xhr.open('POST', '/admin/images/delete', true);
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.onload = function() {
-              if (xhr.status === 200) {
-                  console.log('Image deleted successfully.');
-                  alert('Image Deleted Successfully');
-                  setTimeout(function() {
-                      window.location.reload();
-                  }, 500);
-              } else {
-                  console.error('Error deleting image.');
-                  alert('Error Deleting Image');
-              }
+            if (xhr.status === 200) {
+              console.log('image deleted successfully.');
+              setTimeout(function() {
+                window.location.reload();
+              }, 500);
+            } else {
+              console.error('Error deleting image.');
+            }
           };
           xhr.onerror = function() {
-              console.error('Network error.');
+            console.error('Network error.');
           };
           xhr.send(JSON.stringify({ id: id }));
-      }
-  });
-</script>
+        }
+      });
+  </script>

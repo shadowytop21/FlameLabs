@@ -1,127 +1,157 @@
+
 <%- include('../components/admin_template') %>
 <main id="content">
-  <div class="bg-transparent">
-    <div class="sm:flex sm:items-center px-8 pt-4">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-medium leading-6 text-white"><%= req.translations.users %></h1>
+    <div class="bg-transparent">
+        <div class="sm:flex sm:items-center px-8 pt-4">
+           <div class="sm:flex-auto">
+             <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.images %></h1>
+           </div>
+         </div>
+         <% if (req.query.err=="none" ) { %>
+          <div class="my-4 rounded-full shadow-sm border border-white/10 px-3 py-2 pt-2.5">
+            <span class="text-white text-xs mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            Action completed - Image Have Been Created Successfully. 
+            </span>
+            </div>          
+          <% } %>
+      <% if (req.query.err == "EDITED") { %>
+        <div class="my-4 rounded-full shadow-sm border border-white/10 px-3 py-2 pt-2.5">
+          <span class="text-white text-xs mt-0.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+          Action completed - Image Have Been Edited Successfully. 
+          </span>
+          </div> 
+        <% } %>
+         <div class="mt-4 sm:ml-8 sm:mt-0 sm:flex-none">
+            <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
+                <div class="col-span-2"><%= req.translations.name %></div>
+                <div class="col-span-2"><%= req.translations.email %></div>
+                <div class="col-span-2"><%= req.translations.information %></div>
+                <div class="col-span-2"><%= req.translations.role %></div>
+                <div class="col-span-2"><%= req.translations.actions %></div>
+                <div class="flex items-center gap-3">
+                  <% if (req.user.admin === true) { %>
+                    <button id="createButton" type="button" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
+                      <span>Create User</span>
+                    </button>
+                  <% } %>
+                </div>
+            </div>
+
+            <% users.forEach(function(user) { %>
+            <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+                <!-- Server Name & Node -->
+                <div class="col-span-2">
+                    <div class="font-medium text-white"><%= user.username %></div>
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2">
+                    <div class="inline-flex items-center px-7 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-zinc-300 text-sm"><%= user.email %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docker Image -->
+                <div class="col-span-2 px-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
+                            <code class="font-mono">
+                              <%= user.userId %>
+                            </code>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-span-2">
+                  <% if (user.admin==true) { %>
+                  <div class="font-medium text-white">Admin</div>
+                  <% } else if (user.admin==false) { %>
+                    <div class="font-medium text-white">Regular User</div>
+                    <% } %>
+              </div>
+                <!-- Remove, Edit Button -->
+                <a class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" href="/admin/users/edit/<%= user.userId %>">Edit</a>
+
+                <a class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" id="removeButton">Remove</a>
+            </div>
+            <% }); %>
+
+          </div>
       </div>
-      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-      
-      </div>
-    </div>
-    <div id="nodeTable" class="mt-6 w-full">
-      <table class="mt-6 w-full whitespace-nowrap text-left">
-        <colgroup>
-          <col class="w-full sm:w-4/12" />
-          <col class="lg:w-4/12" />
-          <col class="lg:w-2/12" />
-          <col class="lg:w-4/12" />
-          <col class="lg:w-1/12" />
-          <col class="lg:w-1/12" />
-        </colgroup>
-        <thead class="bg-gray-700/25">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.name %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.email %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.information %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.role %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.edit %></th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= req.translations.remove %></th>
-            <th><button
-          id="createButton"
-          type="button"
-          class="transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white"
-        >
-         <%= req.translations.createUserButton %>
-        </button></th>
-
-          </tr>
-          
-        </thead>
-        <tbody class="divide-y divide-white/5">
-          <% users.forEach(function(user) { %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= user.username %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= user.email %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= user.userId %></td>
-              <% if (user.admin==true) { %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= req.translations.admin %></td>
-              <% } else if (user.admin==false) { %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"><%= req.translations.regularUserRole %></td>
-              <% } %>
-              <td><a href="/admin/users/edit/<%= user.userId %>" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400"> <%= req.translations.edit %></a></td>
-              <td><a id="removeButton"  type="button" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400" data-user-id="<%= user.userId %>"> <%= req.translations.remove %></a></td>
-
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </div>
-    <div id="nodeForm" class="mt-6 px-8 w-full hidden">
-      <form>
-        <label class="text-neutral-400 text-sm tracking-tight mb-2"
-          ><%= req.translations.username %>:</label
-        >
-        <input
-          id="userName"
-          type="text"
-          name="username"
-          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
-          placeholder="<%= req.translations.usernamePlaceholder %>"
-        />
-        <input
-          id="email"
-          type="email"
-          name="email"
-          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
-          placeholder="<%= req.translations.emailPlaceholder %>"
-        />
-
-        <label class="text-neutral-400 text-sm tracking-tight mb-2"
-          ><%= req.translations.passwordLabel %>:</label
-        >
-        <input
-          id="userPass"
-          type="password"
-          name="password"
-          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
-          placeholder="******"
-        />
-
-        <label class="text-neutral-400 text-sm tracking-tight mb-2"
-          ><%= req.translations.admin %>:</label
-        >
-        <select
-          id="userAdmin"
-          name="admin"
-          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
-        >
+      <div id="nodeForm" class="mt-6 px-8 w-full hidden">
+        <form>
+          <label class="text-neutral-400 text-sm tracking-tight mb-2"
+            ><%= req.translations.username %>:</label
+          >
+          <input
+            id="userName"
+            type="text"
+            name="username"
+            class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+            placeholder="<%= req.translations.usernamePlaceholder %>"
+          />
+          <input
+            id="email"
+            type="email"
+            name="email"
+            class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+            placeholder="<%= req.translations.emailPlaceholder %>"
+          />
+  
+          <label class="text-neutral-400 text-sm tracking-tight mb-2"
+            ><%= req.translations.passwordLabel %>:</label
+          >
+          <input
+            id="userPass"
+            type="password"
+            name="password"
+            class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+            placeholder="******"
+          />
+  
+          <label class="text-neutral-400 text-sm tracking-tight mb-2"
+            ><%= req.translations.admin %>:</label
+          >
+          <select
+            id="userAdmin"
+            name="admin"
+            class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+          >
+            <option value="true"><%= req.translations.true %></option>
+            <option value="false"><%= req.translations.false %></option>
+          </select>
+  
+          <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.verifiedStatus %>:</label>
+          <select
+            id="userVerified"
+            name="verified"
+            class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
+          >
           <option value="true"><%= req.translations.true %></option>
           <option value="false"><%= req.translations.false %></option>
-        </select>
-
-        <label class="text-neutral-400 text-sm tracking-tight mb-2"><%= req.translations.verifiedStatus %>:</label>
-        <select
-          id="userVerified"
-          name="verified"
-          class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-96 items-center transition justify-left gap-16 hover:bg-white/5 px-4 py-2 flex border-white/5 bg-neutral-600/20 placeholder:text-white/20 text-white border border-black/10"
-        >
-        <option value="true"><%= req.translations.true %></option>
-        <option value="false"><%= req.translations.false %></option>
-        </select>
-        
-
-        <button
-          id="createNodeBtn"
-          type="button"
-          class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"
-        >
-        <%= req.translations.create %>
-        </button>
-      </form>
+          </select>
+          
+  
+          <button
+            id="createNodeBtn"
+            type="button"
+            class="block rounded-xl <%= theme['button-color'] %> px-3 py-2 text-center text-sm font-medium shadow-lg transition focus:outline focus:outline-2 focus:outline-offset-2"
+          >
+          <%= req.translations.create %>
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
 </main>
+<%- include('../components/footer') %>
 <script>
   document
     .getElementById("createButton")
@@ -217,5 +247,3 @@
     });
   });
 </script>
-
-<%- include('../components/footer') %>
