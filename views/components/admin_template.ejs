@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-<div id="container-8e1a57faa98fc2e62d1f6a7218777bd0"></div>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= name %></title>
@@ -162,7 +161,7 @@
     <!-- Recommended additional tag for mobile optimization -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body class="bg-[#010103] text-gray-300" style="font-family: 'Inter'" x-data="{ sidebarOpen: false }" @keydown.escape="sidebarOpen = false"></body>
+<body class="bg-[#171717] text-gray-300" style="font-family: 'Inter'" x-data="{ sidebarOpen: false }" @keydown.escape="sidebarOpen = false"></body>
 <!-- Loading bar -->
 <div class="loading-bar"></div>
 <!-- Spinner -->
@@ -183,7 +182,7 @@
         x-transition:leave-end="opacity-0"></div>
 
     <!-- Sidebar -->
-    <aside class="backdrop-blur-lg fixed inset-0 z-40 transform md:translate-x-0 md:static md:inset-auto md:h-screen md:w-64 border-r border-b rounded-br-3xl border-white/5 bg-indigo-900/10 sidebar-transition"
+    <aside class="backdrop-blur-lg fixed inset-0 z-40 transform md:translate-x-0 md:static md:inset-auto md:h-screen md:w-64 border-r border-b rounded-br-3xl border-white/5 bg-[#141414] sidebar-transition"
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         <div class="flex flex-col h-full relative">
             <!-- Close button for mobile -->
@@ -220,6 +219,12 @@
   <!-- Project Section -->
   <div class="mt-4">
       <div class="px-3 py-1.5 text-xs text-white/50 font-mono uppercase">ADMIN</div>
+      <a href="/instances" class="flex items-center gap-2 px-4 py-2 text-white/70 hover:bg-white/5 transition rounded-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      <span class="text-sm">Go Back</span>
+    </a>
       <a href="/admin/overview"
           class="flex items-center gap-2 px-4 py-2 text-white/70 hover:bg-white/5 transition rounded-lg">
           <span class="text-sm">Overview</span>
