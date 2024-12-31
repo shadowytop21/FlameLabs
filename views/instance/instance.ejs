@@ -357,7 +357,7 @@ const eulaPopupHTML = `
                                    if (action === 'stop') {
                                        ws.send(JSON.stringify({
                                            event: 'cmd',
-                                           command: 'stop',
+                                           command: '<%= instance.imageData.StopCommand %>' || 'stop',
                                            containerId: instanceId // Replace with your actual instanceId variable
                                        }));
                                    } else {
@@ -489,7 +489,7 @@ const eulaPopupHTML = `
         function initWebSocket() {
             const port = window.location.port ? `:${window.location.port}` : '';
             ws = new WebSocket(`${protocol}://${window.location.hostname}${port}/console/${instanceId}`);
-            
+            initStatsWebSocket();
             ws.onopen = () => console.log('WebSocket connected!');
             ws.onmessage = handleWebSocketMessage;
             ws.onclose = () => {
