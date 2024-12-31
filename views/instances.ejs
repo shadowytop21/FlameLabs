@@ -1,49 +1,42 @@
 <%- include('components/template') %>
-<main class="flex-grow container mx-auto px-4 py-8">
-  <div class="flex justify-between items-center w-full mx-auto pb-4">
-      <!-- Welcome text and subtext -->
-<div class="flex flex-col">
-  <h1 class="text-xl font-semibold mb-0.5 heavy">Instances</h1>
-  <p class="text-gray-400 text-md">Overview of your servers on <%= name %>.</p>
-</div>
-
-<!-- Actions -->
-<div class="flex items-center gap-3"> <!-- Moved button and server list directly under "Instances" -->
-  <!-- Button -->
-  <% if (req.user.admin === true) { %>
-   <!-- Actions -->
-   <div class="flex items-center gap-3">
-<div class="relative inline-block" x-data="{ open: false }">
-<button @click="open = !open" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
-</svg>
-<span>Filter</span>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''">
-<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-</svg>
-</button>
-
-<div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 -translate-y-2" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 -translate-y-2" @click.outside="open = false" class="absolute right-0 mt-2 w-48 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg" style="display: none;">
-<div class="py-2">
-  <% if (req.query.see == 'other') { %>
-<a href="/instances" class="flex items-center gap-2 px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors">
-  <%= req.translations.showingYourInstances %>
-</a>
-<% } else { %>
-<a href="/instances?see=other" class="flex items-center gap-2 px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors">
-  <%= req.translations.seeAllInstances %>
-</a>
-<% } %>
-</div>
-</div>
-</div>
-</div>
-</div>
-  <% } %>
-</div>
+<main class="container flex-grow px-4 py-8 mx-auto">
+  <div class="flex items-center justify-between w-full pb-4 mx-auto">
+    <div class="flex flex-col">
+      <h1 class="text-xl font-semibold mb-0.5 heavy">Instances</h1>
+      <p class="text-gray-400 text-md">Overview of your servers on <%= name %>.</p>
+    </div>
+  
+    <div class="flex items-center gap-3 admin-actions">
+      <% if (req.user.admin === true) { %>
+        <div class="relative inline-block" x-data="{ open: false }">
+          <button @click="open = !open" class="flex items-center justify-center gap-2 px-5 text-sm font-medium text-white transition-all duration-200 bg-indigo-500 rounded-full shadow hover:scale-95 h-11 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+            </svg>
+            <span>Filter</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="transition-transform duration-200 size-4" :class="open ? 'rotate-180' : ''">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
+            </svg>
+          </button>
+          <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:leave="transition ease-in duration-200" class="absolute right-0 w-48 mt-2 border shadow-lg rounded-xl bg-white/5 backdrop-blur-xl border-white/10">
+            <div class="py-2">
+              <% if (req.query.see == 'other') { %>
+                <a href="/instances" class="flex items-center gap-2 px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors">
+                  <%= req.translations.showingYourInstances %>
+                </a>
+              <% } else { %>
+                <a href="/instances?see=other" class="flex items-center gap-2 px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors">
+                  <%= req.translations.seeAllInstances %>
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
 <!-- Servers List Header -->
-<div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50">
+<div class="flex grid flex-col items-center grid-cols-12 gap-4 px-6 py-3 mt-6 text-sm font-medium text-white/50">
   <div class="col-span-2">Server</div>
   <div class="col-span-2">Status</div>
   <div class="col-span-2">Memory</div>
@@ -100,7 +93,23 @@
                 statusElementtext.className = 'size-2 rounded-full bg-red-500 mr-2';
               }
             }
+            function executenodedown(instanceId) {
+              const statusElement = document.getElementById(`status_${instanceId}`);
+              const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+
+              statusElement.textContent = 'Node Offline';
+              statusElement.className = 'text-red-500';
+              statusElementtext.className = 'size-2 rounded-full bg-red-500 mr-2';
+            }
           
+            function executecontainernotfound(instanceId) {
+              const statusElement = document.getElementById(`status_${instanceId}`);
+              const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+
+              statusElement.textContent = 'Container not found';
+              statusElement.className = 'text-yellow-500';
+              statusElementtext.className = 'size-2 rounded-full bg-yellow-500 mr-2';
+            }
             function isValidJson(str) {
               try {
                 JSON.parse(str);
@@ -111,23 +120,45 @@
             }
           
             function initStatsWebSocket(instanceId) {
-              const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
-              
-              statsWs.onmessage = event => {
-                  if (isValidJson(event.data)) {
-                      const stats = JSON.parse(event.data);
-                      if (stats.error) {
-                          console.error('Error fetching stats:', stats.error);
-                          return;
-                      }
-          
-                      updateRamUsage(stats, instanceId);
-                      updateCpuUsage(stats, instanceId);
-                      updateStatus(stats, instanceId);
-                  } else {
-                      console.log('Received non-JSON data:', event.data);
-                  }
-              };
+                const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
+
+                statsWs.onmessage = event => {
+                    // Check if the event.data contains the specific string
+                    if (event.data.includes("The HydraDaemon instance appears to be down. Retrying...")) {
+                        console.warn('HydraDaemon instance appears to be down. Executing node down handler...');
+                        executenodedown(instanceId);
+                        return; // Exit early since no further processing is needed for this message
+                    }
+            
+                     // Check if the event.data contains the specific string
+                     if (event.data.includes("Container not found")) {
+                        executecontainernotfound(instanceId);
+                        return; // Exit early since no further processing is needed for this message
+                    }
+
+                    // Check if the data is valid JSON and process it
+                    if (isValidJson(event.data)) {
+                        const stats = JSON.parse(event.data);
+                        if (stats.error) {
+                            console.error('Error fetching stats:', stats.error);
+                            return;
+                        }
+            
+                        updateRamUsage(stats, instanceId);
+                        updateCpuUsage(stats, instanceId);
+                        updateStatus(stats, instanceId);
+                    } else {
+                        console.log('Received non-JSON data:', event.data);
+                    }
+                };            
+
+                statsWs.onerror = error => {
+                    console.error('WebSocket error:', error);
+                };
+            
+                statsWs.onclose = () => {
+                    console.log('WebSocket closed for instance:', instanceId);
+                };
           
               statsWs.onclose = () => {
                   console.log(`WebSocket Stats connection for instance ${instanceId} closed, attempting to reconnect...`);
@@ -136,7 +167,7 @@
             }
           </script>          
          <% instances.forEach(function (instance) { %>
-          <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer"
+          <div class="grid items-center grid-cols-12 gap-4 px-6 py-4 mb-4 transition border-2 border-transparent border-dashed cursor-pointer server-row bg-white/5 rounded-2xl hover:bg-white/10 hover:border-white/5"
               id="instanceContainer_<%= instance.Id %>" 
               data-instance-id="<%= instance.Id %>"
               onclick="window.location.href='../instance/<%= instance.Id %>'">
@@ -148,8 +179,8 @@
       
               <!-- Status -->
               <div class="col-span-2 ">
-                  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
-                      <div id="status-color_<%= instance.Id %>" class="size-2 rounded-full bg-zinc-400 mr-2"></div>
+                  <div class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-zinc-500/20 text-zinc-300">
+                      <div id="status-color_<%= instance.Id %>" class="mr-2 rounded-full size-2 bg-zinc-400"></div>
                       <span id="status_<%= instance.Id %>">Connecting...</span>
                   </div>
               </div>
@@ -158,7 +189,7 @@
               <div class="col-span-2">
                   <div class="flex items-center gap-2">
                       <div class="w-full bg-white/10 rounded-full h-1.5">
-                          <div id="ramUsage_<%= instance.Id %>" class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                          <div id="ramUsage_<%= instance.Id %>" class="bg-blue-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
                       </div>
                       <span id="ramUsagetext_<%= instance.Id %>" class="text-xs">Connecting...</span>
                   </div>
@@ -168,15 +199,15 @@
               <div class="col-span-2">
                   <div class="flex items-center gap-2">
                       <div class="w-full bg-white/10 rounded-full h-1.5">
-                          <div id="cpuUsage_<%= instance.Id %>" class="bg-indigo-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                          <div id="cpuUsage_<%= instance.Id %>" class="bg-blue-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
                       </div>
                       <span id="cpuUsagetext_<%= instance.Id %>" class="text-xs">Connecting...</span>
                   </div>
               </div>
       
               <div class="col-span-2 ">
-                  <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
-                      <div class="size-2 rounded-full mr-2 bg-emerald-400"></div>
+                  <div class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-zinc-500/20 text-zinc-300">
+                      <div class="mr-2 rounded-full size-2 bg-emerald-400"></div>
                       <span class="status-text"><%= instance.Node.address %>:<%= instance.Primary %></span>
                   </div>
               </div>

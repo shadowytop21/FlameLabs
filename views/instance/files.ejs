@@ -421,36 +421,43 @@
                 </tr>
              </thead>
              <tbody>
-               <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
-                  <% let extension; %>
-                  <% if (req.query.path) { %>
-                     <% extension = '?path=' + req.query.path %>
-                  <% } else { %>
-                     <% extension = '' %>
-                  <% } %>
-                  <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class=rounded-xl hover:bg-neutral-700 cursor-pointer transition border-none">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white border-none">
-                      <div class="flex items-center space-x-2">
-                        <%- getFileIcon(file.purpose) %>
-                        <span><%= file.name %></span>
-                      </div>
-                    </td>                    
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-none">
-                      <div class="flex space-x-4">
-                        <!-- Delete Button -->
-                        <button onclick="event.stopPropagation(); confirmDelete('<%= file.name %>', '<%= extension %>');" class="bg-red-400 text-white hover:text-gray-700 transition border border-red-500 px-4 py-2 rounded-lg">
-                          Delete
+              <% files.filter(file => !file.isDirectory).forEach(function(file) { %>
+                <% let extension; %>
+                <% if (req.query.path) { %>
+                  <% extension = '?path=' + req.query.path %>
+                <% } else { %>
+                  <% extension = '' %>
+                <% } %>
+                <tr onclick="window.location.href = '/instance/<%= req.params.id %>/files/view/<%= file.name %><%= extension %>'" class="rounded-l hover:bg-neutral-700 cursor-pointer transition border-none">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white border-none">
+                    <div class="flex items-center space-x-2">
+                      <%- getFileIcon(file.purpose) %>
+                      <span><%= file.name %></span>
+                    </div>
+                  </td>                    
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-none">
+                    <div class="flex space-x-4">
+                      <!-- Delete Button -->
+                      <button onclick="event.stopPropagation(); confirmDelete('<%= file.name %>', '<%= extension %>');" class="bg-red-400 text-white hover:text-gray-700 transition border border-red-500 px-4 py-2 rounded-lg">
+                        Delete
+                      </button>
+              
+                      <!-- Rename Button -->
+                      <button onclick="event.stopPropagation(); openRenameModal('<%= file.name %>', '<%= extension %>')" class="bg-white text-black hover:text-gray-700 transition border border-white px-4 py-2 rounded-lg">
+                        Rename
+                      </button>
+              
+                      <!-- Unzip Button (Only for .zip files) -->
+                      <% if (file.name.endsWith('.zip')) { %>
+                        <button onclick="event.stopPropagation(); unzipFile('<%= file.name %>', '<%= extension %>');" class="bg-blue-400 text-white hover:text-gray-700 transition border border-blue-500 px-4 py-2 rounded-lg">
+                          Unzip
                         </button>
-                        
-                        <!-- Rename Button -->
-                        <button onclick="event.stopPropagation(); openRenameModal('<%= file.name %>', '<%= extension %>')" class="bg-white text-black hover:text-gray-700 transition border border-white px-4 py-2 rounded-lg">
-                          Rename
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  
-               <% }); %>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+              
              </tbody>
           </table>
        </div>
@@ -468,6 +475,14 @@
        
         
         <script>
+          function unzipFile(fileName, extension) {
+            if (confirm(`Are you sure you want to unzip ${fileName}?`)) {
+              // Replace with your backend endpoint for unzipping
+              const subPath = "<%= req.query.path %>" || '';
+              window.location.href = `/instance/<%= req.params.id %>/files/unzip/${fileName}?path=${subPath}`;
+            }
+          }
+
           function showContextMenu(event, fileName, extension) {
             event.preventDefault();
         
