@@ -833,7 +833,6 @@ async function processInstances() {
         });
 
         const newState = getStateResponse.data.state;
-        console.log(`Fetched state for instance ${instance.Id}: ${newState}`);
 
         // Update the state on the remote server
         const setStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/set/${newState}`;
@@ -844,11 +843,10 @@ async function processInstances() {
           },
         });
 
-        console.log(`State for instance ${instance.Id} updated on the remote server to: ${newState}`);
 
         // Ensure the instance in the "instances" database has the "State" property
         if (!instance.hasOwnProperty("State")) {
-          console.log(`State property missing for instance ${instance.Id}, adding it.`);
+         
         }
         instance.State = newState;
 
@@ -857,18 +855,15 @@ async function processInstances() {
         let instanceDb = await db.get(instanceDbKey);
 
         if (!instanceDb) {
-          console.log(`No database found for instance ${instance.Id}, creating a new one.`);
           instanceDb = {};
         }
 
         if (!instanceDb.hasOwnProperty("State")) {
-          console.log(`State property missing in database for instance ${instance.Id}, adding it.`);
         }
         instanceDb.State = newState;
 
         // Save the updated instance-specific database
         await db.set(instanceDbKey, instanceDb);
-        console.log(`Database updated for instance ${instance.Id}`);
       } catch (instanceError) {
         console.error(`Error processing instance ${instance.Id}:`, instanceError.message);
       }
@@ -876,7 +871,6 @@ async function processInstances() {
 
     // Save the updated "instances" array back to the database
     await db.set("instances", instances);
-    console.log("All instances updated in the database.");
   } catch (error) {
     console.error("Error processing instances:", error.message);
   }
