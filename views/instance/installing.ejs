@@ -10,4 +10,27 @@
 </div>
 
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+ async function fetchState() {
+  try {
+    const response = await fetch('/instance/<%= req.params.id %>/installing/status');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json(); 
+    
+    if (data.state !== 'READY') {
+      return;
+    } else if (data.state !== 'FAILED') {
+      window.location.href = `/instance/<%= req.params.id %>`;
+    }
+  } catch (error) {
+    console.error('Error fetching state:', error);
+  }
+}
+fetchState();
+
+setInterval(fetchState, 5000);
+</script>
 <%- include('../components/footer') %>

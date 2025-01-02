@@ -1,3 +1,4 @@
+const axios = require('axios')
 const express = require('express');
 const router = express.Router();
 const { db } = require('../../handlers/db.js');
@@ -60,7 +61,7 @@ router.get("/instance/:id", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if (instance.State === 'Installing') {
+    if (instance.State === 'INSTALLING') {
         return res.redirect('../../instance/' + id + '/installing')
     }
     if(instance.suspended === true) {
@@ -106,5 +107,29 @@ router.get("/instance/:id/installing", async (req,res) => {
     logo: await db.get('logo') || false,
     config: require('../../config.json')
    });
+});
+
+router.get("/instance/:id/installing/status", async (req, res) => {
+   const { id } = req.params;
+
+   const instance = await db.get(id + '_instance');
+
+   if (!instance) {
+    return res.redirect('../../instances')
+   }
+
+   const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+   if (!isAuthorized) {
+       return res.status(403).send('Unauthorized access to this instance.');
+   }
+    
+    const getStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/get`;
+    const getStateResponse = await axios.get(getStateUrl, {
+           auth: {
+             username: "Skyport",
+             password: instance.Node.apiKey,
+          },
+      });
+     res.status(200).json({ state: getStateResponse.data.state })
 });
 module.exports = router;
