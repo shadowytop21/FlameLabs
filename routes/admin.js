@@ -810,6 +810,78 @@ router.post('/admin/settings/toggle/register', isAdmin, upload.single('logo'), a
  *
  * @returns {Response} Renders the 'instances' view with instance data and user information.
  */
+async function processInstances() {
+  try {
+    // Get all instances from the "instances" database
+    const instances = await db.get("instances");
+
+    if (!instances || instances.length === 0) {
+      console.log("No instances found.");
+      return;
+    }
+
+    // Iterate over each instance in the database
+    for (const instance of instances) {
+      try {
+        // Fetch the current state from the remote server
+        const getStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/get`;
+        const getStateResponse = await axios.get(getStateUrl, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+
+        const newState = getStateResponse.data.state;
+        console.log(`Fetched state for instance ${instance.Id}: ${newState}`);
+
+        // Update the state on the remote server
+        const setStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/set/${newState}`;
+        await axios.get(setStateUrl, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+
+        console.log(`State for instance ${instance.Id} updated on the remote server to: ${newState}`);
+
+        // Ensure the instance in the "instances" database has the "State" property
+        if (!instance.hasOwnProperty("State")) {
+          console.log(`State property missing for instance ${instance.Id}, adding it.`);
+        }
+        instance.State = newState;
+
+        // Get the instance-specific database and ensure it has the "State" property
+        const instanceDbKey = `${instance.Id}_instance`;
+        let instanceDb = await db.get(instanceDbKey);
+
+        if (!instanceDb) {
+          console.log(`No database found for instance ${instance.Id}, creating a new one.`);
+          instanceDb = {};
+        }
+
+        if (!instanceDb.hasOwnProperty("State")) {
+          console.log(`State property missing in database for instance ${instance.Id}, adding it.`);
+        }
+        instanceDb.State = newState;
+
+        // Save the updated instance-specific database
+        await db.set(instanceDbKey, instanceDb);
+        console.log(`Database updated for instance ${instance.Id}`);
+      } catch (instanceError) {
+        console.error(`Error processing instance ${instance.Id}:`, instanceError.message);
+      }
+    }
+
+    // Save the updated "instances" array back to the database
+    await db.set("instances", instances);
+    console.log("All instances updated in the database.");
+  } catch (error) {
+    console.error("Error processing instances:", error.message);
+  }
+}
+
 router.get('/admin/instances', isAdmin, async (req, res) => {
   let instances = await db.get('instances') || [];
   let images = await db.get('images') || [];
@@ -817,7 +889,7 @@ router.get('/admin/instances', isAdmin, async (req, res) => {
   let users = await db.get('users') || [];
 
   nodes = await Promise.all(nodes.map(id => db.get(id + '_node').then(checkNodeStatus)));
-
+  await processInstances();
   res.render('admin/instances', {
     req,
     user: req.user,

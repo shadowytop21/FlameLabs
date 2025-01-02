@@ -522,6 +522,7 @@ async function updateDatabaseWithNewInstance(
     StopCommand: imageData ? imageData.StopCommand : undefined,
     imageData,
     Env: responseData.Env,
+    State: responseData.state,
   };
 
   const userInstances = (await db.get(`${userId}_instances`)) || [];

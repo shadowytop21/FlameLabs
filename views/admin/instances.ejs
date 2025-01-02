@@ -10,7 +10,7 @@
       <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
         <div class="col-span-2"><%= req.translations.name %></div>
         <div class="col-span-2"><%= req.translations.node %></div>
-        <div class="col-span-2"><%= req.translations.dockerID %></div>
+        <div class="col-span-2">State</div>
         <div class="col-span-2"><%= req.translations.volumeANDMount %></div>
         <div class="col-span-2"><%= req.translations.actions %></div>
         <div class="flex items-center gap-3"> <!-- Moved button and server list directly under "Instances" -->
@@ -84,21 +84,21 @@
               </div>
 
               <div class="col-span-2">
-                <div class="flex  items-center gap-2">
+                <div class="flex items-center gap-2">
                     <span data-status class="text-xs"><%= instance.Node.name %></span>
                 </div>
             </div>
             
           
-              <!-- CPU Usage -->
-              <div class="col-span-2">
-                  <div class="flex  items-center gap-2">
-                      <span data-status class="text-xs"><%= instance.ContainerId ? instance.ContainerId.substring(0, 12) : 'unknown' %></span>
-                  </div>
-              </div>
 
               <div class="col-span-2">
                 <div class="flex  items-center gap-2">
+                <div class="font-light text-white"><%= instance.State %></div>
+                </div>  
+            </div>
+
+              <div class="col-span-2">
+                <div class="flex items-center gap-2">
                     <span data-status class="text-xs">/volumes/<%= instance.VolumeId %></span>
                 </div>
             </div>

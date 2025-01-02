@@ -60,6 +60,9 @@ router.get("/instance/:id", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
+    if (instance.State === 'Installing') {
+        return res.redirect('../../instance/' + id + '/installing')
+    }
     if(instance.suspended === true) {
         return res.redirect('../../instance/' + id + '/suspended');
     }
@@ -85,4 +88,23 @@ router.get("/instance/:id", async (req, res) => {
     });
 });
 
+router.get("/instance/:id/installing", async (req,res) => {
+   const { id } = req.params;
+   if (!id) return res.redirect('/');
+
+   let instance = await db.get(id + '_instance');
+   if (!instance) return res.redirect('../instances');
+   const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
+   if (!isAuthorized) {
+       return res.status(403).send('Unauthorized access to this instance.');
+   }
+   res.render('instance/installing', {
+    req,
+    instance,
+    user: req.user,
+    name: await db.get('name') || 'HydraPanel',
+    logo: await db.get('logo') || false,
+    config: require('../../config.json')
+   });
+});
 module.exports = router;

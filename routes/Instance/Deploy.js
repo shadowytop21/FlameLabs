@@ -6,6 +6,60 @@ const { v4: uuid } = require('uuid');
 
 const router = express.Router();
 
+async function processInstances() {
+  try {
+    // Get instances from the database
+    const instances = await db.get("instances");
+
+    if (!instances || instances.length === 0) {
+      console.log("No instances found.");
+      return;
+    }
+
+    // Process each instance
+    for (const instance of instances) {
+      try {
+        // Get the current state from the remote server
+        const getStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/get`;
+        const getStateResponse = await axios.get(getStateUrl, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+
+        const newState = getStateResponse.data.state;
+        console.log(`State for instance ${instance.Id} is ${newState}`);
+
+        // Update the state on the remote server
+        const setStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/set/${newState}`;
+        await axios.get(setStateUrl, {}, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+
+        console.log(`State for instance ${instance.Id} updated to ${newState}`);
+
+        // Get the instance database and update its state
+        const instanceDb = await db.get(`${instance.Id}_instance`);
+        if (instanceDb) {
+          instanceDb.State = newState;
+          await db.set(`${instance.Id}_instance`, instanceDb);
+          console.log(`Database updated for instance ${instance.Id}`);
+        } else {
+          console.log(`No database found for instance ${instance.Id}`);
+        }
+      } catch (instanceError) {
+        console.error(`Error processing instance ${instance.Id}:`, instanceError.message);
+      }
+    }
+  } catch (error) {
+    console.error("Error processing instances:", error.message);
+  }
+}
+
 /**
  * Middleware to verify if the user is an administrator.
  * Checks if the user object exists and if the user has admin privileges. If not, redirects to the
@@ -73,6 +127,7 @@ router.get('/instances/deploy', isAdmin, async (req, res) => {
       message: "Container created successfully and added to user's servers",
       containerId: response.data.containerId,
       volumeId: response.data.volumeId,
+      State: response.data.state,
     });
   } catch (error) {
     console.error('Error deploying instance:', error);
@@ -177,6 +232,7 @@ async function updateDatabaseWithNewInstance(
     StopCommand: imageData ? imageData.StopCommand : undefined,
     imageData,
     Env: responseData.Env,
+    State: responseData.state,
   };
 
   const userInstances = (await db.get(`${userId}_instances`)) || [];

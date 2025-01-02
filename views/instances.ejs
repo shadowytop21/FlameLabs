@@ -44,7 +44,129 @@
   <div class="col-span-2">IP Address</div>
 </div>
 
-      
+<script>
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+
+  function updateRamUsage(stats, instanceId) {
+    const ramStatsUsage = stats.memory_stats.usage || 0;
+    const ramStatsLimit = stats.memory_stats.limit || 0;
+
+    const ramUsageRaw = ramStatsUsage / 1024 / 1024 || 0;
+    const ramLimitRaw = ramStatsLimit / 1024 / 1024 || 0;
+    const ramUsagePercent = (ramLimitRaw > 0) ? ((ramUsageRaw / ramLimitRaw) * 100).toFixed(2) : '0.00';
+    
+    // Update the specific instance's RAM usage
+    document.getElementById(`ramUsage_${instanceId}`).style.width = `${ramUsagePercent}%`;
+    document.getElementById(`ramUsagetext_${instanceId}`).textContent = `${ramUsagePercent}%`;
+  }
+
+  function updateCpuUsage(stats, instanceId) {
+    const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+    const systemCpuDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+    let cpuUsagePercent = ((cpuDelta / systemCpuDelta) * 100).toFixed(2);
+
+    if (isNaN(cpuUsagePercent)) {
+      cpuUsagePercent = 0;
+    }
+
+    // Update the specific instance's CPU usage
+    document.getElementById(`cpuUsage_${instanceId}`).style.width = `${cpuUsagePercent}%`;
+    document.getElementById(`cpuUsagetext_${instanceId}`).textContent = `${cpuUsagePercent}%`;
+  }
+
+  function updateStatus(stats, instanceId) {
+    const statusElement = document.getElementById(`status_${instanceId}`);
+    const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+    const ramUsageRaw = stats.memory_stats.usage / 1024 / 1024 || 0;
+    
+    // Set the status based on RAM usage
+    if (ramUsageRaw > 1) {
+      statusElement.textContent = 'Online';
+      statusElement.className = 'text-emerald-500';
+      statusElementtext.className = 'size-2 rounded-full bg-emerald-500 mr-2';
+    } else {
+      statusElement.textContent = 'Offline';
+      statusElement.className = 'text-red-500';
+      statusElementtext.className = 'size-2 rounded-full bg-red-500 mr-2';
+    }
+  }
+  function executenodedown(instanceId) {
+    const statusElement = document.getElementById(`status_${instanceId}`);
+    const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+    statusElement.textContent = 'Node Offline';
+    statusElement.className = 'text-red-500';
+    statusElementtext.className = 'size-2 rounded-full bg-red-500 mr-2';
+  }
+
+  function executecontainernotfound(instanceId) {
+    const statusElement = document.getElementById(`status_${instanceId}`);
+    const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+    statusElement.textContent = 'Container not found';
+    statusElement.className = 'text-yellow-500';
+    statusElementtext.className = 'size-2 rounded-full bg-yellow-500 mr-2';
+  }
+  function isValidJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  function initStatsWebSocket(instanceId) {
+      const statsWs = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}/stats/${instanceId}`);
+      statsWs.onmessage = event => {
+          // Check if the event.data contains the specific string
+          if (event.data.includes("The HydraDaemon instance appears to be down. Retrying...")) {
+              console.warn('HydraDaemon instance appears to be down. Executing node down handler...');
+              executenodedown(instanceId);
+              return; // Exit early since no further processing is needed for this message
+          }
+  
+           // Check if the event.data contains the specific string
+           if (event.data.includes("Container not found")) {
+              executecontainernotfound(instanceId);
+              return; // Exit early since no further processing is needed for this message
+          }
+          // Check if the data is valid JSON and process it
+          if (isValidJson(event.data)) {
+              const stats = JSON.parse(event.data);
+              if (stats.error) {
+                  console.error('Error fetching stats:', stats.error);
+                  return;
+              }
+  
+              updateRamUsage(stats, instanceId);
+              updateCpuUsage(stats, instanceId);
+              updateStatus(stats, instanceId);
+          } else {
+              console.log('Received non-JSON data:', event.data);
+          }
+      };            
+      statsWs.onerror = error => {
+          console.error('WebSocket error:', error);
+      };
+  
+      statsWs.onclose = () => {
+          console.log('WebSocket closed for instance:', instanceId);
+      };
+
+    statsWs.onclose = () => {
+        console.log(`WebSocket Stats connection for instance ${instanceId} closed, attempting to reconnect...`);
+        setTimeout(() => initStatsWebSocket(instanceId), 3000);
+    };
+  }
+</script>
+<script>
+  function InstallingState(instanceId) {
+   const statusElement = document.getElementById(`status_${instanceId}`);
+   const statusElementtext = document.getElementById(`status-color_${instanceId}`);
+   statusElement.textContent = 'Installing';
+   statusElement.className = 'text-green-500';
+   statusElementtext.className = 'size-2 rounded-full bg-emerald-500 mr-2';
+  }
+</script>
         <!-- Instances Section -->
         <div>
           <% if (instances.length === 0) { %>
