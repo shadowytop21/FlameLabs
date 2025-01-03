@@ -360,7 +360,12 @@ const eulaPopupHTML = `
                                            command: '<%= instance.imageData.StopCommand %>' || 'stop',
                                            containerId: instanceId // Replace with your actual instanceId variable
                                        }));
-                                   } else {
+                                   } else if (action === 'restart') {
+                                       ws.send(JSON.stringify({
+                                           event: `power:restart`,
+                                           containerId: instanceId // Replace with your actual instanceId variable
+                                       }));
+                                   } {
                                        ws.send(JSON.stringify({
                                            event: `power:${action}`,
                                            containerId: instanceId
@@ -494,13 +499,11 @@ const eulaPopupHTML = `
             ws.onmessage = handleWebSocketMessage;
             ws.onclose = () => {
                 console.log('WebSocket connection closed, attempting to reconnect...');
-                showAlert('error', 'Connection Lost', 'Unable to Connect to WebSocket Please check your internet')
                 setTimeout(initWebSocket, 1);
             };
             ws.onerror = (error) => {
                 console.log('WebSocket encountered an error:', error, 'Attempting to reconnect...');
-                showAlert('error', 'Connection Lost', 'Unable to Connect to WebSocket Please check your internet')
-                setTimeout(initWebSocket, 5000);
+                setTimeout(initWebSocket, 1);
             };
         }
         

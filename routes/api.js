@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const WebSocket = require('ws');
 const axios = require('axios');
 const { v4: uuid } = require('uuid');
 const { sendPasswordResetEmail } = require('../handlers/email.js');
@@ -77,7 +78,7 @@ router.post('/api/getUser', validateApiKey, async (req, res) => {
 
 router.get('/api/auth/create-user', validateApiKey, async (req, res) => {
   try {
-    let { username, email, password, userId, admin } = req.query;  // Use 'let' instead of 'const'
+    let { username, email, password, userId, admin } = req.query; 
 
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Username and password are required' });
@@ -151,6 +152,40 @@ router.get('/api/instances', validateApiKey, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve instances' });
   }
+});
+
+router.ws("/api/instance/console/:id", async (ws, req) => {
+  if (!req.user) return ws.close(1008, "Authorization required");
+
+  const { id } = req.params;
+  const instance = await db.get(id + '_instance');
+
+  if (!instance || !id) return ws.close(1008, "Invalid instance or ID");
+
+  const node = instance.Node;
+  const socket = new WebSocket(`ws://${node.address}:${node.port}/exec/${instance.ContainerId}`);
+
+  socket.onopen = () => {
+      socket.send(JSON.stringify({ "event": "auth", "args": [node.apiKey] }));
+  };
+
+  socket.onmessage = msg => {
+      ws.send(msg.data);
+  };
+
+  socket.onerror = (error) => {
+      ws.send('\x1b[31;1mHydraDaemon instance appears to be down')
+  };
+
+  socket.onclose = (event) => {};
+
+  ws.onmessage = msg => {
+      socket.send(msg.data);
+  };
+
+  ws.on('close', () => {
+      socket.close(); 
+  });
 });
 
 router.post('/api/instances/deploy', validateApiKey, async (req, res) => {
