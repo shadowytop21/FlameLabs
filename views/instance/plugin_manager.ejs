@@ -1,6 +1,5 @@
 
 <%- include('../components/template') %>
-<br>
 <style>
   .select-all-checkbox {
       display: flex;
@@ -503,38 +502,36 @@
                          
         </div>
         
-      <script>
-        // Function to open the modal
-function installPlugin(event, url) {
-    // Prevent any default action (e.g., form submission or redirect)
-    event.preventDefault();
-        
-    const redirectUrl = `/instance/<%= req.params.id %>/plugins/download?downloadUrl=${url}`;
-    
-    // Redirect to the plugin download page
-    window.location.href = redirectUrl;
-}
-
-// Function to close the modal
-function closeModal() {
-    const modal = document.getElementById('pluginInstall');
-    modal.classList.add('opacity-0', 'pointer-events-none');
-    modal.classList.remove('opacity-100', 'pointer-events-auto');
-}
-
-// Function to handle redirection with the selected Minecraft version
-function redirectUrlPlugin(id, version) {
-    // The URL format as requested
-    const pluginId = id;
-    const redirectUrl = `/instance/<%= req.params.id %>/plugins/download/${pluginId}/${version}`;
-    
-    // Redirect to the plugin download page
-    window.location.href = redirectUrl;
-}
-
-      </script>
-        
         <script>
+          // Function to open the modal
+          function installPlugin(event, url, plugin_name) {
+            // Prevent any default action (e.g., form submission or redirect)
+            event.preventDefault();
+        
+            const redirectUrl = `/instance/<%= req.params.id %>/plugins/download?downloadUrl=${url}&plugin_name=${plugin_name}`;
+        
+            // Redirect to the plugin download page
+            window.location.href = redirectUrl;
+          }
+        
+          // Function to close the modal
+          function closeModal() {
+            const modal = document.getElementById('pluginInstall');
+            if (modal) {
+              modal.classList.add('opacity-0', 'pointer-events-none');
+              modal.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+          }
+        
+          // Function to handle redirection with the selected Minecraft version
+          function redirectUrlPlugin(id, version) {
+            const pluginId = id;
+            const redirectUrl = `/instance/<%= req.params.id %>/plugins/download/${pluginId}/${version}`;
+        
+            // Redirect to the plugin download page
+            window.location.href = redirectUrl;
+          }
+        
           const API_URL = "https://api.spiget.org/v2/resources/free";
           const ITEMS_PER_PAGE = 50;
           let currentPage = 1;
@@ -567,7 +564,7 @@ function redirectUrlPlugin(id, version) {
               allPlugins = [...allPlugins, ...plugins]; // Add fetched plugins to the global list
               renderPlugins(allPlugins);
         
-              if (plugins.length < ITEMS_PER_PAGE) {
+              if (plugins.length < ITEMS_PER_PAGE && loadMoreButton) {
                 loadMoreButton.style.display = "none";
               }
             } catch (error) {
@@ -580,7 +577,9 @@ function redirectUrlPlugin(id, version) {
         
           function renderPlugins(plugins) {
             const container = document.getElementById("pluginContainer");
-            container.innerHTML = ""; // Clear container
+            if (container) {
+              container.innerHTML = ""; // Clear container
+            }
         
             plugins.forEach(plugin => {
               const pluginDiv = document.createElement("div");
@@ -600,42 +599,69 @@ function redirectUrlPlugin(id, version) {
                 "duration-150"
               );
         
-              pluginDiv.innerHTML = `
-                <div class="lg:flex lg:items-center lg:justify-between bg-[#171717] p-6 rounded-lg">
-                  <div class="min-w-0 flex-1">
-                    <h2 class="text-md font-medium text-white tracking-tight">
-                      <img src="data:image/jpeg;base64,${plugin.icon.data}" alt="${plugin.name} Logo" class="w-12 h-12 rounded-lg inline-block mr-2">
-                      ${plugin.name}
-                    </h2>
-                    <p class="text-sm text-gray-300 mt-1 break-words">
-                      ⭐ ${plugin.rating.average} stars rating
-                    </p>
-                    <div class="flex items-center justify-center mt-2">
-                      <span class="text-xs font-semibold text-gray-300 break-words">${plugin.downloads.toLocaleString()} downloads</span>
+              const content = plugin.file.externalUrl
+                ? `
+                  <div class="lg:flex lg:items-center lg:justify-between bg-[#171717] p-6 rounded-lg">
+                    <div class="min-w-0 flex-1">
+                      <h2 class="text-md font-medium text-white tracking-tight">
+                        <img src="data:image/jpeg;base64,${plugin.icon.data}" alt="${plugin.name} Logo" class="w-12 h-12 rounded-lg inline-block mr-2">
+                        ${plugin.name}
+                      </h2>
+                      <p class="text-sm text-gray-300 mt-1 break-words">
+                        ⭐ ${plugin.rating.average} stars rating
+                      </p>
+                      <div class="flex items-center justify-center mt-2">
+                        <span class="text-xs font-semibold text-gray-300 break-words">${plugin.downloads.toLocaleString()} downloads</span>
+                      </div>
+                      <div class="mt-4 flex space-x-4">
+                        <button onclick="window.location.href='${plugin.externalUrl}'" class="px-full py-full bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition">
+                          Download via External
+                        </button>
+                        <a href="https://spigotmc.org/resources/${plugin.id}" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition" target="_blank">
+                          Visit Plugin
+                        </a>
+                      </div>
                     </div>
-                    <div class="mt-4 flex space-x-4">
-                      <button onclick="installPlugin(event, 'https://api.spiget.org/v2/resources/${plugin.id}/download')" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition">
-                        Download
-                      </button>
-                      <a href="https://spigotmc.org/resources/${plugin.id}" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition" target="_blank">
-                        Visit Plugin
-                      </a>
+                  </div>`
+                : `
+                  <div class="lg:flex lg:items-center lg:justify-between bg-[#171717] p-6 rounded-lg">
+                    <div class="min-w-0 flex-1">
+                      <h2 class="text-md font-medium text-white tracking-tight">
+                        <img src="data:image/jpeg;base64,${plugin.icon.data}" alt="${plugin.name} Logo" class="w-12 h-12 rounded-lg inline-block mr-2">
+                        ${plugin.name}
+                      </h2>
+                      <p class="text-sm text-gray-300 mt-1 break-words">
+                        ⭐ ${plugin.rating.average} stars rating
+                      </p>
+                      <div class="flex items-center justify-center mt-2">
+                        <span class="text-xs font-semibold text-gray-300 break-words">${plugin.downloads.toLocaleString()} downloads</span>
+                      </div>
+                      <div class="mt-4 flex space-x-4">
+                        <button onclick="installPlugin(event, 'https://api.spiget.org/v2/resources/${plugin.id}/download', '${plugin.name}')" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition">
+                          Download
+                        </button>
+                        <a href="https://spigotmc.org/resources/${plugin.id}" class="px-5 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-300 transition" target="_blank">
+                          Visit Plugin
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                </div>`;
-              container.appendChild(pluginDiv);
+                  </div>`;
+        
+              pluginDiv.innerHTML = content;
+              if (container) {
+                container.appendChild(pluginDiv);
+              }
             });
           }
         
           function searchPlugins() {
-            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const searchInput = document.getElementById("searchInput")?.value.toLowerCase() || "";
             const filteredPlugins = allPlugins.filter(plugin => plugin.name.toLowerCase().includes(searchInput));
             renderPlugins(filteredPlugins);
           }
         
-          document.getElementById("searchInput").addEventListener("input", searchPlugins); // Listen for typing
-        
-          document.getElementById("loadMore").addEventListener("click", () => {
+          document.getElementById("searchInput")?.addEventListener("input", searchPlugins);
+          document.getElementById("loadMore")?.addEventListener("click", () => {
             currentPage++;
             fetchPlugins(currentPage);
           });
