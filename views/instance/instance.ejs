@@ -288,7 +288,57 @@ const eulaPopupHTML = `
                                 </div>
                             </div>
                             <br>
-                            <% if (instance.Image == "ghcr.io/hydren-dev/yolks:java") { %>
+                            <% if (instance.Image == "ghcr.io/hydren-dev/yolks:minecraft_java_21") { %>
+                                <div class="card bg-white/5 rounded-xl p-6">
+                                    <input type="text" id="playername" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Player Name" required>
+                                
+                                    <div class="flex flex-col space-y-2">
+                                        <button onclick="playeraction('ban')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Ban
+                                        </button>
+                                        <button onclick="playeraction('unban')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            UnBan
+                                        </button>
+                                        <button onclick="playeraction('kick')" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Kick
+                                        </button>
+                                        <button onclick="playeraction('op')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Op
+                                        </button>
+                                        <button onclick="playeraction('deop')" class="bg-red-400 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Deop
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="card bg-white/5 rounded-xl p-6">                                
+                                    <div class="flex flex-col space-y-2">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h2 class="text-lg font-semibold text-white" id="server-name-card">Server Properties</h2>
+                                        </div>
+                                        
+                                        <!-- Warning Message -->
+                                        <div class="bg-yellow-500 text-black p-3 rounded-lg border border-yellow-600 mb-4">
+                                            <p class="text-sm">
+                                                <strong>Warning:</strong> This will Resetting the <code>server.properties</code> file will revert all custom configurations to default. Please ensure you have backed up any important settings before proceeding.
+                                            </p>
+                                        </div>
+                                        
+                                        <button onclick="enableCrack()" class="bg-emerald-400 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm transition hover:scale-95">
+                                            Enable Cracked
+                                        </button>
+                                        <script>
+                                            function enableCrack() {
+                                                const id = "<%= req.params.id %>"
+                                                showAlert('success', 'Enabled Cracked', 'You have successfully enabled the cracked feature. Please restart or start your server to take effect.');
+                                                setTimeout(() => {
+                                                     window.location.href = `/instance/${id}/imagefeatures/cracked`;
+                                                     }, 1700);
+                                              }
+                                        </script>
+                                    </div>
+                                </div>
+                            <% } else if (instance.Image == "ghcr.io/hydren-dev/yolks:java") { %>
                                 <div class="card bg-white/5 rounded-xl p-6">
                                     <input type="text" id="playername" class="w-full p-2 mb-4 bg-white/5 border border-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-white/5 text-white rounded-lg" placeholder="Player Name" required>
                                 
