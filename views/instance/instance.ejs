@@ -586,7 +586,9 @@ const eulaPopupHTML = `
                    showEulaPopup();
                }
 
-        
+               if (trimmedLine.includes("Container not found")) {
+                 window.location.href = '/instances?err=CONTAINER_NOT_FOUND'
+               } 
                 let alertShown = false; // Flag to track if the alert has been shown
                
                if (trimmedLine.includes("HydraDaemon instance appears to be down")) {
@@ -599,7 +601,6 @@ const eulaPopupHTML = `
                   console.log('Node Connection Success!')
                }
 
-              
 
         
                 isFirstLine = false;

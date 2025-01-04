@@ -69,7 +69,7 @@ router.get("/instance/:id/archives", async (req, res) => {
             } catch (error) {
                 const errorMessage = error.response?.data?.message || 'Connection to node failed.';
                 console.error('Error fetching archives from node:', errorMessage);
-                res.status(500).send({ message: errorMessage });
+                return res.status(500).send({ message: errorMessage });
             }
         } else {
             res.status(500).send('Invalid instance node configuration');
@@ -230,7 +230,9 @@ router.post('/instance/:id/archives/rollback/:archivename', async (req, res) => 
     if (response.status === 200) {
         res.redirect('/instance/' + id + '/archives');
     } else {
-        res.status(500).send('Failed to create archive');
+        if (response.data.error) {
+            res.status(500).json({ error: response.data.error })
+        }
     }
 
 });

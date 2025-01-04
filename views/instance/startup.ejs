@@ -136,17 +136,16 @@
 </div>
 
 <!-- Edit Variable Modal (Moved outside the loop) -->
-<div id="edit-variable-modal" class="modal-overlay z-50">
-    <div class="modal-content w-full max-w-md">
-        <h3 class="text-xl font-semibold mb-4" id="modal-title">Edit Variable</h3>
-        <input type="text" id="variable-value" class="w-full p-2 mb-4 bg-white/5 border-none outline-none ring-none transition focus:ring-2 focus:ring-indigo-500 text-white rounded" placeholder="Variable Value">
-        <div class="flex justify-end">
-            <button onclick="closeModal('edit-variable-modal')" class="bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-full hover:scale-95 transition mr-2">Cancel</button>
+<div id="edit-variable-modal" class="modal-overlay z-50 flex items-center justify-center min-h-screen">
+    <div class="bg-[#1b1d21] rounded-2xl modal-content w-full max-w-md p-6">
+        <h3 class="text-xl font-semibold mb-4 text-center" id="modal-title">Edit Variable</h3>
+        <input type="text" id="variable-value" class="w-64 p-2 mb-4 bg-white/5 border-none outline-none ring-none transition focus:ring-2 focus:ring-indigo-500 text-white rounded mx-auto block" placeholder="Variable Value">
+        <div class="flex justify-center gap-4 p-4">
+            <button onclick="closeModal('edit-variable-modal')" class="bg-neutral-600 hover:bg-neutral-700 text-white font-medium py-2 px-4 rounded-full hover:scale-95 transition">Cancel</button>
             <button id="save-variable" class="bg-indigo-500 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-full hover:scale-95 transition">Save Changes</button>
         </div>
     </div>
 </div>
-
 <!-- Confirmation Modal -->
 <div id="confirmation-modal" class="fixed inset-0 bg-black z-50 bg-opacity-50 flex items-center justify-center hidden">
 <div class="bg-[#1a1c20] backdrop-blur rounded-xl p-6 max-w-md w-full">
