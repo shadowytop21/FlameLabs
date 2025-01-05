@@ -19,8 +19,8 @@ router.post("/instance/:id/power", async (req, res) => {
     }
 
     if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
-    }
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     try {
         const response = await fetch(`http://${instance.Node.address}:${instance.Node.port}/instances/${instance.ContainerId}/stop`, {

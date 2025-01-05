@@ -65,8 +65,8 @@ router.get("/instance/:id", async (req, res) => {
         return res.redirect('../../instance/' + id + '/installing')
     }
     if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
-    }
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     const config = require('../../config.json');
     const { port, domain } = config;
@@ -99,6 +99,7 @@ router.get("/instance/:id/installing", async (req,res) => {
    if (!isAuthorized) {
        return res.status(403).send('Unauthorized access to this instance.');
    }
+   await checkState(id);
    res.render('instance/installing', {
     req,
     instance,
@@ -123,13 +124,64 @@ router.get("/instance/:id/installing/status", async (req, res) => {
        return res.status(403).send('Unauthorized access to this instance.');
    }
     
-    const getStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/get`;
-    const getStateResponse = await axios.get(getStateUrl, {
-           auth: {
-             username: "Skyport",
-             password: instance.Node.apiKey,
-          },
-      });
-     res.status(200).json({ state: getStateResponse.data.state })
+    await checkState(id);
+     
+     res.status(200).json({ state: instance.State })
 });
+
+async function checkState(instanceId) {
+    try {
+      // Get the specific instance from the "instances" database
+      const instance = await db.get(`${instanceId}_instance`);
+  
+      if (!instance) {
+        return ("Instance not found.");
+      }
+  
+      try {
+        // Fetch the current state from the remote server
+        const getStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/get`;
+        const getStateResponse = await axios.get(getStateUrl, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+  
+        const newState = getStateResponse.data.state;
+  
+        // Update the state on the remote server
+        const setStateUrl = `http://${instance.Node.address}:${instance.Node.port}/instances/${instance.Id}/states/set/${newState}`;
+        await axios.get(setStateUrl, {
+          auth: {
+            username: "Skyport",
+            password: instance.Node.apiKey,
+          },
+        });
+  
+        // Update the instance state locally
+        instance.State = newState;
+  
+        // Get the instance-specific database and ensure it has the "State" property
+        const instanceDbKey = `${instanceId}_instance`; // Define the key for instance-specific database
+        let instanceDb = await db.get(instanceDbKey);
+  
+        if (!instanceDb) {
+          instanceDb = {};
+        }
+  
+        instanceDb.State = newState;
+  
+        // Save the updated instance-specific database
+        await db.set(instanceDbKey, instanceDb);
+  
+      } catch (instanceError) {
+        console.error(`Error processing instance ${instance.Id}:`, instanceError.message);
+      }
+    } catch (error) {
+      console.error("Error processing instances:", error.message);
+    }
+  }
+  
+
 module.exports = router;

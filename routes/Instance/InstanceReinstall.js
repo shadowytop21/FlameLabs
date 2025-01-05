@@ -37,9 +37,8 @@ router.post('/instance/reinstall/:id', async (req, res) => {
         }
     
         if(instance.suspended === true) {
-            return res.redirect('../../instance/' + id + '/suspended');
-        }
-
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
         const { Node: node, imageData, Memory: memory, Cpu: cpu, Ports: ports, Name: name, User: user, Primary: primary, ContainerId: containerId, Env } = instance;
         const nodeId = node.id;
 

@@ -38,8 +38,8 @@ router.post("/instance/:id/files/upload", upload.array('files'), async (req, res
     }
 
     if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
-    }
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     const apiUrl = `http://${instance.Node.address}:${instance.Node.port}/fs/${instance.VolumeId}/files/upload?path=${encodeURIComponent(subPath)}`;
     const formData = new FormData();

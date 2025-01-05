@@ -39,8 +39,8 @@ router.get("/instance/:id/settings", async (req, res) => {
     }
 
     if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
-    }
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     const allPluginData = Object.values(plugins).map(plugin => plugin.config);
     res.render('instance/settings', {

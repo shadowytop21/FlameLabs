@@ -21,6 +21,9 @@ router.get('/instance/:id/users', async (req, res) => {
             return res.status(403).send('Unauthorized access to this instance.');
         }
 
+        if(instance.suspended === true) {
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
         let users = await db.get('users') || [];
         users = users.filter(user => user && user.accessTo && user.accessTo.includes(instance.Id))
         const allPluginData = Object.values(plugins).map(plugin => plugin.config);
@@ -59,6 +62,9 @@ router.post('/instance/:id/users/add', async (req, res) => {
         if (!user.accessTo.includes(id)) {
             user.accessTo.push(id);
         }
+        if(instance.suspended === true) {
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
         await db.set('users', usersData);
         return res.redirect('/instance/' + id + '/users');
     } catch (error) {
@@ -83,6 +89,9 @@ router.get('/instance/:id/users/remove/:username', async (req, res) => {
         }
         user.accessTo = user.accessTo.filter(accessId => accessId !== id);
 
+        if(instance.suspended === true) {
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
         await db.set('users', usersData);
 
         return res.redirect(`/instance/${id}/users`);

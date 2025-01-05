@@ -4,7 +4,7 @@
     <div class="bg-transparent">
         <div class="sm:flex sm:items-center px-8 pt-4">
            <div class="sm:flex-auto">
-             <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.images %></h1>
+             <h1 class="text-base font-medium leading-6 text-white mb-4 heavy"><%= req.translations.users %></h1>
            </div>
          </div>
          <% if (req.query.err=="none" ) { %>
@@ -13,7 +13,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
               <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
             </svg>
-            Action completed - Image Have Been Created Successfully. 
+            Action completed - User Have Been Created Successfully. 
             </span>
             </div>          
           <% } %>
@@ -23,7 +23,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-0.5 text-indigo-300 rounded-full shadow-sm bg-indigo-500/15 p-1.5 mr-2.5 inline-flex">
             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
           </svg>
-          Action completed - Image Have Been Edited Successfully. 
+          Action completed - User Have Been Edited Successfully. 
           </span>
           </div> 
         <% } %>
@@ -31,20 +31,19 @@
             <div class="px-6 py-3 mt-6 grid grid-cols-12 gap-4 flex flex-col items-center text-sm font-medium text-white/50" id="nodeTable">
                 <div class="col-span-2"><%= req.translations.name %></div>
                 <div class="col-span-2"><%= req.translations.email %></div>
-                <div class="col-span-2"><%= req.translations.information %></div>
-                <div class="col-span-2"><%= req.translations.role %></div>
+                <div class="md:grid hidden col-span-2"><%= req.translations.role %></div>
                 <div class="col-span-2"><%= req.translations.actions %></div>
                 <div class="flex items-center gap-3">
-                  <% if (req.user.admin === true) { %>
-                    <button id="createButton" type="button" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
-                      <span>Create User</span>
-                    </button>
-                  <% } %>
                 </div>
+                <% if (req.user.admin === true) { %>
+                  <button id="createButton" type="button" class="hover:scale-95 flex items-center justify-center h-11 gap-2 px-5 text-sm font-medium text-white transition-all duration-200 rounded-full shadow bg-indigo-500 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-800 focus:ring-offset-2 ring-offset-gray-200 hover:shadow-none">
+                    <span>Create User</span>
+                  </button>
+                <% } %>
             </div>
 
             <% users.forEach(function(user) { %>
-            <div class="server-row mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+            <div class="md:grid hidden mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
                 <!-- Server Name & Node -->
                 <div class="col-span-2">
                     <div class="font-medium text-white"><%= user.username %></div>
@@ -52,24 +51,13 @@
 
                 <!-- Status -->
                 <div class="col-span-2">
-                    <div class="inline-flex items-center px-7 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                    <div class="inline-flex items-center px-5 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
                         <div class="flex items-center space-x-2">
                             <span class="text-zinc-300 text-sm"><%= user.email %></span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Docker Image -->
-                <div class="col-span-2 px-full">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs bg-zinc-500/20 text-white px-2 py-1 rounded shadow-sm">
-                            <code class="font-mono">
-                              <%= user.userId %>
-                            </code>
-                        </span>
-                    </div>
-                </div>
-
+<br>
                 <div class="col-span-2">
                   <% if (user.admin==true) { %>
                   <div class="font-medium text-white">Admin</div>
@@ -82,6 +70,44 @@
 
                 <a class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" id="removeButton">Remove</a>
             </div>
+            <!--Mobile Users-->
+            <div class="md:hidden grid mb-4 bg-white/5 rounded-2xl hover:bg-white/10 border-2 border-dashed border-transparent hover:border-white/5 transition px-6 py-4 grid grid-cols-12 gap-4 items-center cursor-pointer">
+              <!-- Server Name & Node -->
+              <div class="col-span-2">
+                  <div class="font-medium text-white"><%= user.username %></div>
+              </div>
+
+              <!-- Status -->
+              <div class="col-span-2">
+                  <div class="inline-flex items-center px-5 py-1 rounded-full text-xs font-medium bg-zinc-500/20 text-zinc-300">
+                      <div class="flex items-center space-x-2">
+                          <span class="text-zinc-300 text-sm"><%= user.email %></span>
+                      </div>
+                  </div>
+              </div>
+              <br>
+             <!-- Remove, Edit Button -->
+<div class="flex space-x-2">
+  <!-- Edit Button -->
+  <a class="hidden md:inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" href="/admin/users/edit/<%= user.userId %>">Edit</a>
+  <a class="inline-block md:hidden text-emerald-600 hover:text-emerald-700 cursor-pointer" href="/admin/users/edit/<%= user.userId %>">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    Edit
+  </a>
+
+  <!-- Remove Button -->
+  <a class="hidden md:inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-full text-sm hover:scale-95 cursor-pointer" id="removeButton">Remove</a>
+  <a class="inline-block md:hidden text-red-600 hover:text-red-700 cursor-pointer" id="removeButton">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    Remove
+  </a>
+</div>
+
+          </div>
             <% }); %>
 
           </div>

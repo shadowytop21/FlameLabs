@@ -42,7 +42,7 @@ router.get('/instance/:id/startup', async (req, res) => {
         }
     
         if(instance.suspended === true) {
-            return res.redirect('../../instance/' + id + '/suspended');
+            return res.redirect('../../instances?err=SUSPENDED');
         }
 
         res.render('instance/startup.ejs', {

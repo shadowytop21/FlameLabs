@@ -39,8 +39,8 @@ router.get("/instance/:id/db", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
 
     if (instance.Node && instance.Node.address && instance.Node.port) {
@@ -104,8 +104,8 @@ router.post("/instance/:id/db/create/:name", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
 
     if (instance.Node && instance.Node.address && instance.Node.port) {

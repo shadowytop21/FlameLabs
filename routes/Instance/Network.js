@@ -31,11 +31,9 @@ router.get("/instance/:id/network", async (req, res) => {
         instance.suspended = false;
         db.set(id + '_instance', instance);
     }
-
     if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
-    }
-
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
     const allPluginData = Object.values(plugins).map(plugin => plugin.config);
     const ports = processPorts(instance.Ports, instance);
 

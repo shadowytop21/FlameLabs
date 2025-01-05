@@ -203,33 +203,37 @@ const eulaPopupHTML = `
                 </div>
                 
         <br>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
-                   <!-- CPU Usage Container -->
-<div id="cpuUsageContainer" class="bg-white/5 rounded-lg p-6">
-    <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.cpuUsage %></h3>
-    <div class="flex items-center">
-        <span id="cpuUsage" class="text-sm font-medium"></span>
-    </div>
-</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-<!-- Disk Usage Container -->
-<div id="diskUsageContainer" class="bg-white/5 rounded-lg p-6">
-    <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.diskUsage %></h3>
-    <div class="flex items-center">
-        <span id="diskUsage" class="text-sm font-medium"></span>
-    </div>
-</div>
-
-                    <div id="ramUsageContainer" class="bg-white/5 rounded-lg p-6">
-                        
-                        <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.ramUsage %></h3>
-                        <div class="flex items-center">
-                            <span id="ramUsage" class="text-sm font-medium"></span>
-                        </div>
-                    </div>                    
-                   
-                    </div>
+            <!-- CPU Usage Container -->
+            <div id="cpuUsageContainer" class="bg-white/5 rounded-lg p-6">
+                <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.cpuUsage %></h3>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="cpuProgressBar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%;"></div>
+                </div>
+                <span id="cpuUsage" class="text-sm font-medium mt-2 block text-center"></span>
+            </div>
+        
+            <!-- Disk Usage Container -->
+            <div id="diskUsageContainer" class="bg-white/5 rounded-lg p-6">
+                <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.diskUsage %></h3>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="diskProgressBar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%;"></div>
+                </div>
+                <span id="diskUsage" class="text-sm font-medium mt-2 block text-center"></span>
+            </div>
+        
+            <!-- RAM Usage Container -->
+            <div id="ramUsageContainer" class="bg-white/5 rounded-lg p-6">
+                <h3 class="text-sm font-semibold mb-2 text-white/60"><%= req.translations.ramUsage %></h3>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="ramProgressBar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%;"></div>
+                </div>
+                <span id="ramUsage" class="text-sm font-medium mt-2 block text-center"></span>
+            </div>
+        
+        </div>
+        
 
                     
                 </div>
@@ -582,9 +586,6 @@ const eulaPopupHTML = `
                 term.write('\n\u001b[1m\u001b[33mcontainer@hydra~ \u001b[0mServer marked as Started\r\n');
             }
 
-                if (trimmedLine.replace(/^\[\d{2}:\d{2}:\d{2} WARN\]: /, '').includes("Failed to load eula.txt")) {
-                   showEulaPopup();
-               }
 
                if (trimmedLine.includes("Container not found")) {
                  window.location.href = '/instances?err=CONTAINER_NOT_FOUND'
@@ -774,7 +775,8 @@ const eulaPopupHTML = `
 
     // Update the text content for RAM usage
     document.getElementById('ramUsage').textContent = `${ramUsagePercent}% (${formatBytes(ramStatsUsage)} / ${formatBytes(ramStatsLimit)})`;
-
+    const ramProgressBar = document.getElementById('ramProgressBar');
+    ramProgressBar.style.width = ramUsagePercent + '%';
     // Select the container div
     const ramUsageContainer = document.getElementById('ramUsageContainer');
 
@@ -798,13 +800,14 @@ function updateCpuUsage(stats) {
         cpuUsagePercent = 0;
     }
 
+    const total_cpu = '<%= instance.Cpu %>' + '00';  // Concatenate '00' to the value
     // Update CPU usage text content
-    document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}%`;
+    document.getElementById('cpuUsage').textContent = `${cpuUsagePercent}% / ${total_cpu}%`;
 
     // Select the container div for CPU usage
     const cpuUsageContainer = document.getElementById('cpuUsageContainer');
-
-    // Remove the bg-white/5 class and add bg-red-500 if CPU usage exceeds 90%
+    const cpuProgressbar = document.getElementById('cpuProgressBar');
+    cpuProgressbar.style.width = cpuUsagePercent + '%';
     if (parseFloat(cpuUsagePercent) >= 90) {
         cpuUsageContainer.classList.remove('bg-white/5');
         cpuUsageContainer.classList.add('bg-red-500');
@@ -825,7 +828,8 @@ function updateDiskUsage(stats) {
 
     // Select the container div for Disk usage
     const diskUsageContainer = document.getElementById('diskUsageContainer');
-
+    const diskProgressbar = document.getElementById('diskProgressBar');
+    diskProgressbar.style.width = diskUsagePercent + '%';
     // Remove the bg-white/5 class and add bg-red-500 if disk usage exceeds 90%
     if (parseFloat(diskUsagePercent) >= 90) {
         diskUsageContainer.classList.remove('bg-white/5');

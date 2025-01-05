@@ -29,6 +29,10 @@ router.get("/instance/:id/archives", async (req, res) => {
             return res.redirect('/instances');
         }
 
+        if(instance.suspended === true) {
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
+
         const isAuthorized = await isUserAuthorizedForContainer(req.user.userId, instance.Id);
         if (!isAuthorized) {
             return res.status(403).send('Unauthorized access to this instance.');
@@ -109,10 +113,9 @@ router.post('/instance/:id/archives/create', async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
-
     const RequestData = {
         method: 'post',
        // url: `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.ContainerId}/archives`,
@@ -160,10 +163,9 @@ router.post('/instance/:id/archives/delete/:archivename', async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
-
     const RequestData = {
         method: 'post',
        // url: `http://${instance.Node.address}:${instance.Node.port}/archive/${instance.ContainerId}/archives`,
@@ -214,7 +216,7 @@ router.post('/instance/:id/archives/rollback/:archivename', async (req, res) => 
     }
 
     if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
+         return res.redirect('../../instances?err=SUSPENDED');
     }
 
     const RequestData = {

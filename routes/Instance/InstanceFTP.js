@@ -34,10 +34,9 @@ router.get("/instance/:id/ftp", async (req, res) => {
     }
 
 
-    if(!instance.suspended) {
-        instance.suspended = false;
-        db.set(id + '_instance', instance);
-    }
+    if(instance.suspended === true) {
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     if(instance.suspended === true) {
         return res.redirect('../../instance/' + id + '/suspended');

@@ -25,8 +25,8 @@ router.post("/instance/:id/files/edit/:filename", async (req, res) => {
     }
 
     if(instance.suspended === true) {
-                return res.redirect('../../instance/' + id + '/suspended');
-    }
+        return res.redirect('../../instances?err=SUSPENDED');
+   }
 
     if (!instance.Node || !instance.Node.address || !instance.Node.port) {
         return res.status(500).send('Invalid instance node configuration');

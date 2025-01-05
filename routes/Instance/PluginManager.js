@@ -94,8 +94,8 @@ router.get("/instance/:id/plugins", async (req, res) => {
     }
 
     if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
-    }
+      return res.redirect('../../instances?err=SUSPENDED');
+ }
 
     const config = require('../../config.json');
     const { port, domain } = config;
@@ -137,10 +137,9 @@ router.get("/instance/:id/plugins/download", async (req, res) => {
     instance.suspended = false;
     db.set(id + '_instance', instance);
   }
-
-  if (instance.suspended === true) {
-    return res.redirect(`../../instance/${id}/suspended`);
-  }
+  if(instance.suspended === true) {
+    return res.redirect('../../instances?err=SUSPENDED');
+}
 
   try {
     // Remove </pre> from the downloadUrl if it exists

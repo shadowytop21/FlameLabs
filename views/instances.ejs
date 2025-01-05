@@ -159,16 +159,31 @@
       </tr>
     </thead>
     <% if (req.query.err === "CONTAINER_NOT_FOUND") { %>
-      <div class="rounded-xl bg-amber-100 dark:bg-red-800/10 px-4 py-6 m-7 mb-4">
+      <div class="rounded-xl bg-red-100 dark:bg-red-800/10 px-4 py-6 m-7 mb-4">
         <div class="flex">
           <div class="flex-shrink-0 ml-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-8 w-8 text-red-500 dark:text-red-400">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-11 w-8 text-red-500 dark:text-red-400">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
               </svg>              
           </div>
           <div class="ml-5">
             <h3 class="text-sm font-medium text-red-700 dark:text-red-400">Container not found</h3>
-            <p class="text-sm text-red-500 dark:text-red-400/50">Server not found in the node , contact an administrator if you think this is a mistake.</p>
+            <p class="text-sm text-red-500 dark:text-red-400/50">Server not found in the node , contact an administrator if you believe this is a mistake.</p>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    <% if (req.query.err === "SUSPENDED") { %>
+      <div class="rounded-xl bg-amber-100 dark:bg-amber-800/10 px-4 py-6 m-7 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0 ml-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-11 w-8 text-amber-500 dark:text-amber-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>              
+          </div>
+          <div class="ml-5">
+            <h3 class="text-sm font-medium text-amber-700 dark:text-amber-400">Server Suspended</h3>
+            <p class="text-sm text-amber-500 dark:text-amber-400/50">Server Suspended , if you think this is a mistake then contact a administrator.</p>
           </div>
         </div>
       </div>
@@ -177,9 +192,20 @@
       <% instances.forEach(instance => { %>
         <tr onclick="window.location.href = '../instance/<%= instance.Id %>';" class="hover:bg-white/10 cursor-pointer">
           <td class="py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6 server-name"><%= instance.Name %></td>
-          <td class="px-3 py-4 text-sm/1">
-            <span id="status_<%= instance.Id %>" class="inline-flex items-center px-2.5 py-0.5 text-xs font-extrabold rounded-full"></span>
-          </td>
+          <% if (instance.suspended === true) { %>
+            <td class="px-3 py-4 text-sm">
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-extrabold rounded-full bg-amber-100">
+                Suspended
+              </span>
+            </td>
+          <% } else { %>
+            <td class="px-3 py-4 text-sm">
+              <span id="status_<%= instance.Id %>" class="bg-neutral-500/10 inline-flex items-center px-2.5 py-0.5 text-xs font-extrabold rounded-full">
+              Connecting
+              </span>
+            </td>
+          <% } %>
+          
           <td class="px-3 py-4 text-sm text-neutral-300"><span id="ramUsagetext_<%= instance.Id %>" class="border border-neutral-600/20 bg-neutral-500/10 px-2 py-0.5 rounded-lg">Connecting</td>
           <td class="px-3 py-4 text-sm text-neutral-300"><span id="cpuUsagetext_<%= instance.Id %>" class="border border-neutral-600/20 bg-neutral-500/10 px-2 py-0.5 rounded-lg">Connecting</span></td>
           <td class="px-3 py-4 text-sm text-neutral-300"><span class="border border-neutral-600/20 bg-neutral-500/10 px-2 py-0.5 rounded-lg"><%= instance.Node.address %>:<%= instance.Primary %></span></td>

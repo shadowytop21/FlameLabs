@@ -260,23 +260,6 @@ class="flex items-center gap-2 px-4 py-2 text-white/70 hover:bg-white/5 transiti
   </div>
 </div>
 </aside>
-<script>
-  var options = {
-    classname: 'loadingbar',
-    id: 'loadingbar'
-  };
-  var nanobar = new Nanobar(options);
-  function simulateLoading() {
-    nanobar.go(10); // Change this value to control the loading speed
-    setTimeout(function() {
-      nanobar.go(50);
-    }, 190); // Delay the progress update
-    setTimeout(function() {
-      nanobar.go(100);
-    }, 400); // Another delay
-  }
-  simulateLoading();
-</script>
 <style>
   .loadingbar .bar {
     background: #fb923c;

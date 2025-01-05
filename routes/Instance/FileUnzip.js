@@ -32,10 +32,9 @@ router.get('/instance/:id/files/unzip/:file', async (req, res) => {
             db.set(id + '_instance', instance);
         }
  
-        if (instance.suspended === true) {
-            console.log(`Instance ${id} is suspended, redirecting to suspended page`);  // Log suspension
-            return res.redirect('../../instance/' + id + '/suspended');
-        }
+        if(instance.suspended === true) {
+            return res.redirect('../../instances?err=SUSPENDED');
+       }
  
         if (!instance || !instance.VolumeId) {
             console.error(`Instance ${id} missing VolumeId, redirecting to instances page`);  // Log missing VolumeId

@@ -27,8 +27,8 @@ router.post("/instance/:id/imagefeatures/eula", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
         createFile(instance, 'eula.txt', 'eula=true');
 
@@ -59,8 +59,8 @@ router.get("/instance/:id/imagefeatures/cracked", async (req, res) => {
         db.set(id + '_instance', instance);
     }
 
-    if(instance.suspended === true) {
-        return res.redirect('../../instance/' + id + '/suspended');
+      if(instance.suspended === true) {
+         return res.redirect('../../instances?err=SUSPENDED');
     }
     const serverport = instance.Ports.split(':')[1];
     const now = new Date();
