@@ -50,7 +50,7 @@ async function performSeeding() {
         imageData.Id = uuidv4();
 
       
-        log.init('seeding: ' + imageData.Name);
+        log.init('seeding: ' + imageData.Name + ' From: '+ url);
         imageDataArray.push(imageData);
       } catch (error) {
         log.error(`failed to fetch image data from ${url}: ${error}`);

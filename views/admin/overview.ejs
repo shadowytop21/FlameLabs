@@ -25,6 +25,9 @@
           
                   versionSpan.textContent = currentVersion;
           
+                  if (latestVersion.includes('beta')) {
+                    versionStatusSpan.textContent = 'You Running Beta Version. This Might Have bugs'
+                  };
                   if (currentVersion === latestVersion) {
                     versionStatusSpan.textContent = '<%= req.translations.runningLatestVersion %>';
                   } else {
