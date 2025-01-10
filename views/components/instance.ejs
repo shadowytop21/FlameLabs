@@ -188,7 +188,10 @@
     <a href="/instance/<%= req.params.id %>/archives" class="py-2 px-4 hover:bg-white/5">Backups</a>
     <a href="/instance/<%= req.params.id %>/network" class="py-2 px-4 hover:bg-white/5">Network</a>
     <a href="/instance/<%= req.params.id %>/startup" class="py-2 px-4 hover:bg-white/5">Settings</a>
-    <% if (instance.Image == "ghcr.io/ma4z-sys/yolks:java") { %>
+    <% if (instance.Image == "ghcr.io/ma4z-sys/yolks:minecraft_java_21") { %>
+      <a href="/instance/<%= req.params.id %>/plugins" class="py-2 px-4 hover:bg-white/5">Plugin Manager</a>
+    <% } %>
+  <% if (instance.Image == "ghcr.io/ma4z-sys/yolks:java") { %>
       <a href="/instance/<%= req.params.id %>/plugins" class="py-2 px-4 hover:bg-white/5">Plugin Manager</a>
     <% } %>
     <% addons.plugins.forEach(plugin => { %>
