@@ -115,6 +115,10 @@
                       <input id="memory" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="2048">
                   </div>
                   <div>
+                    <label class="text-white text-sm tracking-tight mb-2">Disk (GB):</label>
+                    <input id="disk" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="10">
+                </div>
+                  <div>
                       <label class="text-white text-sm tracking-tight mb-2"><%= req.translations.cpuThreads %>:</label>
                       <input id="cpu" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="1">
                   </div>
@@ -241,6 +245,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
 
   const name = document.getElementById('name');
   const memory = document.getElementById('memory');
+  const disk = document.getElementById('disk');
   const cpu = document.getElementById('cpu');
   const ports = document.getElementById('ports');
   const imageDropdown = document.getElementById('image');
@@ -303,6 +308,7 @@ document.getElementById('createNodeBtn').addEventListener('click', async functio
       nodeId: document.getElementById('node').value,
       user: document.getElementById('user').value,
       memory: memory.value,
+      disk: disk.value,
       cpu: cpu.value,
       ports: ports.value,
       primary: primaryPort.value,
