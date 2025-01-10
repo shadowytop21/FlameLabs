@@ -189,7 +189,7 @@ router.ws("/api/instance/console/:id", async (ws, req) => {
 });
 
 router.post('/api/instances/deploy', validateApiKey, async (req, res) => {
-  const { image, imagename, memory, cpu, ports, nodeId, name, user, primary, variables } =
+  const { image, imagename, memory, cpu, disk, ports, nodeId, name, user, primary, variables } =
     req.body;
 
   if (!image || !memory || !cpu || !ports || !nodeId || !name || !user || !primary) {
@@ -225,6 +225,7 @@ router.post('/api/instances/deploy', validateApiKey, async (req, res) => {
         node,
         image,
         memory,
+        disk,
         cpu,
         ports,
         primary,
@@ -529,6 +530,7 @@ async function updateDatabaseWithNewInstance(
   node,
   image,
   memory,
+  disk,
   cpu,
   ports,
   primary,
@@ -549,6 +551,7 @@ async function updateDatabaseWithNewInstance(
     ContainerId: responseData.containerId,
     VolumeId: Id,
     Memory: parseInt(memory),
+    Disk: disk,
     Cpu: parseInt(cpu),
     Ports: ports,
     Primary: primary,
