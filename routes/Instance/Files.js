@@ -2,12 +2,28 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../../handlers/db.js');
 const { isUserAuthorizedForContainer } = require('../../utils/authHelper');
-const { fetchFiles } = require('../../utils/fileHelper');
+const { fetchFiles, FetchTotalContainerDisk } = require('../../utils/fileHelper');
 
 const { loadPlugins } = require('../../plugins/loadPls.js');
 const path = require('path');
 
 const plugins = loadPlugins(path.join(__dirname, '../../plugins'));
+
+function parseDiskUsage(size) {
+    const unit = size.slice(-1); // Get the last character (M, G, etc.)
+    const value = parseFloat(size.slice(0, -1)); // Get the numerical part
+
+    if (isNaN(value)) return 0;
+
+    switch (unit.toUpperCase()) {
+        case "G":
+            return value * 1024; 
+        case "M":
+            return value; 
+        default:
+            return 0; 
+    }
+}
 
 router.get("/instance/:id/files", async (req, res) => {
     if (!req.user) return res.redirect('/');
@@ -40,8 +56,23 @@ router.get("/instance/:id/files", async (req, res) => {
 
     try {
         const files = await fetchFiles(instance, req.query.path);
+        /* Disk Usage Checkup */
+        const checkusage = await FetchTotalContainerDisk(instance);
+        const totalSpace = checkusage.totalSpace;
+        const totaldiskusage = parseDiskUsage(totalSpace);
+         // Default disk size in GB, converted to MB
+        const totalInstanceDiskGB = instance.Disk || 10; // Default to 10GB if not provided
+        const totalInstanceDiskMB = totalInstanceDiskGB * 1024; // Convert GB to MB
+        /* $DEBUG$ console.log(totalInstanceDiskMB) */
+        /* Ends here */
+        if (totaldiskusage === 0) {}
+
+        if (totaldiskusage > totalInstanceDiskMB) {
+            return res.redirect(`../../instances?err=DISKLIMITEXCEEDED`);
+        }
         res.render('instance/files', { 
             req, 
+            totaldiskusage,
             files: files, 
             user: req.user, 
             instance,
@@ -64,6 +95,7 @@ router.get("/instance/:id/files", async (req, res) => {
                 plugins: allPluginData
             }
         });
+        console.log(error)
     }
 });
 
