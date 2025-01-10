@@ -158,42 +158,42 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="nodeName" class="text-white text-sm tracking-tight mb-2"><%= req.translations.name %>:</label>
-                        <input id="nodeName" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-4 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="My node">
+                        <input id="nodeName" class="rflex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="My node">
                     </div>
     
                     <div>
                         <label for="nodeRam" class="text-white text-sm tracking-tight mb-2"><%= req.translations.ram %> (GB):</label>
-                        <input id="nodeRam" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                        <input id="nodeRam" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="10240">
                     </div>
     
                     <div>
                         <label for="nodeDisk" class="text-white text-sm tracking-tight mb-2"><%= req.translations.disk %> (GB):</label>
-                        <input id="nodeDisk" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                        <input id="nodeDisk" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="320">
                     </div>
     
                     <div>
                         <label for="nodeProcessor" class="text-white text-sm tracking-tight mb-2"><%= req.translations.cpu %>:</label>
-                        <input id="nodeProcessor" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="This is only for information purposes.">
+                        <input id="nodeProcessor" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="Ryzen 9">
                     </div>
     
                     <div>
                         <label for="nodeAddress" class="text-white text-sm tracking-tight mb-2"><%= req.translations.addressIP %>:</label>
-                        <input id="nodeAddress" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="192.168.1.1 or my.hostnamehere.com">
+                        <input id="nodeAddress" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="192.168.1.1 or my.hostnamehere.com">
                     </div>
     
                     <div>
                         <label for="nodePort" class="text-white text-sm tracking-tight mb-2"><%= req.translations.deamonPort %>:</label>
-                        <input id="nodePort" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="3000">
+                        <input id="nodePort" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="3002">
                     </div>
     
                     <div class="col-span-2">
                         <label for="tagInput" class="text-white text-sm tracking-tight mb-2"><%= req.translations.tags %>:</label>
                         <div id="tagContainer" class="flex flex-wrap gap-2 mb-2"></div>
-                        <input id="tagInput" class="rounded-xl focus:ring-transparent focus:border-transparent text-white text-sm mt-2 mb-6 w-full hover:bg-gray-700 px-4 py-2 bg-gray-700 placeholder:text-white/50 border border-white/5" placeholder="Add a tag and press Enter">
+                        <input id="tagInput" class="flex-grow p-2 w-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white rounded-lg placeholder-gray-400" placeholder="Add a tag and press Enter">
                     </div>
     
                     <div class="col-span-2">
-                        <button id="createNodeBtn" type="button" class="transition px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-lg hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-600 focus:text-white">
+                        <button id="createNodeBtn" type="button" class="w-32 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3 rounded-lg transition duration-300">
                             <%= req.translations.create %>
                         </button>
                     </div>
@@ -253,9 +253,11 @@ async function deletenode(nodeId) {
     const nodeslist = document.getElementById('nodeslist');
     if (table.style.display !== 'none') {
       table.style.display = 'none';
+      nodeslist.style.display !== 'none';
       form.style.display = 'block';
     } else {
       table.style.display = 'block';
+      nodeslist.style.display = 'none'
       form.style.display = 'none';
     }
   });

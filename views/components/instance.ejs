@@ -141,11 +141,11 @@
           <a href="/instance/<%= req.params.id %>/startup" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
             Settings
           </a>
-          <% if (instance.Image == "ghcr.io/hydren-dev/yolks:minecraft_java_21") { %>
+          <% if (instance.Image == "ghcr.io/ma4z-sys/yolks:minecraft_java_21") { %>
           <a href="/instance/<%= req.params.id %>/plugins" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
             Plugin Manager
           </a>
-          <% } else if (instance.Image == "ghcr.io/hydren-dev/yolks:java") { %>
+          <% } else if (instance.Image == "ghcr.io/ma4z-sys/yolks:java") { %>
             <a href="/instance/<%= req.params.id %>/plugins" class="srv-link group rounded-full px-4 py-1.5 text-sm text-gray-300 hover:text-indigo-300 transition-all duration-200 hover:scale-95">
               Plugin Manager
             </a>
@@ -188,7 +188,7 @@
     <a href="/instance/<%= req.params.id %>/archives" class="py-2 px-4 hover:bg-white/5">Backups</a>
     <a href="/instance/<%= req.params.id %>/network" class="py-2 px-4 hover:bg-white/5">Network</a>
     <a href="/instance/<%= req.params.id %>/startup" class="py-2 px-4 hover:bg-white/5">Settings</a>
-    <% if (instance.Image == "ghcr.io/hydren-dev/yolks:java") { %>
+    <% if (instance.Image == "ghcr.io/ma4z-sys/yolks:java") { %>
       <a href="/instance/<%= req.params.id %>/plugins" class="py-2 px-4 hover:bg-white/5">Plugin Manager</a>
     <% } %>
     <% addons.plugins.forEach(plugin => { %>

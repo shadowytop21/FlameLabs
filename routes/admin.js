@@ -875,46 +875,34 @@ async function processInstances() {
     console.error("Error processing instances:", error.message);
   }
 }
-
 router.get('/admin/instances', isAdmin, async (req, res) => {
-  let instances = await db.get('instances') || [];
-  let images = await db.get('images') || [];
-  let nodes = await db.get('nodes') || [];
-  let users = await db.get('users') || [];
+  try {
+    let instances = await db.get('instances') || [];
+    let images = await db.get('images') || [];
+    let nodes = await db.get('nodes') || [];
+    let users = await db.get('users') || [];
 
-  nodes = await Promise.all(nodes.map(id => db.get(id + '_node').then(checkNodeStatus)));
-  await processInstances();
-  res.render('admin/instances', {
-    req,
-    user: req.user,
-    name: await db.get('name') || 'HydraPanel',
-    logo: await db.get('logo') || false,
-    instances,
-    images,
-    nodes,
-    users
-  });
+    nodes = await Promise.all(
+      nodes.map(id => db.get(id + '_node').then(checkNodeStatus))
+    );
+    await processInstances();
+
+    res.render('admin/instances', {
+      req,
+      user: req.user,
+      name: await db.get('name') || 'HydraPanel',
+      logo: await db.get('logo') || false,
+      instances,
+      images,
+      nodes,
+      users
+    });
+  } catch (error) {
+    console.error('Error loading admin/instances:', error);
+    res.status(500).send('An error occurred while processing the request.');
+  }
 });
 
-router.get('/admin/new/rd', isAdmin, async (req, res) => {
-  let instances = await db.get('instances') || [];
-  let images = await db.get('images') || [];
-  let nodes = await db.get('nodes') || [];
-  let users = await db.get('users') || [];
-
-  nodes = await Promise.all(nodes.map(id => db.get(id + '_node').then(checkNodeStatus)));
-
-  res.render('admin/rd', {
-    req,
-    user: req.user,
-    name: await db.get('name') || 'HydraPanel',
-    logo: await db.get('logo') || false,
-    instances,
-    images,
-    nodes,
-    users
-  });
-});
 
 router.get('/admin/instances/:id/edit', isAdmin, async (req, res) => {
   const { id } = req.params;
