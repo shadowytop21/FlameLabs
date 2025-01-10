@@ -253,11 +253,9 @@ async function deletenode(nodeId) {
     const nodeslist = document.getElementById('nodeslist');
     if (table.style.display !== 'none') {
       table.style.display = 'none';
-      nodeslist.style.display !== 'none';
       form.style.display = 'block';
     } else {
       table.style.display = 'block';
-      nodeslist.style.display = 'none'
       form.style.display = 'none';
     }
   });
