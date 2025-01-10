@@ -11,10 +11,8 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-// https://i.imgu
 async function seed() {
   try {
-    // First check if there are any images already in the database 
     const existingImages = await db.get('images');
     if (existingImages && existingImages.length > 0) {
       rl.question('\'images\' is already set in the database. Do you want to continue seeding? (y/n) ', async (answer) => {
@@ -40,7 +38,7 @@ async function seed() {
 // r.com/uNob
 async function performSeeding() {
   try {
-    const imagesIndexResponse = await axios.get('https://raw.githubusercontent.com/hydren-dev/images_v2/refs/heads/main/seed/0.1.0-beta2.json');
+    const imagesIndexResponse = await axios.get('https://raw.githubusercontent.com/ma4z-sys/images_v2/refs/heads/main/seed/0.1.0-beta2.json');
     const imageUrls = imagesIndexResponse.data;
     let imageDataArray = [];
 
