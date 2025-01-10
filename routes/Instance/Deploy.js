@@ -82,9 +82,9 @@ function isAdmin(req, res, next) {
  * Handles the deployment of a new instance based on the parameters provided via query strings.
  */
 router.get('/instances/deploy', isAdmin, async (req, res) => {
-  const { image, imagename, memory, cpu, ports, nodeId, name, user, primary, variables } =
+  const { image, imagename, memory, disk, cpu, ports, nodeId, name, user, primary, variables } =
     req.query;
-  if (!image || !memory || !cpu || !ports || !nodeId || !name || !user || !primary) {
+  if (!image || !memory || !cpu || !disk || !ports || !nodeId || !name || !user || !primary) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
 
@@ -114,6 +114,7 @@ router.get('/instances/deploy', isAdmin, async (req, res) => {
       node,
       image,
       memory,
+      disk,
       cpu,
       ports,
       primary,
@@ -204,6 +205,7 @@ async function updateDatabaseWithNewInstance(
   node,
   image,
   memory,
+  disk,
   cpu,
   ports,
   primary,
@@ -224,6 +226,7 @@ async function updateDatabaseWithNewInstance(
     ContainerId: responseData.containerId,
     VolumeId: Id,
     Memory: parseInt(memory),
+    Disk: disk,
     Cpu: parseInt(cpu),
     Ports: ports,
     Primary: primary,
