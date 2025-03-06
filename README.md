@@ -1,12 +1,12 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/HydraLabs-beta/sedar/main/hydrapanel2.png" alt="HydraPanel Logo">
+    <img src="[https://raw.githubusercontent.com/HydraLabs-beta/sedar/main/hydrapanel2.png](https://cdn.discordapp.com/attachments/1254820693393145858/1347136049733701663/DracoPanel_logo.png?ex=67cab9b6&is=67c96836&hm=5265a5d451394c4c2ea88cdada43f0f4b37bd1cd33470bc0dc6c641771bd4d6b&)" alt="DracoPanel Logo">
 </p>
-<h2> HydraPanel is an open-source panel for managing your game servers, applications, and more built with modern technologies such as Node.js, Docker, and Express - made to work with our HydraDaemon software.</h2>
+<h2> DracoPanel is an open-source panel for managing your game servers, applications, and more built with modern technologies such as Node.js, Docker, and Express - made to work with our HydraDaemon software.</h2>
 
 ## Installation
 ### Picking a Server OS
 
-HydraPanel runs on various operating systems, so pick whichever you are most comfortable using.
+DracoPanel runs on various operating systems, so pick whichever you are most comfortable using.
 
 | Operating System | Version |     Supported      | Notes                                                       |
 |------------------|---------|:------------------:|-------------------------------------------------------------|
@@ -24,7 +24,8 @@ HydraPanel runs on various operating systems, so pick whichever you are most com
 
 * Node.js `v20` and higher (Nodejs `v20` recommended).
 
-# Installation at [Website](https://hydra.hydrenllc.us.kg)
+# Installation at [Website](https://localhost)
 # Credits
 - Skyport (EOL)
 - SRYDEN (https://sryden.com)
+- HydraPanel,hydra-labes
