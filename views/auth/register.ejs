@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="h-full">
+<html class="h-full" id="html">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,62 +7,73 @@
   <link href="../assets/tailwind.css" rel="stylesheet">
   <link rel="preconnect" href="https://cdn.fontshare.com">
   <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500,300,600,400,700&display=swap" rel="stylesheet">
+  <style>
+    .dark-mode {
+      background: #111;
+      color: white;
+    }
+    .form-container {
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      animation: slideIn 0.6s ease-in-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .input-field {
+      background: #2c2c2c;
+      border: 1px solid #444;
+      color: white;
+      transition: transform 0.2s ease-in-out;
+    }
+    .input-field:focus {
+      transform: scale(1.02);
+      border-color: #2563eb;
+    }
+    .input-field::placeholder {
+      color: #888;
+    }
+    .submit-btn {
+      background: #2563eb;
+      transition: background 0.3s, transform 0.3s ease-in-out;
+      margin-top: 15px;
+    }
+    .submit-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.1);
+    }
+    .submit-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
 </head>
-<body style="font-family: 'General Sans'" class="bg-[#141414] h-full">
-<div class="min-h-full flex">
-  <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-    <div class="mx-auto w-full max-w-sm lg:w-96">
-      <div>
-        <img class="h-12 w-auto rounded-xl" src="<%= settings.logo %>" alt="">
-        <h2 class="mt-6 text-3xl font-medium text-white">Register an account</h2>
-        <p class="mt-2 text-sm text-neutral-500">
-          Please enter your details below.
-        </p>
-      </div>
-
-      <div class="mt-8">
-        <div class="mt-6">
-          <form method="POST" action="/auth/register" class="space-y-6">
-            <div>
-              <label for="username" class="block text-sm font-medium text-neutral-400"> Username </label>
-              <div class="mt-1">
-                <input placeholder="example" id="username" name="username" autocomplete="username" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
-            </div>
-
-            <div>
-              <label for="email" class="block text-sm font-medium text-neutral-400"> Email </label>
-              <div class="mt-1">
-                <input placeholder="example@domain.com" id="email" name="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <label for="password" class="block text-sm font-medium text-neutral-400"> Password </label>
-              <div class="mt-1">
-                <input placeholder="********" id="password" name="password" type="password" autocomplete="new-password" required class="appearance-none block w-full px-3 py-2 bg-white/10 border border-transparent rounded-xl placeholder-neutral-500 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 text-white transition sm:text-sm">
-              </div>
-            </div>
-
-            <div>
-              <button type="submit" class="w-full flex transition justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500">Register</button>
-            </div>
-            
-            <% if (req.query.err && req.query.err == "InvalidCredentials") { %>
-              <div class="mt-2"></div>
-              <span class="text-amber-600 pt-4 font-normal text-sm">Invalid credentials. Please try again.</span>
-            <% } %>
-          </form>
+<body class="dark-mode h-full flex items-center justify-center">
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="form-container w-96 text-center">
+      <h2 class="text-2xl font-bold">Create an Account</h2>
+      <p class="text-gray-400 text-sm mb-4">Join us by filling in the details below.</p>
+      <form method="POST" action="/auth/register" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-300 text-left">Username</label>
+          <input placeholder="example" id="username" name="username" required class="input-field w-full px-4 py-2 rounded-lg focus:outline-none">
         </div>
-      </div>
-      <div class="mt-6 text-sm text-neutral-500">
-        Already have an account? <a href="/login" class="font-normal text-neutral-500 hover:text-white transition ">Sign in</a>
-      </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-300 text-left">Email</label>
+          <input placeholder="example@domain.com" id="email" name="email" required class="input-field w-full px-4 py-2 rounded-lg focus:outline-none">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-300 text-left">Password</label>
+          <input placeholder="********" id="password" name="password" type="password" required class="input-field w-full px-4 py-2 rounded-lg focus:outline-none">
+        </div>
+        <div>
+          <button type="submit" class="submit-btn w-full py-2 text-white font-medium rounded-lg">Register</button>
+        </div>
+      </form>
+      <p class="text-sm text-gray-400 mt-4">Already have an account? <a href="/login" class="text-blue-400">Sign in</a></p>
     </div>
   </div>
-  <div class="hidden lg:block relative w-0 flex-1">
-    <img class="absolute inset-0 h-full w-full object-cover" src="https://i.imgur.com/8G5eRWX.jpeg" alt="">
-  </div>
-</div>
 </body>
 </html>
