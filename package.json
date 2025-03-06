@@ -1,7 +1,7 @@
 {
-  "name": "HydraPanel",
-  "version": "0.2.0",
-  "description": "HydraPanel is an open source panel for managing and operating game servers and applications built using Node.js with Express and Dockerode.",
+  "name": "DracoPanel",
+  "version": "0.1.0",
+  "description": "DracoPanel is an open source panel for managing and operating game servers and applications built using Node.js with Express and Dockerode.",
   "main": "index.js",
   "bin": {
     "HydraPanel": "./exec/bin/index.js"
@@ -15,7 +15,7 @@
     "createUser": "node exec/createUser.js",
     "build:css": "npx tailwindcss -i ./public/tw.conf -o ./public/assets/tailwind.css --watch"
   },
-  "author": "HydraPanelLabs",
+  "author": "DracoLabes",
   "license": "ISC",
   "dependencies": {
     "@keyv/sqlite": "^3.6.7",
