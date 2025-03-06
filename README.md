@@ -24,7 +24,7 @@ DracoPanel runs on various operating systems, so pick whichever you are most com
 
 * Node.js `v20` and higher (Nodejs `v20` recommended).
 
-# Installation at [Website](https://localhost)
+# Installation git clone https://github.com/draco-labes/DracoPanel.git && cd oversee-fixed && npm install && npm run seed && npm run createUser && node .
 # Credits
 - Skyport (EOL)
 - SRYDEN (https://sryden.com)
