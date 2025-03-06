@@ -1,7 +1,5 @@
-<p align="center">
-    <img src="[https://raw.githubusercontent.com/HydraLabs-beta/sedar/main/hydrapanel2.png](https://cdn.discordapp.com/attachments/1254820693393145858/1347136049733701663/DracoPanel_logo.png?ex=67cab9b6&is=67c96836&hm=5265a5d451394c4c2ea88cdada43f0f4b37bd1cd33470bc0dc6c641771bd4d6b&)" alt="DracoPanel Logo">
-</p>
-<h2> DracoPanel is an open-source panel for managing your game servers, applications, and more built with modern technologies such as Node.js, Docker, and Express - made to work with our HydraDaemon software.</h2>
+
+<h2> DracoPanel is an open-source panel for managing your game servers, applications, and more built with modern technologies such as Node.js, Docker, and Express - made to work with our DracoDaemon software.</h2>
 
 ## Installation
 ### Picking a Server OS
