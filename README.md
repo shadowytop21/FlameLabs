@@ -21,10 +21,24 @@ DracoPanel runs on various operating systems, so pick whichever you are most com
 ## Dependencies
 
 * Node.js `v20` and higher (Nodejs `v20` recommended).
+* ### Installation Nodejs 20
 
-# Installation 
-### git clone https://github.com/draco-labes/DracoPanel.git && cd DracoPanel && npm install && npm run seed && npm run createUser && node .
-# Credits
+To install and start the Oversee dashboard, run the following commands:
+
+```bash
+curl -sL https://deb.nodesource.com/setup_20.x | sudo bash -
+```
+
+
+### Installation Panel
+
+To install and start the Oversee dashboard, run the following commands:
+
+```bash
+git clone https://github.com/draco-labes/oversee-fixed.git && cd oversee-fixed && npm install && npm run seed && npm run createUser && node .
+```
+
 - Skyport (EOL)
 - SRYDEN (https://sryden.com)
 - HydraPanel,hydra-labes
+- Edited by **hopingboyz**
