@@ -26,7 +26,9 @@ DracoPanel runs on various operating systems, so pick whichever you are most com
 ```bash
 curl -sL https://deb.nodesource.com/setup_20.x | sudo bash -
 ```
-
+```bash
+apt-get install nodejs -y
+```
 
 ### Installation Panel
 
